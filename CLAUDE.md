@@ -691,6 +691,14 @@ Use shadcn `Table` components. For data-heavy tables:
 - Confirm before destructive actions (delete, discard changes)
 - Scrim opacity: 40-60% for clear foreground separation
 - Always provide close/dismiss affordance
+- **Tall content rule:** Any dialog whose content can exceed the viewport
+  (provisioning forms, multi-section settings, long contact lists) MUST be
+  constrained with `max-h-[90vh]` and scroll internally with
+  `overflow-y-auto`. The default styling on `<DialogContent>` already
+  applies this — do not override it back. Never let a dialog clip off
+  screen edges or push the viewport into double-scrollbar territory.
+  Confirmation dialogs (short, fixed copy) inherit the same default
+  harmlessly because `overflow-y-auto` is a no-op when content fits.
 
 ### Routes vs Dialogs
 **Use a full page route** for drill-down views that show rich detail (e.g. `/kpi/:id` for KPI
@@ -815,6 +823,16 @@ In dark mode, sidebar goes even deeper (`#070B10`) with navy-tinted borders.
 - No vertical padding on the container (sidebar spans full viewport height edge-to-edge)
 - The rail provides the toggle affordance; the topbar trigger handles click
 
+**Adding a new page to the sidebar — categorize, don't append:**
+Every new top-level page MUST be registered in `app-sidebar.tsx`'s `NAV_ITEMS`
+under an **existing category group** (`nav.overview`, `nav.platform`, …) that
+matches the page's domain. Never tack a new item onto the end of an unrelated
+group, and never leave a new route unreachable from the sidebar. If no
+existing category fits, add a new `NavGroup` with a meaningful `groupKey`
+(and the matching i18n string) — do not invent a generic "Other" bucket.
+Also add the item's key to every persona's allowlist in `ROLE_NAV_KEYS` that
+should see it; role-level visibility is governed there, not by the route.
+
 ### Topbar
 The topbar must be `sticky top-0 z-30` so the sidebar toggle and search remain accessible
 when scrolling. Use `bg-background/95 backdrop-blur-sm` for a frosted-glass effect.
@@ -909,6 +927,133 @@ className="hover:bg-accent transition-colors cursor-pointer"
 - [ ] Screen reader announces content in correct reading direction
 - [ ] `lang` attribute set correctly on mixed-language content
 - [ ] Icon placement follows reading direction (using `ms-*` / `me-*`)
+
+---
+
+## Backend Integration
+
+The Nabadat backend is ASP.NET Core (.NET 10). The default System.Text.Json
+configuration does NOT register `JsonStringEnumConverter`, which has cascading
+implications for the frontend. Before writing any TS code that calls a `.NET`
+endpoint, run the following pre-flight checks.
+
+### 1. Enum serialization — assume integers
+Run:
+```sh
+grep -rn "JsonStringEnumConverter\|AddJsonOptions" src/
+```
+- If the converter is **not** registered globally: every .NET enum (`LifecycleState`,
+  `ContactType`, `QuotaType`, `ProvisioningOutcome`, …) arrives on the wire as an
+  **integer**, not the string name. Build normalize helpers at the api.ts response
+  boundary (`normalize<Enum>(value: T | string | number): T`) AND int-converters at
+  the request boundary. The TS types stay as string unions so the components don't
+  have to know.
+- Wire-format symmetry can be asymmetric: an endpoint may accept snake_case in the URL
+  path (`/resource-limits/max_platform_users`) while serializing the same enum as an
+  integer in JSON responses. Always read both the controller and the DTO to confirm.
+- The defensive shape on display components: never index a static map with the wire
+  value directly. Pass it through `normalize<Enum>()` first; default to the safest
+  member of the union if it doesn't match.
+
+### 2. DTO contract — read the source
+Before writing a TS interface for a request/response, read the actual C# DTO file.
+Pay attention to:
+- Field names — they camelCase on the wire, but the *base name* matters. `contactId`
+  is NOT the same as `newPrimaryContactId`. Do not guess.
+- C# record positional parameters with `[property: Required]` will throw at request
+  binding (the validator reads constructor parameters). Flag this if you see it in
+  a DTO — it is a backend bug, not a frontend issue.
+
+### 3. API-05 error envelope
+Every non-2xx response from the platform follows `{ error: { code, message, request_id, tenant_id } }`.
+The `callJson` helper in `tenants/api.ts` parses this — reuse the same pattern for any new feature.
+
+### 4. `callJson` edge cases (non-negotiable)
+A successful response is **not always JSON**. Endpoints that return `Ok()` or `NoContent()`
+send a 2xx with an empty body and no `content-type` header. The fetch helper MUST:
+- Treat 204 as `undefined`.
+- Treat 2xx with `content-length: 0` (or missing) and an empty body as `undefined`.
+- Only error out if the response is non-2xx OR the body claims JSON but fails to parse.
+
+### 5. Vite dev proxy targets HTTPS, not HTTP
+The .NET backend's `app.UseHttpsRedirection()` 307-redirects every HTTP request to
+the HTTPS port. Node's `fetch` follows the redirect, hits the self-signed dev cert,
+and throws. Configure the proxy as:
+```ts
+server: {
+  proxy: {
+    "/api": { target: "https://localhost:7002", changeOrigin: true, secure: false },
+  },
+},
+```
+Do not target `http://localhost:5209`. `secure: false` accepts the self-signed dev cert.
+
+### 6. Auth header convention
+The TenantAdmin backend's `PortalSessionAdmin` scheme reads `Authorization: Bearer <opaque session token>`.
+The login page stores it as `localStorage.session_token`; every authenticated `fetch` MUST
+send it. The `useQbsRole` hook supplies the `X-Qbs-Role` header for the role gate stub.
+
+---
+
+## Dev Environment Workflow
+
+These are mechanical steps the agent must take automatically — they are easy to forget
+and break the dev loop silently.
+
+### When creating a new top-level feature folder under `src/`
+After adding `src/<feature>/`, the Vite dev server's optimize-deps cache can fail to
+discover the new module paths and emits `Failed to resolve import "@/..."` errors for
+files that exist. **Always** restart the dev server and clear the cache:
+```powershell
+Stop-Process -Name "node" -Force   # only if you know which node is vite
+Remove-Item -Recurse -Force frontend/portal/node_modules/.vite
+cd frontend/portal; npm run dev
+```
+
+### Before `dotnet build` on the backend
+The running `Nabadat.TenantAdmin.exe` locks its own DLLs. Build fails with
+MSB3026/MSB3027 (file locked). Stop the process first:
+```powershell
+Get-Process -Name "Nabadat.TenantAdmin" -ErrorAction SilentlyContinue |
+    Stop-Process -Force
+```
+
+### Before applying control-plane migrations
+`tools/Nabadat.Migrations` is a separate project. Migration classes are discovered by
+reflecting over the *built* assembly — if you added a new `IMigration` and forgot to
+rebuild, the runner silently skips it and reports "N migrations applied" with the wrong N.
+Always `dotnet build` the tool before `dotnet run --target=control-plane`.
+
+### Library convention check before writing UI
+This repo uses **`@base-ui/react`**, not `@radix-ui`. The two libraries have a
+near-identical API surface with one crucial difference: Base UI does NOT support
+the Radix `asChild` prop. Passing `asChild` is silently ignored (React warns about
+the unknown DOM attribute), and wrapping a Base UI trigger (`PopoverTrigger`,
+`DropdownMenuTrigger`, `Dialog.Trigger`, `Tooltip.Trigger`) with a `<Button>` or
+`<button>` creates the `<button>` cannot be a descendant of `<button>` hydration
+error. Always apply styling **directly on the trigger** using `buttonVariants(...)`.
+
+```tsx
+// Wrong (Base UI)
+<PopoverTrigger asChild>
+  <Button variant="ghost" size="icon"><Bell /></Button>
+</PopoverTrigger>
+
+// Right
+<PopoverTrigger
+  className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+  aria-label="…"
+>
+  <Bell />
+</PopoverTrigger>
+```
+
+### Defensive rendering for tab-style components
+Base UI `Tabs.Panel` mounts every panel eagerly (and hides inactive ones with the
+`hidden` attribute). That means a `useState(() => obj.nested.field)` initializer in
+an inactive panel still runs on mount. Any tab/accordion/stepper that reads nested
+config MUST run that config through a `withDefaults()` shim that supplies safe
+defaults for every nested object. Never assume the backend will populate a field.
 
 ---
 
