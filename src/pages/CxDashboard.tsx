@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
 import { useDirection } from "@/hooks/use-direction"
 import { usePersona } from "@/contexts/persona-context"
 import { KpiFlipCard, type KpiMetric } from "@/components/cx/kpi-flip-card"
-import { KpiDetailModal } from "@/components/cx/kpi-detail-modal"
 import { AiChatPanel } from "@/components/cx/ai-chat-panel"
 import { SpiderChart } from "@/components/cx/spider-chart"
 import {
@@ -32,10 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
   ChartContainer,
@@ -105,25 +101,6 @@ const styles = `
 `
 
 // ─── Hooks ─────────────────────────────────────────────────
-
-function useCountUp(target: number, duration = 2000, decimals = 0): number {
-  const [count, setCount] = useState(0)
-  const raf = useRef(0)
-  const start = useRef<number | null>(null)
-  useEffect(() => {
-    start.current = null
-    const tick = (ts: number) => {
-      if (start.current === null) start.current = ts
-      const p = Math.min((ts - start.current) / duration, 1)
-      const e = 1 - Math.pow(1 - p, 4)
-      setCount(Number((e * target).toFixed(decimals)))
-      if (p < 1) raf.current = requestAnimationFrame(tick)
-    }
-    raf.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf.current)
-  }, [target, duration, decimals])
-  return count
-}
 
 // ─── Static Data (language-independent) ────────────────────
 
@@ -378,11 +355,6 @@ function FunnelAndTopics({ t }: { t: (k: string) => string }) {
 }
 
 // ─── Customer Journey Section ──────────────────────────────
-
-const JOURNEY_CONFIG = {
-  current: { label: "cx.journeyCurrent", color: "var(--chart-2)" },
-  previous: { label: "cx.journeyPrevious", color: "var(--color-nb-stone-lt)" },
-} satisfies ChartConfig
 
 function JourneySection({ t }: { t: (k: string) => string }) {
   const journeyData = [

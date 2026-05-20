@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 import { PieChart as PieChartIcon, X, TrendingUp, TrendingDown } from "lucide-react"
 import { PieChart, Pie, Cell } from "recharts"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 

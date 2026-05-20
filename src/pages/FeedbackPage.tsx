@@ -127,7 +127,7 @@ export default function FeedbackPage() {
             </div>
 
             {/* Branch dropdown */}
-            <Select value={branch} onValueChange={setBranch}>
+            <Select value={branch} onValueChange={(v) => setBranch(v ?? "all")}>
               <SelectTrigger className="w-full sm:w-44 h-9">
                 <SelectValue placeholder={t("feedback.allBranches")} />
               </SelectTrigger>
@@ -140,7 +140,7 @@ export default function FeedbackPage() {
             </Select>
 
             {/* Date range */}
-            <Select value={dateRange} onValueChange={setDateRange}>
+            <Select value={dateRange} onValueChange={(v) => setDateRange(v ?? "30")}>
               <SelectTrigger className="w-full sm:w-40 h-9">
                 <Calendar className="size-4 text-muted-foreground" />
                 <SelectValue />

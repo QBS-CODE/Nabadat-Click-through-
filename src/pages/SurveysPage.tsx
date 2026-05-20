@@ -2,9 +2,9 @@ import { useState, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useDirection } from "@/hooks/use-direction"
 import { cn } from "@/lib/utils"
-import { KpiFlipCard, perfColor, type KpiMetric } from "@/components/cx/kpi-flip-card"
+import { KpiFlipCard, type KpiMetric } from "@/components/cx/kpi-flip-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -53,7 +53,6 @@ import {
 const D1 = "#1A7A3C"
 const D2 = "#2EB85C"
 const D3 = "#E8A020"
-const D4 = "#E05C1A"
 const D5 = "#C01B2A"
 
 // ─── Types ───────────────────────────────────────────────
@@ -312,7 +311,7 @@ function AddQuestionDialog({ open, onClose, onAdd, t, isArabic }: AddQuestionDia
             <Label>{t("surveys.fontSize")} — <span className="tabular-nums font-bold text-primary">{fontSize[0]}</span>/10</Label>
             <Slider
               value={fontSize}
-              onValueChange={setFontSize}
+              onValueChange={(v) => setFontSize(Array.isArray(v) ? [...v] : [v])}
               min={1}
               max={10}
               step={1}
@@ -540,7 +539,7 @@ function SurveyResults({ survey, t, isArabic }: {
 
 export default function SurveysPage() {
   const { t, i18n } = useTranslation()
-  const { isRtl } = useDirection()
+  useDirection()
   const isArabic = i18n.language === "ar"
 
   const [surveys, setSurveys] = useState<Survey[]>(MOCK_SURVEYS)
@@ -655,29 +654,26 @@ export default function SurveysPage() {
                       <TableCell className="text-end pe-6">
                         <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="size-7" aria-label={t("common.edit")}>
-                                <Pencil className="size-3.5" />
-                              </Button>
+                            <TooltipTrigger
+                              className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-7")}
+                              aria-label={t("common.edit")}
+                            >
+                              <Pencil className="size-3.5" />
                             </TooltipTrigger>
                             <TooltipContent>{t("common.edit")}</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7"
-                                onClick={() => toggleSurveyStatus(survey.id)}
-                                aria-label={survey.status === "active" ? t("surveys.deactivate") : t("surveys.activate")}
-                              >
-                                {survey.status === "active" ? (
-                                  <PowerOff className="size-3.5 text-d5" />
-                                ) : (
-                                  <Power className="size-3.5 text-d2" />
-                                )}
-                              </Button>
+                            <TooltipTrigger
+                              className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-7")}
+                              onClick={() => toggleSurveyStatus(survey.id)}
+                              aria-label={survey.status === "active" ? t("surveys.deactivate") : t("surveys.activate")}
+                            >
+                              {survey.status === "active" ? (
+                                <PowerOff className="size-3.5 text-d5" />
+                              ) : (
+                                <Power className="size-3.5 text-d2" />
+                              )}
                             </TooltipTrigger>
                             <TooltipContent>
                               {survey.status === "active" ? t("surveys.deactivate") : t("surveys.activate")}
@@ -685,19 +681,15 @@ export default function SurveysPage() {
                           </Tooltip>
 
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7"
-                                onClick={() => {
+                            <TooltipTrigger
+                              className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-7")}
+                              onClick={() => {
                                   setAddTargetSurveyId(survey.id)
                                   setAddDialogOpen(true)
                                 }}
                                 aria-label={t("surveys.addQuestion")}
                               >
                                 <Plus className="size-3.5 text-primary" />
-                              </Button>
                             </TooltipTrigger>
                             <TooltipContent>{t("surveys.addQuestion")}</TooltipContent>
                           </Tooltip>

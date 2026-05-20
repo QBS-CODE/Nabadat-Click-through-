@@ -593,7 +593,7 @@ function FormsSection({ t }: { t: TFunction }) {
               </div>
               <Slider
                 value={sliderVal}
-                onValueChange={setSliderVal}
+                onValueChange={(v) => setSliderVal(Array.isArray(v) ? [...v] : [v])}
                 max={100}
                 step={1}
               />
@@ -961,7 +961,7 @@ function OverlaysSection({ t }: { t: TFunction }) {
       </ShowcaseCard>
 
       <ShowcaseCard label="Accordion" description="Collapsible content sections for FAQ and details">
-        <Accordion type="single" collapsible>
+        <Accordion>
           <AccordionItem value="q1">
             <AccordionTrigger>{t("faq.howRatingCalc")}</AccordionTrigger>
             <AccordionContent className="leading-relaxed">

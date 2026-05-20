@@ -3,7 +3,7 @@ import { useDirection } from "@/hooks/use-direction"
 import { useAuth } from "@/contexts/auth-context"
 import { useNavigate } from "react-router"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -70,11 +70,12 @@ export function AppTopbar() {
 
         {/* Notifications */}
         <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8 relative" aria-label={t("cx.notifications")}>
-              <Bell className="size-4" />
-              <span className="absolute top-1 end-1 size-2 rounded-full bg-d5" />
-            </Button>
+          <PopoverTrigger
+            className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-8 relative")}
+            aria-label={t("cx.notifications")}
+          >
+            <Bell className="size-4" />
+            <span className="absolute top-1 end-1 size-2 rounded-full bg-d5" />
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 p-0">
             <div className="px-4 py-3 border-b border-border">
@@ -101,8 +102,7 @@ export function AppTopbar() {
 
         {/* User Menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted/50 motion-safe:transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none">
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted/50 motion-safe:transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none">
               <div className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-nb-cyan to-nb-cyan-700 text-white text-xs font-bold">
                 {t("cx.userFullName")[0]}
               </div>
@@ -110,7 +110,6 @@ export function AppTopbar() {
                 <p className="text-xs font-medium leading-none">{t("cx.userFullName")}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{t("cx.userRole")}</p>
               </div>
-            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem>
