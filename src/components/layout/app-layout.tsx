@@ -19,7 +19,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      {!isMobile && <AppSidebar />}
+      <AppSidebar />
       <SidebarInset>
         <AppTopbar />
         <div ref={mainRef} className="flex-1 overflow-auto pb-20 lg:pb-[50px]">
