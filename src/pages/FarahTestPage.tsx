@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle } from "lucide-react";
 
 export default function FarahTestPage() {
   return (
@@ -19,5 +19,5 @@ export default function FarahTestPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
