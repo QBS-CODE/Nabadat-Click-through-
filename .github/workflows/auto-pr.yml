@@ -46,7 +46,7 @@ jobs:
                   `## ${displayName}'s work is ready for review`,
                   '',
                   '### How to review',
-                  '1. Click the **Vercel Preview** link below to see the live page',
+                  '1. Click the **Netlify Deploy Preview** link below to see the live page',
                   '2. Navigate through the app and verify the new page',
                   '3. If everything looks good, click **Merge pull request**',
                   '',
@@ -63,7 +63,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
-                body: `${displayName} pushed new changes. Check the updated **Vercel Preview** link above.`,
+                body: `${displayName} pushed new changes. Check the updated **Netlify Deploy Preview** link above.`,
               });
 
               console.log(`PR #${pr.number} already exists, added update comment`);
