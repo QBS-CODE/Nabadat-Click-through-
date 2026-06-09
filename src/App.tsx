@@ -10,6 +10,11 @@ import KpiDetailPage from "./pages/KpiDetailPage"
 import FeedbackPage from "./pages/FeedbackPage"
 import SurveysPage from "./pages/SurveysPage"
 import PlaceholderPage from "./pages/PlaceholderPage"
+import JourneysPage from "./pages/JourneysPage"
+import JourneyBuilderPage from "./pages/JourneyBuilderPage"
+import JourneyStatsPage from "./pages/JourneyStatsPage"
+import KpiManagementPage from "./pages/KpiManagementPage"
+import KpiConfigPage from "./pages/KpiConfigPage"
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth()
@@ -45,7 +50,12 @@ function AppRoutes() {
       <Route path="/analytics" element={<LayoutRoute><PlaceholderPage titleKey="cx.navAnalyticsReports" /></LayoutRoute>} />
       <Route path="/closed-loop" element={<LayoutRoute><PlaceholderPage titleKey="cx.navClosedLoop" /></LayoutRoute>} />
       <Route path="/actions" element={<LayoutRoute><PlaceholderPage titleKey="cx.navActions" /></LayoutRoute>} />
-      <Route path="/journey" element={<LayoutRoute><PlaceholderPage titleKey="cx.navJourney" /></LayoutRoute>} />
+      <Route path="/journeys" element={<LayoutRoute><JourneysPage /></LayoutRoute>} />
+      <Route path="/journeys/:id" element={<LayoutRoute><JourneyBuilderPage /></LayoutRoute>} />
+      <Route path="/journeys/:id/stats" element={<LayoutRoute><JourneyStatsPage /></LayoutRoute>} />
+      <Route path="/kpi-management" element={<LayoutRoute><KpiManagementPage /></LayoutRoute>} />
+      <Route path="/kpi-management/new" element={<LayoutRoute><KpiConfigPage /></LayoutRoute>} />
+      <Route path="/kpi-management/:id" element={<LayoutRoute><KpiConfigPage /></LayoutRoute>} />
       <Route path="/guide" element={<ComponentGuide />} />
     </Routes>
   )

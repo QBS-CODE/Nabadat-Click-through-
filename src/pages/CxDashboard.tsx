@@ -670,7 +670,7 @@ export default function CxDashboard() {
               <Plus className="size-4 ms-1.5" />
               {t("cx.newSurvey")}
             </Button>
-            <Button variant="outline">
+            <Button variant="secondary">
               <Download className="size-4 ms-1.5" />
               {t("cx.export")}
             </Button>

@@ -27,6 +27,7 @@ import {
   Map,
   Sparkles,
   Users,
+  Gauge,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -77,16 +78,22 @@ const NAV_ITEMS: NavGroup[] = [
   {
     groupKey: "cx.navCustomers",
     items: [
-      { key: "journey", labelKey: "cx.navJourney", icon: Map, href: "/journey" },
+      { key: "journey", labelKey: "cx.navJourney", icon: Map, href: "/journeys" },
       { key: "profiles", labelKey: "cx.navProfiles", icon: Users, href: "#", phase2: true },
+    ],
+  },
+  {
+    groupKey: "cx.navPlatform",
+    items: [
+      { key: "kpi_management", labelKey: "cx.navKpiManagement", icon: Gauge, href: "/kpi-management" },
     ],
   },
 ]
 
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles"],
+  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management"],
   analyst: ["dashboard", "surveys", "feedback", "analytics", "ai_insights", "journey", "profiles"],
-  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles"],
+  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management"],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }

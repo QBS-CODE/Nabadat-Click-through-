@@ -399,7 +399,7 @@ export default function LoginPage() {
                 </Button>
 
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => auth.login()}
                   className="w-full h-10"
                 >

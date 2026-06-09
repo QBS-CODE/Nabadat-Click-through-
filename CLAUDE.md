@@ -207,6 +207,31 @@ The KPI overview spider chart must use a custom SVG with:
 These patterns apply to **all future charts and visualizations** in the app. Any developer
 building a new chart must follow these specs to maintain the premium data-rich feel.
 
+### Journey Map — Stage Columns (Customer Journey)
+The Journey Map renders each stage as a **vertical column**, and every column is
+**color-coded by the stage's score on the D1–D5 scale — five colors, one per band**.
+This is mandatory, not optional styling:
+- **Column background = a lighter shade of the stage's status color:**
+  `bg-d{n}-light dark:bg-d{n}-dark/25`, where `n = perfLevel(stage.score)` (from
+  `journey-data.ts`). E.g. 93% → d1 (pale green), 80% → d2 (green), 65%/67% → d3 (pale
+  amber). The five D-levels give the five stage colors.
+- **Score % (column header) = the matching deep shade:** `text-d{n}-dark
+  dark:text-d{n}-light`.
+- **No / zero score →** neutral column (`bg-muted/30`), render the score as `—` — never
+  default to D5 red.
+- **Emotion bubble:** white circle (`bg-card`) with a colored ring in the full-strength
+  `perfColor(score)`. The emotion label below ("excited", "anxious", …) uses
+  `text-foreground font-semibold` for contrast on the tint — **never**
+  `text-muted-foreground`.
+- **Connecting curve** across the columns uses the brand **Mint→Cyan** gradient (~0.5
+  opacity), drawn behind the bubbles.
+- Columns are flush with `divide-x divide-border`; tags inside follow the white-fill
+  outline Badge rule.
+
+> The score color and its background must come from the **same** `perfLevel(score)` so
+> they never disagree. Full token mapping + code in **Color System → Performance Color
+> Scale → "Status-tinted containers"**.
+
 ### Trend Chart Annotations
 When a time series chart tracks KPIs over time and there are **actions/events** that were
 taken during that period, mark them on the chart:
@@ -438,7 +463,7 @@ These map to shadcn utility classes. Always prefer semantic tokens over brand to
 | `text-muted-foreground` | Stone `#7A8196` | Stone-lite `#B8BFCE` | Secondary text, captions |
 | `bg-destructive` | D5 base `#C01B2A` | D5 lite `#FFD6DA` | Errors, delete actions |
 | `border-border` | Navy-200 `#C4CADD` | Navy tint `rgba(30,34,53,0.3)` | All borders |
-| `bg-background` | White `#ffffff` | Dark `#0D0F14` | Page background |
+| `bg-background` | Off-white `#F7F9FC` | Dark `#0A0C11` | Page background — lightly navy-tinted, never pure white; just enough that white cards lift without the page reading grey |
 | `text-foreground` | Navy `#1E2235` | Off-white `#EDEDEF` | Primary body text |
 | `bg-card` | White | Dark-2 `#1B1C27` | Card surfaces |
 
@@ -498,6 +523,45 @@ function perfColor(value: number, kpiId?: string): string {
 **Always pass `kpiId` when coloring segment/branch bars** so that NPS 52 shows
 D1/green (great for NPS) while the same value 52 for CES shows D3/amber (poor for CES).
 
+**Status-tinted containers — use the D-scale light tokens.** When a container
+*represents* a scored entity — a journey-report **stage column**, a touchpoint card,
+a segment row — its background must reflect the entity's status color in a **clearly
+visible lighter shade**, and its headline number in the matching deep shade. Drive
+both off the **same** D-level via `perfLevel(value, kpiId?)` (in `journey-data.ts`,
+returns `"d1"…"d5"`), then map to the real D-scale tokens:
+```tsx
+const level = perfLevel(stage.score ?? 0)          // "d1".."d5"
+const BG  = { d1:"bg-d1-light dark:bg-d1-dark/25", /* …d2–d5 */ }
+const PCT = { d1:"text-d1-dark dark:text-d1-light", /* …d2–d5 */ }
+<div className={cn("…", BG[level])}>
+  <span className={PCT[level]}>{stage.score}%</span>
+</div>
+```
+Light mode uses the pale `d{n}-light` fill with the deep `d{n}-dark` text; dark mode
+uses a soft `d{n}-dark/25` tint with the `d{n}-light` text. Prefer this token approach
+over a faint hex-alpha tint — the light tokens are legible and read as a real heat-map
+(a ~8% alpha wash looks washed-out and grey). Score `0`/no-score → neutral
+(`bg-muted/30`, `text-muted-foreground`, render "—"), not D5 red. This keeps the
+Two-Palette Rule intact (semantic D-tokens signal state, never decorate). Bar *tracks*
+stay neutral (`bg-muted/40`); it is the stage/segment *container* that takes the tint.
+
+**Labels sitting on a tinted container need real contrast.** Small captions/status
+labels (e.g. the stage emotion label "excited"/"anxious") on a `d{n}-light` background
+must use `text-foreground` (and `font-semibold` at tiny sizes) — **not**
+`text-muted-foreground`, whose stone-grey fails contrast on a pale tint. Raise the
+text contrast; don't touch the container background.
+
+> `perfTint(value)` (low-alpha hex `{ bg, border }`) still exists for cases that need
+> a barely-there tint over an arbitrary surface — but for stage/segment backgrounds
+> use the D-light **tokens** above; they're the design-system "lighter shade".
+
+For **SVG / canvas status nodes** that can't take a Tailwind `bg-*` class (gauge fills,
+radar vertices, ring segments), paint with `perfColor(score)` via `fill`/`stroke` or an
+inline `style`. **Journey Map bubble specifically:** it is a plain **white** circle
+(`bg-card`) with a colored **ring** in the full-strength `perfColor(score)` — the status
+shade lives in the *column background* behind it (see the Journey Map spec above), so the
+bubble interior stays white; do **not** also tint the bubble.
+
 Use this scale on: gauge fill colors, radar vertex dots, segment bar colors,
 distribution bars, branch scores, and any metric that has a target/benchmark.
 
@@ -555,7 +619,7 @@ function useTheme() {
 
 **Surface hierarchy (light-to-dark elevation):**
 ```
-Background (deepest):  #0D0F14  — page base (navy-tinted black)
+Background (deepest):  #0A0C11  — page base (navy-tinted black, deepened so cards lift)
 Card (elevated):       #1B1C27  — cards, panels, table rows
 Muted (subtle):        #2E3044  — hover states, active items
 Accent (highlight):    #161B29  — selected states, feature areas
@@ -563,7 +627,7 @@ Accent (highlight):    #161B29  — selected states, feature areas
 
 **Key principles:**
 1. **Navy-tinted, not grey.** Dark mode uses deep navy-blues, never neutral greys. This keeps brand identity present even in dark mode.
-2. **Never use pure black `#000000`.** It causes OLED smearing and feels unnatural. Our deepest color is `#0D0F14`. Use Navy or Dark tokens instead.
+2. **Never use pure black `#000000`.** It causes OLED smearing and feels unnatural. Our deepest color is `#0A0C11`. Use Navy or Dark tokens instead.
 3. **Lighten, don't invert.** Primary cyan goes from `#0D8BBC` (light) to `#59CCEA` (dark) — brighter, not simply inverted.
 4. **Borders go translucent.** Use `rgba(30, 34, 53, 0.3)` not solid colors. This creates depth.
 5. **Test contrast separately.** Dark mode contrast must be verified independently — don't assume light mode values work. Minimum 4.5:1 for body text, 3:1 for large text.
@@ -645,11 +709,51 @@ import { Plus, Search, Download, Trash2 } from "lucide-react"
 ### Button Variants
 | Action | Component | Example |
 |--------|-----------|---------|
-| Primary CTA | `<Button className="bg-primary hover:bg-nb-cyan-700 text-primary-foreground">` | اشتراك, إنشاء, حفظ |
-| Secondary | `<Button variant="outline">` | تفاصيل, إلغاء |
+| Primary action | `<Button className="bg-primary hover:bg-nb-cyan-700 text-primary-foreground">` (hover shadow is built into the variant) | اشتراك, إنشاء, حفظ, نشر |
+| Secondary action | `<Button variant="secondary">` — soft cyan, **derived from the primary** | تفاصيل, تحليلات, إضافة مرحلة |
 | Destructive | `<Button variant="destructive">` | حذف, إزالة |
 | Ghost/subtle | `<Button variant="ghost">` | Navigation, toolbar |
 | Loading state | `<Button disabled><Loader2 className="size-4 animate-spin ms-2" />جاري الحفظ...</Button>` | During async ops |
+
+**Action-button hierarchy (the one-blue rule).** A page header may show several
+action buttons, but **exactly one is the filled blue primary** (`variant="default"`,
+`bg-primary`). **Every other action uses the secondary style — regardless of how many
+there are.** With three actions (e.g. "Analytics" + "Add Stage" + "Publish") the
+2nd *and* 3rd are both secondary; with four, the 2nd/3rd/4th are all secondary. Only
+one stays the filled primary. Per-row actions like "Add Touchpoint" follow the same
+rule. Secondary actions use `variant="secondary"`: a **lighter shade of the same
+primary cyan** (`bg-nb-cyan-100 / text-nb-cyan-800`; dark `bg-nb-cyan-900/40 /
+text-nb-cyan-200`). It stays in the brand family but reads visibly quieter than the
+solid primary, so the one primary remains *the* action. Rules:
+- Never promote a second button to the **filled** blue — only one filled primary per page.
+- Never leave a secondary action as a plain neutral/`outline` button — it looks empty
+  next to the primary; the secondary must carry the soft-cyan fill so the pair reads
+  as a deliberate primary + secondary set.
+- Never use the **mint** token for action buttons — mint clashes with the D2 "Good"
+  semantic state. The button `secondary` variant has been redefined to the cyan-derived
+  style specifically for action buttons (it no longer renders mint).
+- **Compact secondary (inside accordions / tables).** A secondary action that lives in
+  an accordion row or a table uses `variant="secondary" size="compact"` — the *same*
+  soft-cyan style at **35px** tall (`size="compact"`, still `rounded-md`/12px) instead
+  of the full 40px, so it doesn't crowd the row. Example: the per-stage "Add Touchpoint"
+  button. Don't hand-set `h-7`/`h-8` on these — use `size="compact"`.
+
+**Action-button shadows are hover-only.** Both the blue primary and the soft-cyan
+secondary carry **no shadow at rest** — on hover, *both* lift with a soft colored
+shadow (`hover:shadow-md hover:shadow-primary/30` for primary, `…/20` for secondary).
+This is baked into the `default` and `secondary` button variants, so **never add a
+resting shadow** to an action button (no `shadow-sm` on the button itself). Outline/
+ghost actions stay flat at rest and on hover.
+
+**Interactive control sizing — one 40px family.** Default-size **buttons, inputs,
+and selects all stand 40px tall (`h-10`) with a 12px radius (`rounded-md`)** so they
+line up perfectly when placed side by side (e.g. a date-range `Select` next to a
+"New Survey" button in a page toolbar). This height/radius lives in the **component
+defaults** (`button.tsx`, `input.tsx`, `select.tsx`) — CLAUDE.md only records the
+rule; changing the doc does not restyle anything, you must set it in the component.
+Action buttons additionally take generous horizontal padding (`px-4`). Compact contexts still use `size="sm"`/`size="icon"`;
+icon-only buttons keep their square sizes. Never hand-tune an action button's height
+or radius inline — rely on the default size so the whole app stays consistent.
 
 ### Cards
 ```tsx
@@ -664,9 +768,27 @@ import { Plus, Search, Download, Trash2 } from "lucide-react"
 ```
 - Don't nest cards inside cards — flatten the hierarchy
 - Use `shadow-sm` in light mode, `dark:shadow-none` in dark mode (borders provide separation in dark)
+- The base `<Card>` already ships `rounded-lg` (16px) + `ring-1` + `shadow-sm dark:shadow-none` for elevation — **do not** re-add these or push a card past the 16px radius ceiling. Why: on the navy-tinted off-white background, white cards must lift via a tight radius + soft shadow, not a large curve.
+- **Minimize curves:** cards/popups cap at `rounded-lg` (16px) and inner containers/tiles (stat tiles, attribute chips, banners) at `rounded-md` (12px). Tighter radii read as more precise and data-dense — avoid `rounded-lg` on small nested tiles.
+- **Don't double the top padding.** The base `<Card>` already supplies `py-4` (16px top *and* bottom). Do **not** add `pt-6` (or any extra `pt-*`) to `CardContent` — that stacks on the card's own padding and makes the top visibly heavier than the bottom. Use a bare `<CardContent>` so vertical padding stays balanced (this applies to every card: header cards, filter cards, etc.).
+- **Header cards align center.** When a card's content is a header row (title/badges on one side, action buttons on the other), the flex row uses `lg:items-center` (not `lg:items-start`) so the action buttons sit vertically centered against the title block.
+
+### Badges / Tags
+- **Outline tags have a white fill.** The Badge `outline` variant ships `bg-card`
+  (white in light, dark surface in dark) — never leave a tag transparent, which makes
+  it disappear into tinted backgrounds (e.g. the D-light stage columns). A plain
+  `<Badge variant="outline">` is therefore a white pill with a border.
+- **Colored tags keep their color.** Tags that set their own background via `className`
+  (status pills like `bg-d2-light`, `bg-nb-cyan-100`, …) override the white fill — the
+  Badge merges classes with `tailwind-merge`, so the explicit `bg-*` wins. Only
+  *backgroundless* (outline) tags pick up the white fill.
 
 ### Forms
 - Use shadcn `Input`, `Select`, `Checkbox`, `Textarea`, `Label`
+- **Fields are white, not transparent.** Inputs, selects, and textareas use `bg-card`
+  (white in light mode; the elevated dark surface in dark mode) — never `bg-transparent`,
+  which would let the off-white page background bleed through and make fields look grey.
+  The `border-input` edge provides the boundary.
 - **Always use visible labels** — never placeholder-only inputs
 - Labels go above inputs, use `<Label htmlFor="...">` for accessibility
 - Group fields: `<div className="space-y-4">`
@@ -725,13 +847,20 @@ Empty states must **teach the interface** — explain what goes here and how to 
 
 ### Page Container
 ```tsx
-<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div className="px-8">
 ```
+**Fixed 32px gutters, full width — no `max-w-*` cap, no `mx-auto`.** The page fills
+the available width inside the sidebar inset with constant **32px** (`px-8`) left/right
+padding. Do **not** use `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` — that caps content at
+1280px and centers it, so on wide screens / zoomed-out the empty side margins grow
+unevenly. A fixed `px-8` keeps the gutters identical at every viewport width.
 
 ### Page Structure
-Every page follows this pattern:
+Every page follows this pattern. **Data-dense pages** (lists, builders, dashboards —
+e.g. the Journey module) use the tighter `space-y-5 py-5` rhythm; airier content pages
+may use `space-y-6 py-6`:
 ```tsx
-<div className="space-y-6 py-6">
+<div className="space-y-5 py-5">
   {/* Page Header */}
   <div className="flex items-center justify-between">
     <div>
@@ -784,7 +913,8 @@ spacing, `px` for component-internal gaps.
 **Common patterns:**
 | Context | Class |
 |---------|-------|
-| Between page sections | `space-y-6` or `space-y-8` |
+| Between page sections (content/marketing pages) | `space-y-6` or `space-y-8` |
+| Between page sections (data-dense pages) | `space-y-5` |
 | Between related items | `space-y-4` |
 | Inside cards | `p-6` |
 | Grid gaps (tight) | `gap-4` |
@@ -794,11 +924,19 @@ spacing, `px` for component-internal gaps.
 ### Border Radius Scale
 | Token | Value | Usage |
 |-------|-------|-------|
-| `rounded-sm` | 8px | Small elements, tags, badges |
-| `rounded-md` | 12px | Inputs, buttons, small cards |
-| `rounded-lg` | 20px | Cards, panels, dialogs |
-| `rounded-xl` | 32px | Hero sections, large containers |
-| `rounded-full` | pill | Avatars, pill buttons, progress bars |
+| `rounded-sm` | 8px | Badges, tags, status chips, small chrome |
+| `rounded-md` | 12px | **Action buttons, inputs, selects**, inner containers / tiles |
+| `rounded-lg` | 16px | **Cards, dialogs, sheets, popovers, panels** — the max corner radius |
+| `rounded-xl` and up | 16px (capped) | Legacy aliases — resolve to 16px; never exceed it |
+| `rounded-full` | pill | Avatars, pill buttons, progress bars (exempt from the cap) |
+
+> **16px ceiling (hard rule).** No element's corner radius may exceed **16px**
+> (`rounded-lg`). Cards and popups sit at 16px; **all interactive controls — action
+> buttons, inputs, and selects — sit at 12px (`rounded-md`)** so they read as one
+> consistent control family; tiles use 12px too. The `--radius-lg` … `--radius-4xl`
+> tokens are all clamped to `1rem` so even a stray `rounded-2xl` stays at 16px.
+> Only `rounded-full` (true pills/circles — avatars, progress bars, status dots) and
+> **informative ribbons/badges** (which keep their existing radius) are exempt.
 
 ### Sidebar Layout
 Use shadcn `Sidebar` component with `collapsible="icon"` for pages with navigation.
@@ -881,6 +1019,12 @@ show/hide with no transition. Instead use the CSS `grid-rows` trick:
 ```
 This animates height to/from zero smoothly without needing a fixed `max-height` value.
 Used in the persona switcher and anywhere panels expand/collapse.
+
+**Body padding (don't skip the top).** An expanded accordion/panel body needs real
+**top** padding below the header divider — use `pt-4` (16px), never `pt-1`. Match it
+with `pb-4` at the bottom so the first item has the same breathing room as the last.
+Content that hugs the divider line reads as a rendering glitch. (Builder stage bodies:
+`px-4 pb-4 pt-4 … border-t`.)
 
 ### Loading States
 - Buttons: disable + show `<Loader2 className="animate-spin" />`

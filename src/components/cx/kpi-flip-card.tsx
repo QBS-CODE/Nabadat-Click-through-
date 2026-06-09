@@ -423,7 +423,7 @@ function KpiFlipCard({
                   value={gaugeValue}
                   min={gaugeMin}
                   max={gaugeMax}
-                  color={perfColor(kpi.gaugePercent)}
+                  color={perfColor(kpi.value, kpi.id)}
                   targetPct={targetPct}
                   label={kpi.title}
                 />
