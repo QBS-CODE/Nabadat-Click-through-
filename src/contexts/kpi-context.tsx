@@ -8,7 +8,7 @@ interface KpiContextValue {
   activeCount: number;
   saveKpi: (updated: KpiDefinition) => void;
 }
-//test
+
 const KpiContext = createContext<KpiContextValue | null>(null);
 
 export function KpiProvider({ children }: { children: React.ReactNode }) {
