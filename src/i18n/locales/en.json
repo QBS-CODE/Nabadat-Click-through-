@@ -335,6 +335,8 @@
     "navActions": "Actions",
     "navCustomers": "CUSTOMERS",
     "navJourney": "Customer Journey",
+    "navPlatform": "PLATFORM",
+    "navKpiManagement": "KPI Management",
     "funnelTitle": "Response Funnel",
     "funnelSubtitle": "Conversion rates from survey impression to completion",
     "funnelImpressions": "Survey Impressions",

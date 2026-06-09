@@ -335,6 +335,8 @@
     "navActions": "إدارة الإجراءات",
     "navCustomers": "العملاء",
     "navJourney": "رحلة العميل",
+    "navPlatform": "المنصة",
+    "navKpiManagement": "إدارة المؤشرات",
     "funnelTitle": "قمع الاستجابة",
     "funnelSubtitle": "معدلات التحويل من عرض الاستبيان إلى الإكمال",
     "funnelImpressions": "عرض الاستبيان",
