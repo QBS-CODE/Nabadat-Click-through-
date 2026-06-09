@@ -45,7 +45,7 @@ export default function JourneyRow({ journey, onEdit, onClone, onArchive, onExpo
     <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer group">
       <TableCell
         className="font-medium text-foreground hover:text-primary transition-colors"
-        onClick={() => navigate(`/journeys/${journey.id}/builder`)}
+        onClick={() => navigate(`/journeys/${journey.id}`)}
       >
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-semibold">{journey.nameEn}</span>

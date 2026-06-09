@@ -198,7 +198,7 @@ export default function JourneyStatsPage() {
         </div>
         <Button
           variant="secondary"
-          onClick={() => navigate(`/journeys/${journey.id}/builder`)}
+          onClick={() => navigate(`/journeys/${journey.id}`)}
           className="gap-1.5 shrink-0"
         >
           <Map className="size-4" /> Open Builder
