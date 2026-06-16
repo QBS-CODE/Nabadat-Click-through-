@@ -113,7 +113,7 @@ export default function SettingsCustomerJourneyPage() {
                   >
                     <Info className="size-3.5" />
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                  <TooltipContent side="right" className="max-w-sm p-4 text-xs leading-relaxed font-sans">
                     <p>{t("settings.tooltipAlpha")}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -159,7 +159,7 @@ export default function SettingsCustomerJourneyPage() {
                   >
                     <Info className="size-3.5" />
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                  <TooltipContent side="right" className="max-w-sm p-4 text-xs leading-relaxed font-sans">
                     <p>{t("settings.tooltipMot")}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -208,7 +208,7 @@ export default function SettingsCustomerJourneyPage() {
                 >
                   <Info className="size-3.5" />
                 </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                <TooltipContent side="right" className="max-w-sm p-4 text-xs leading-relaxed font-sans">
                   <p>{t("settings.tooltipNFloor")}</p>
                 </TooltipContent>
               </Tooltip>
@@ -242,7 +242,7 @@ export default function SettingsCustomerJourneyPage() {
                 >
                   <Info className="size-3.5" />
                 </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                <TooltipContent side="right" className="max-w-sm p-4 text-xs leading-relaxed font-sans">
                   <p>{t("settings.tooltipFlagPct")}</p>
                 </TooltipContent>
               </Tooltip>
@@ -277,7 +277,7 @@ export default function SettingsCustomerJourneyPage() {
                 >
                   <Info className="size-3.5" />
                 </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                <TooltipContent side="right" className="max-w-sm p-4 text-xs leading-relaxed font-sans">
                   <p>{t("settings.tooltipRollingDays")}</p>
                 </TooltipContent>
               </Tooltip>
