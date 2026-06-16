@@ -2,8 +2,9 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { useTranslation } from "react-i18next"
-import { ArrowRight, Info } from "lucide-react"
+import { ArrowLeft, ArrowRight, Info } from "lucide-react"
 import { useSettings } from "@/contexts/settings-context"
+import { useDirection } from "@/hooks/use-direction"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,6 +24,9 @@ export default function SettingsCustomerJourneyPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { scoringConfig, saveScoring } = useSettings()
+  const { isRtl } = useDirection()
+
+  const BackArrow = isRtl ? ArrowLeft : ArrowRight
 
   const [alpha, setAlpha] = useState(scoringConfig.alpha)
   const [motMultiplier, setMotMultiplier] = useState(scoringConfig.motMultiplier)
@@ -85,7 +89,7 @@ export default function SettingsCustomerJourneyPage() {
       {/* Back + Title */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" aria-label={t("common.back")} onClick={handleBack}>
-          <ArrowRight className="size-5" />
+          <BackArrow className="size-5" />
         </Button>
         <div>
           <h1 className="text-2xl font-heading font-bold">{t("settings.cjTitle")}</h1>
@@ -94,7 +98,7 @@ export default function SettingsCustomerJourneyPage() {
       </div>
 
       <Card className="max-w-2xl">
-        <CardContent className="space-y-8 pt-6">
+        <CardContent className="space-y-8">
 
           {/* ── Alpha (α) ──────────────────────────────── */}
           <div className="space-y-3">

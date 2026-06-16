@@ -2,8 +2,9 @@
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router"
 import { useTranslation } from "react-i18next"
-import { ArrowRight, Upload } from "lucide-react"
+import { ArrowLeft, ArrowRight, Upload } from "lucide-react"
 import { useSettings } from "@/contexts/settings-context"
+import { useDirection } from "@/hooks/use-direction"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -38,7 +39,10 @@ export default function SettingsOrganizationPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { orgConfig, saveOrg } = useSettings()
+  const { isRtl } = useDirection()
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const BackArrow = isRtl ? ArrowLeft : ArrowRight
 
   const [name, setName] = useState(orgConfig.name)
   const [logoUrl, setLogoUrl] = useState<string | null>(orgConfig.logoUrl)
@@ -88,7 +92,7 @@ export default function SettingsOrganizationPage() {
       {/* Back + Title */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" aria-label={t("common.back")} onClick={handleBack}>
-          <ArrowRight className="size-5" />
+          <BackArrow className="size-5" />
         </Button>
         <div>
           <h1 className="text-2xl font-heading font-bold">{t("settings.orgTitle")}</h1>
@@ -101,7 +105,7 @@ export default function SettingsOrganizationPage() {
 
         {/* Form card */}
         <Card>
-          <CardContent className="space-y-5 pt-5">
+          <CardContent className="space-y-5">
 
             {/* Name */}
             <div className="space-y-1.5">
@@ -156,7 +160,7 @@ export default function SettingsOrganizationPage() {
                 onChange={handleLogoChange}
               />
               {logoWarning && (
-                <p className="text-xs text-d3">{t("settings.logoSizeWarning")}</p>
+                <p className="text-xs text-d3 dark:text-d3-light">{t("settings.logoSizeWarning")}</p>
               )}
             </div>
 
