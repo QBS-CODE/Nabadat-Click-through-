@@ -15,7 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import {
-  Tooltip, TooltipContent, TooltipTrigger,
+  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { ScoringConfig } from "@/types/settings"
@@ -85,6 +85,7 @@ export default function SettingsCustomerJourneyPage() {
   }
 
   return (
+    <TooltipProvider>
     <div className="space-y-5 py-5 px-8">
       {/* Back + Title */}
       <div className="flex items-center gap-3">
@@ -112,8 +113,8 @@ export default function SettingsCustomerJourneyPage() {
                   >
                     <Info className="size-3.5" />
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs text-xs leading-relaxed">
-                    {t("settings.tooltipAlpha")}
+                  <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                    <p>{t("settings.tooltipAlpha")}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -158,8 +159,8 @@ export default function SettingsCustomerJourneyPage() {
                   >
                     <Info className="size-3.5" />
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs text-xs leading-relaxed">
-                    {t("settings.tooltipMot")}
+                  <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                    <p>{t("settings.tooltipMot")}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -207,8 +208,8 @@ export default function SettingsCustomerJourneyPage() {
                 >
                   <Info className="size-3.5" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-xs leading-relaxed">
-                  {t("settings.tooltipNFloor")}
+                <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                  <p>{t("settings.tooltipNFloor")}</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -241,8 +242,8 @@ export default function SettingsCustomerJourneyPage() {
                 >
                   <Info className="size-3.5" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-xs leading-relaxed">
-                  {t("settings.tooltipFlagPct")}
+                <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                  <p>{t("settings.tooltipFlagPct")}</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -276,8 +277,8 @@ export default function SettingsCustomerJourneyPage() {
                 >
                   <Info className="size-3.5" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-xs leading-relaxed">
-                  {t("settings.tooltipRollingDays")}
+                <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+                  <p>{t("settings.tooltipRollingDays")}</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -327,5 +328,6 @@ export default function SettingsCustomerJourneyPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </TooltipProvider>
   )
 }
