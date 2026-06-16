@@ -28,6 +28,7 @@ import {
   Sparkles,
   Users,
   Gauge,
+  Settings,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -86,14 +87,15 @@ const NAV_ITEMS: NavGroup[] = [
     groupKey: "cx.navPlatform",
     items: [
       { key: "kpi_management", labelKey: "cx.navKpiManagement", icon: Gauge, href: "/kpi-management" },
+      { key: "settings", labelKey: "cx.navSettings", icon: Settings, href: "/settings" },
     ],
   },
 ]
 
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management"],
+  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
   analyst: ["dashboard", "surveys", "feedback", "analytics", "ai_insights", "journey", "profiles"],
-  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management"],
+  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }

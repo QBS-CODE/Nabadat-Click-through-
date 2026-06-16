@@ -15,6 +15,10 @@ import JourneyBuilderPage from "./pages/JourneyBuilderPage"
 import JourneyStatsPage from "./pages/JourneyStatsPage"
 import KpiManagementPage from "./pages/KpiManagementPage"
 import KpiConfigPage from "./pages/KpiConfigPage"
+import SettingsPage from "./pages/SettingsPage"
+import SettingsOrganizationPage from "./pages/SettingsOrganizationPage"
+import SettingsCustomerJourneyPage from "./pages/SettingsCustomerJourneyPage"
+import { SettingsProvider } from "./contexts/settings-context"
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth()
@@ -56,6 +60,9 @@ function AppRoutes() {
       <Route path="/kpi-management" element={<LayoutRoute><KpiManagementPage /></LayoutRoute>} />
       <Route path="/kpi-management/new" element={<LayoutRoute><KpiConfigPage /></LayoutRoute>} />
       <Route path="/kpi-management/:id" element={<LayoutRoute><KpiConfigPage /></LayoutRoute>} />
+      <Route path="/settings" element={<LayoutRoute><SettingsPage /></LayoutRoute>} />
+      <Route path="/settings/organization" element={<LayoutRoute><SettingsOrganizationPage /></LayoutRoute>} />
+      <Route path="/settings/customer-journey" element={<LayoutRoute><SettingsCustomerJourneyPage /></LayoutRoute>} />
       <Route path="/guide" element={<ComponentGuide />} />
     </Routes>
   )
@@ -66,7 +73,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <PersonaProvider>
-          <AppRoutes />
+          <SettingsProvider>
+            <AppRoutes />
+          </SettingsProvider>
         </PersonaProvider>
       </AuthProvider>
     </BrowserRouter>
