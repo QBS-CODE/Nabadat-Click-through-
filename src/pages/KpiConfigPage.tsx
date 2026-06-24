@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import KpiGauge from "@/components/kpi/KpiGauge"
+import KpiDashboardPreview from "@/components/kpi/KpiDashboardPreview"
+import CxiSpiderPreview from "@/components/kpi/CxiSpiderPreview"
 import QuestionPreview from "@/components/kpi/QuestionPreview"
 import PerspectiveInput from "@/components/kpi/PerspectiveInput"
 import CxiWeightsTable from "@/components/kpi/CxiWeightsTable"
@@ -48,7 +50,18 @@ interface FormState {
   isActive: boolean
   showOnDashboard: boolean
   cxiWeights: Record<string, number>
+  scaleMinLabel: string
+  scaleMaxLabel: string
   isDirty: boolean
+}
+
+const KPI_SCALE_LABEL_DEFAULTS: Record<string, { min: string; max: string }> = {
+  csat:  { min: "Extremely Dissatisfied",       max: "Extremely Satisfied" },
+  ces:   { min: "Very High Effort Required",    max: "Very Low Effort Required" },
+  nps:   { min: "Definitely Would Not Recommend", max: "Definitely Would Recommend" },
+  vfm:   { min: "Very Poor Value for Money",    max: "Excellent Value for Money" },
+  fcr:   { min: "Issue Not Resolved",           max: "Fully Resolved on First Contact" },
+  agent: { min: "Very Poor Service Experience", max: "Excellent Service Experience" },
 }
 
 const DEFAULT_STATE: FormState = {
@@ -57,7 +70,7 @@ const DEFAULT_STATE: FormState = {
   scale: "", representationStyle: "Number", emojiSet: "FaceClassic",
   thresholdX: "20", thresholdY: "70", target: "",
   isActive: true, showOnDashboard: false,
-  cxiWeights: {}, isDirty: false,
+  cxiWeights: {}, scaleMinLabel: "", scaleMaxLabel: "", isDirty: false,
 }
 
 type FormAction =
@@ -70,6 +83,7 @@ function formReducer(state: FormState, action: FormAction): FormState {
   switch (action.type) {
     case "INIT": {
       const k = action.kpi
+      const labelDefaults = KPI_SCALE_LABEL_DEFAULTS[k.id] ?? { min: "", max: "" }
       return {
         shortName: k.shortName,
         fullName: k.fullName,
@@ -85,6 +99,8 @@ function formReducer(state: FormState, action: FormAction): FormState {
         isActive: k.isActive,
         showOnDashboard: k.showOnDashboard,
         cxiWeights: k.cxiWeights ?? {},
+        scaleMinLabel: k.scaleMinLabel ?? labelDefaults.min,
+        scaleMaxLabel: k.scaleMaxLabel ?? labelDefaults.max,
         isDirty: false,
       }
     }
@@ -216,6 +232,8 @@ export default function KpiConfigPage() {
       isActive: state.isActive,
       showOnDashboard: state.showOnDashboard,
       cxiWeights: isCxi ? state.cxiWeights : undefined,
+      scaleMinLabel: state.scaleMinLabel || undefined,
+      scaleMaxLabel: state.scaleMaxLabel || undefined,
     }
     saveKpi(updated)
     navigate("/kpi-management")
@@ -379,6 +397,7 @@ export default function KpiConfigPage() {
                   <CxiWeightsTable
                     weights={state.cxiWeights}
                     onChange={(kpiId, weight) => dispatch({ type: "SET_CXI_WEIGHT", kpiId, weight })}
+                    showLegend
                   />
                 </div>
               </>
@@ -454,6 +473,28 @@ export default function KpiConfigPage() {
                       </SelectContent>
                     </Select>
                   )}
+                </div>
+
+                {/* Scale Labels */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="scaleMinLabel">Minimum Scale Description</Label>
+                    <Input
+                      id="scaleMinLabel"
+                      value={state.scaleMinLabel}
+                      placeholder="e.g. Strongly Disagree"
+                      onChange={(e) => dispatch({ type: "SET", field: "scaleMinLabel", value: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="scaleMaxLabel">Maximum Scale Description</Label>
+                    <Input
+                      id="scaleMaxLabel"
+                      value={state.scaleMaxLabel}
+                      placeholder="e.g. Strongly Agree"
+                      onChange={(e) => dispatch({ type: "SET", field: "scaleMaxLabel", value: e.target.value })}
+                    />
+                  </div>
                 </div>
 
                 {/* Representation Style */}
@@ -647,33 +688,47 @@ export default function KpiConfigPage() {
                   scale={state.scale as KpiScale}
                   representationStyle={state.representationStyle}
                   emojiSet={state.emojiSet}
+                  scaleMinLabel={state.scaleMinLabel}
+                  scaleMaxLabel={state.scaleMaxLabel}
                 />
               </CardContent>
             </Card>
           )}
 
-          {/* KPI Gauge */}
+          {/* KPI Dashboard Preview / Gauge */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">{t("kpi.gaugeTitle")}</CardTitle>
+              <CardTitle className="text-sm">
+                {isCxi
+                  ? t("kpi.kpiVisualization", { defaultValue: "KPI Visualization" })
+                  : id && ["nps","csat","ces","chs","agent","vfm","fcr"].includes(id)
+                    ? t("kpi.dashboardPreviewTitle", { defaultValue: "Dashboard Preview" })
+                    : t("kpi.gaugeTitle")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <KpiGauge
-                shortName={state.shortName || (existingKpi?.shortName ?? "KPI")}
-                thresholdX={gaugeX}
-                thresholdY={gaugeY}
-                targetValue={gaugeTarget}
-                isNps={isNps}
-              />
-              {/* CXI weight bar legend in right panel */}
-              {isCxi && (
-                <div className="mt-3">
-                  <CxiWeightsTable
-                    weights={state.cxiWeights}
-                    onChange={(kpiId, weight) => dispatch({ type: "SET_CXI_WEIGHT", kpiId, weight })}
-                    showLegend
-                  />
-                </div>
+              {isCxi ? (
+                <CxiSpiderPreview
+                  weights={state.cxiWeights}
+                  shortName={state.shortName || "CXI"}
+                />
+              ) : id && ["nps","csat","ces","chs","agent","vfm","fcr"].includes(id) ? (
+                <KpiDashboardPreview
+                  kpiId={id}
+                  liveTitle={state.shortName || undefined}
+                  liveSubtitle={state.fullName || undefined}
+                  liveThresholdX={gaugeX}
+                  liveThresholdY={gaugeY}
+                  liveTarget={gaugeTarget}
+                />
+              ) : (
+                <KpiGauge
+                  shortName={state.shortName || (existingKpi?.shortName ?? "KPI")}
+                  thresholdX={gaugeX}
+                  thresholdY={gaugeY}
+                  targetValue={gaugeTarget}
+                  isNps={isNps}
+                />
               )}
             </CardContent>
           </Card>

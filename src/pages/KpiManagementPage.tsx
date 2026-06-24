@@ -85,37 +85,52 @@ export default function KpiManagementPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as typeof typeFilter)}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("kpi.typeAll")}</SelectItem>
-            <SelectItem value="Standard">{t("kpi.typeStandard")}</SelectItem>
-            <SelectItem value="Custom">{t("kpi.typeCustom")}</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="activeOnly"
-            checked={activeOnly}
-            onCheckedChange={(v) => setActiveOnly(Boolean(v))}
-          />
-          <Label htmlFor="activeOnly" className="text-sm cursor-pointer">
-            {t("kpi.activeOnly")}
+      <div className="flex items-end gap-3 flex-wrap">
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+            {t("kpi.colType")}
           </Label>
+          <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as typeof typeFilter)}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("kpi.typeAll")}</SelectItem>
+              <SelectItem value="Standard">{t("kpi.typeStandard")}</SelectItem>
+              <SelectItem value="Custom">{t("kpi.typeCustom")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="relative flex-1 min-w-48 max-w-72">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("kpi.searchPlaceholder")}
-            className="ps-9"
-          />
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+            {t("kpi.colStatus")}
+          </Label>
+          <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-card">
+            <Checkbox
+              id="activeOnly"
+              checked={activeOnly}
+              onCheckedChange={(v) => setActiveOnly(Boolean(v))}
+            />
+            <Label htmlFor="activeOnly" className="text-sm cursor-pointer">
+              {t("kpi.activeOnly")}
+            </Label>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5 flex-1 min-w-48 max-w-72">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+            {t("common.search", { defaultValue: "Search" })}
+          </Label>
+          <div className="relative">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("kpi.searchPlaceholder")}
+              className="ps-9"
+            />
+          </div>
         </div>
       </div>
 
@@ -158,8 +173,10 @@ export default function KpiManagementPage() {
                   <TableCell className="text-sm">{kpi.fullName}</TableCell>
                   <TableCell>
                     <Badge
-                      variant={kpi.type === "Standard" ? "secondary" : "outline"}
-                      className="text-xs"
+                      variant="outline"
+                      className={kpi.type === "Standard"
+                        ? "text-xs bg-nb-cyan-100 text-nb-cyan-800 border-nb-cyan-200 dark:bg-nb-cyan-900/40 dark:text-nb-cyan-200 dark:border-nb-cyan-800"
+                        : "text-xs"}
                     >
                       {kpi.type === "Standard" ? t("kpi.typeStandard") : t("kpi.typeCustom")}
                     </Badge>

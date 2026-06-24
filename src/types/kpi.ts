@@ -39,5 +39,7 @@ export interface KpiDefinition {
   isActive: boolean
   showOnDashboard: boolean
   cxiWeights?: Record<string, number>   // kpiId → relative weight; CXI only
+  scaleMinLabel?: string            // label shown under the minimum scale point
+  scaleMaxLabel?: string            // label shown under the maximum scale point
   createdAt?: string                // ISO string; custom KPIs only
 }

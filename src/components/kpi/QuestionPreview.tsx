@@ -47,6 +47,8 @@ interface QuestionPreviewProps {
   scale: KpiScale
   representationStyle: RepresentationStyle
   emojiSet: EmojiSet
+  scaleMinLabel?: string
+  scaleMaxLabel?: string
 }
 
 const STANDARD_QUESTIONS: Record<string, string> = {
@@ -59,7 +61,7 @@ const STANDARD_QUESTIONS: Record<string, string> = {
   chs: "kpi.questionChs",
 }
 
-export default function QuestionPreview({ fullName, kpiId, scale, representationStyle, emojiSet }: QuestionPreviewProps) {
+export default function QuestionPreview({ fullName, kpiId, scale, representationStyle, emojiSet, scaleMinLabel, scaleMaxLabel }: QuestionPreviewProps) {
   const { t } = useTranslation()
 
   const questionKey = STANDARD_QUESTIONS[kpiId]
@@ -77,44 +79,68 @@ export default function QuestionPreview({ fullName, kpiId, scale, representation
       <p className="text-sm font-medium leading-relaxed text-foreground">{question}</p>
 
       {/* Response row */}
-      <div className="flex items-center justify-center">
+      <div>
         {representationStyle === "Number" && (
-          <div className="flex items-center gap-1.5 flex-wrap justify-center">
-            {Array.from({ length: count }, (_, i) => min + i).map((n) => (
-              <button
-                key={n}
-                type="button"
-                className="size-8 rounded-md border border-border bg-card text-sm font-medium tabular-nums hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                {n}
-              </button>
-            ))}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+              {Array.from({ length: count }, (_, i) => min + i).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className="size-8 rounded-md border border-border bg-card text-sm font-medium tabular-nums hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            {(scaleMinLabel || scaleMaxLabel) && (
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{scaleMinLabel}</span>
+                <span>{scaleMaxLabel}</span>
+              </div>
+            )}
           </div>
         )}
 
         {representationStyle === "Stars" && (
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(count, 10) }, (_, i) => (
-              <Star
-                key={i}
-                className={`size-7 ${i < 3 ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`}
-              />
-            ))}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 justify-center">
+              {Array.from({ length: Math.min(count, 10) }, (_, i) => (
+                <Star
+                  key={i}
+                  className={`size-7 ${i < 3 ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`}
+                />
+              ))}
+            </div>
+            {(scaleMinLabel || scaleMaxLabel) && (
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{scaleMinLabel}</span>
+                <span>{scaleMaxLabel}</span>
+              </div>
+            )}
           </div>
         )}
 
         {representationStyle === "Emoji" && (
-          <div className="flex items-center gap-2 flex-wrap justify-center">
-            {pickEmojis(emojiSet, Math.min(count, 10)).map((emoji, i) => (
-              <button
-                key={i}
-                type="button"
-                className="text-2xl hover:scale-125 transition-transform"
-                aria-label={`Option ${i + 1}`}
-              >
-                {emoji}
-              </button>
-            ))}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              {pickEmojis(emojiSet, Math.min(count, 10)).map((emoji, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="text-2xl hover:scale-125 transition-transform"
+                  aria-label={`Option ${i + 1}`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+            {(scaleMinLabel || scaleMaxLabel) && (
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{scaleMinLabel}</span>
+                <span>{scaleMaxLabel}</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -128,8 +154,8 @@ export default function QuestionPreview({ fullName, kpiId, scale, representation
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{min}</span>
-              <span>{max}</span>
+              <span>{scaleMinLabel || min}</span>
+              <span>{scaleMaxLabel || max}</span>
             </div>
           </div>
         )}

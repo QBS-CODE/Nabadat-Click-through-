@@ -3,13 +3,18 @@ import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
 import { useKpis } from "@/contexts/kpi-context"
 
-// Chart colors for the proportional bar legend (chart-1 through chart-5 palette)
+// High-contrast cool-tone palette for CXI weight distribution.
+// Ordered to maximise adjacent-segment contrast in the bar:
+// alternates light/dark and jumps across the hue wheel.
+// Never red, green, or yellow — those are reserved for D1–D5 KPI states.
 const SEGMENT_COLORS = [
-  "var(--color-chart-1)",
-  "var(--color-chart-2)",
-  "var(--color-chart-3)",
-  "var(--color-chart-4)",
-  "var(--color-chart-5)",
+  "#22D3EE", // Bright cyan       — light, vivid
+  "#3730A3", // Deep indigo       — very dark, strong contrast with cyan
+  "#DB2777", // Hot pink          — vivid, strong contrast with indigo
+  "#0369A1", // Deep teal-blue    — dark, strong contrast with pink
+  "#8B5CF6", // Medium violet     — bright purple
+  "#1D4ED8", // Royal blue        — vivid, contrasts with violet
+  "#A21CAF", // Dark magenta      — deep fuchsia, contrasts with blue
 ]
 
 interface CxiWeightsTableProps {

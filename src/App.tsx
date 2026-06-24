@@ -8,7 +8,15 @@ import VocDashboard from "./pages/VocDashboard"
 import ComponentGuide from "./pages/ComponentGuide"
 import KpiDetailPage from "./pages/KpiDetailPage"
 import FeedbackPage from "./pages/FeedbackPage"
-import SurveysPage from "./pages/SurveysPage"
+import SurveysLibraryPage from "./pages/SurveysLibraryPage"
+import SurveyBuilderPage from "./pages/SurveyBuilderPage"
+import TemplateBuilderPage from "./pages/TemplateBuilderPage"
+import TemplatePickerPage from "./pages/TemplatePickerPage"
+import AiSurveyPage from "./pages/AiSurveyPage"
+import SurveyTranslationsPage from "./pages/SurveyTranslationsPage"
+import SurveyPreviewPage from "./pages/SurveyPreviewPage"
+import SurveyFunnelPage from "./pages/SurveyFunnelPage"
+import SurveyStatsPage from "./pages/SurveyStatsPage"
 import PlaceholderPage from "./pages/PlaceholderPage"
 import JourneysPage from "./pages/JourneysPage"
 import JourneyBuilderPage from "./pages/JourneyBuilderPage"
@@ -48,7 +56,19 @@ function AppRoutes() {
       <Route path="/kpi/:id" element={<LayoutRoute><KpiDetailPage /></LayoutRoute>} />
       <Route path="/voc" element={<LayoutRoute><VocDashboard /></LayoutRoute>} />
       <Route path="/feedback" element={<LayoutRoute><FeedbackPage /></LayoutRoute>} />
-      <Route path="/surveys" element={<LayoutRoute><SurveysPage /></LayoutRoute>} />
+      {/* Survey Builder module (M-01) */}
+      <Route path="/surveys" element={<LayoutRoute><SurveysLibraryPage /></LayoutRoute>} />
+      <Route path="/surveys/new/builder" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/new/from-template/:templateId" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/new/ai" element={<LayoutRoute><AiSurveyPage /></LayoutRoute>} />
+      <Route path="/surveys/templates/pick" element={<LayoutRoute><TemplatePickerPage /></LayoutRoute>} />
+      <Route path="/surveys/templates/new" element={<LayoutRoute><TemplateBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/templates/:id/edit" element={<LayoutRoute><TemplateBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/edit" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/preview" element={<LayoutRoute><SurveyPreviewPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/translations" element={<LayoutRoute><SurveyTranslationsPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/funnel" element={<LayoutRoute><SurveyFunnelPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/stats" element={<LayoutRoute><SurveyStatsPage /></LayoutRoute>} />
       <Route path="/distribution" element={<LayoutRoute><PlaceholderPage titleKey="cx.navDistribution" /></LayoutRoute>} />
       <Route path="/sending-rules" element={<LayoutRoute><PlaceholderPage titleKey="cx.navSendingRules" /></LayoutRoute>} />
       <Route path="/analytics" element={<LayoutRoute><PlaceholderPage titleKey="cx.navAnalyticsReports" /></LayoutRoute>} />
