@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
-import { useDirection } from "@/hooks/use-direction"
 import { cn } from "@/lib/utils"
 import { KpiFlipCard, perfColor, type KpiMetric } from "@/components/cx/kpi-flip-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -56,7 +55,6 @@ import {
 const D1 = "#1A7A3C"
 const D2 = "#2EB85C"
 const D3 = "#E8A020"
-const D4 = "#E05C1A"
 const D5 = "#C01B2A"
 
 // ─── Types ───────────────────────────────────────────────
@@ -712,7 +710,7 @@ function AddQuestionDialog({ open, onClose, onAdd, t, isArabic }: AddQuestionDia
             </Label>
             <Slider
               value={fontSize}
-              onValueChange={setFontSize}
+              onValueChange={(value) => setFontSize(Array.isArray(value) ? [...value] : [value])}
               min={1}
               max={10}
               step={1}
@@ -758,7 +756,6 @@ function AddQuestionDialog({ open, onClose, onAdd, t, isArabic }: AddQuestionDia
 
 export default function SurveysPage() {
   const { t, i18n } = useTranslation()
-  const { isRtl } = useDirection()
   const isArabic = i18n.language === "ar"
 
   const [surveys, setSurveys] = useState<Survey[]>(MOCK_SURVEYS)
@@ -894,39 +891,31 @@ export default function SurveysPage() {
                         >
                           {/* Edit */}
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7"
-                                aria-label={t("common.edit")}
-                              >
-                                <Pencil className="size-3.5" />
-                              </Button>
+                            <TooltipTrigger
+                              className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-7")}
+                              aria-label={t("common.edit")}
+                            >
+                              <Pencil className="size-3.5" />
                             </TooltipTrigger>
                             <TooltipContent>{t("common.edit")}</TooltipContent>
                           </Tooltip>
 
                           {/* Activate / Deactivate */}
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7"
-                                onClick={() => toggleSurveyStatus(survey.id)}
-                                aria-label={
-                                  survey.status === "active"
-                                    ? t("surveys.deactivate")
-                                    : t("surveys.activate")
-                                }
-                              >
-                                {survey.status === "active" ? (
-                                  <PowerOff className="size-3.5 text-d5" />
-                                ) : (
-                                  <Power className="size-3.5 text-d2" />
-                                )}
-                              </Button>
+                            <TooltipTrigger
+                              className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-7")}
+                              onClick={() => toggleSurveyStatus(survey.id)}
+                              aria-label={
+                                survey.status === "active"
+                                  ? t("surveys.deactivate")
+                                  : t("surveys.activate")
+                              }
+                            >
+                              {survey.status === "active" ? (
+                                <PowerOff className="size-3.5 text-d5" />
+                              ) : (
+                                <Power className="size-3.5 text-d2" />
+                              )}
                             </TooltipTrigger>
                             <TooltipContent>
                               {survey.status === "active"
@@ -937,19 +926,15 @@ export default function SurveysPage() {
 
                           {/* Quick-add question */}
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7"
-                                onClick={() => {
-                                  setAddTargetSurveyId(survey.id)
-                                  setAddDialogOpen(true)
-                                }}
-                                aria-label={t("surveys.addQuestion")}
-                              >
-                                <Plus className="size-3.5 text-primary" />
-                              </Button>
+                            <TooltipTrigger
+                              className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-7")}
+                              onClick={() => {
+                                setAddTargetSurveyId(survey.id)
+                                setAddDialogOpen(true)
+                              }}
+                              aria-label={t("surveys.addQuestion")}
+                            >
+                              <Plus className="size-3.5 text-primary" />
                             </TooltipTrigger>
                             <TooltipContent>{t("surveys.addQuestion")}</TooltipContent>
                           </Tooltip>

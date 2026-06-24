@@ -260,7 +260,7 @@ export default function JourneyStatsPage() {
                 <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: '1px solid var(--border)', background: 'var(--card)', fontSize: 12 }}
-                  formatter={(v: number, name: string) => [`${v.toFixed(1)}${name === 'csat' ? '%' : ''}`, name.toUpperCase()]}
+                  formatter={(v, name) => [`${Number(v).toFixed(1)}${name === 'csat' ? '%' : ''}`, String(name).toUpperCase()]}
                 />
                 {visibleKpis.csat && (
                   <Area type="monotone" dataKey="csat" stroke="#0D8BBC" strokeWidth={2.5} fill="url(#csatGrad)" dot={{ r: 3, fill: '#0D8BBC' }} name="csat" />
@@ -311,7 +311,7 @@ export default function JourneyStatsPage() {
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={90} stroke="var(--muted-foreground)" />
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: '1px solid var(--border)', background: 'var(--card)', fontSize: 12 }}
-                  formatter={(v: number) => [`${v}%`, 'Score']}
+                  formatter={(v) => [`${v}%`, 'Score']}
                 />
                 <Bar dataKey="score" radius={[0, 4, 4, 0]}>
                   {stageScores.map((s, i) => (
