@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router"
 import {
   ArrowRight, ArrowLeft, Edit2, Globe, BarChart2, Users, CheckCircle,
-  CalendarDays, TrendingUp, TrendingDown, Smartphone, MessageCircle,
+  CalendarDays, TrendingUp, Smartphone, MessageCircle,
   Mail, Hash, MoreHorizontal, Smile, Meh, Frown, Activity,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
