@@ -73,7 +73,7 @@ export default function KPIConfig({ bindings, onChange, npsWarningDismissed, onD
 
       {/* NPS advisory */}
       {showNpsWarning && (
-        <div className="rounded-md bg-[#FFF0CC] dark:bg-[#7A5000]/20 border border-[#E8A020]/30 p-3 text-xs text-[#7A5000] dark:text-[#FFF0CC]">
+        <div className="rounded-md bg-d3-light dark:bg-d3-dark/20 border border-d3/30 p-3 text-xs text-d3-dark dark:text-d3-light">
           <p className="font-medium mb-1 flex items-center gap-1.5">
             <AlertTriangle className="size-3.5 shrink-0" />
             NPS measures overall loyalty, not single-touchpoint satisfaction.
@@ -83,18 +83,18 @@ export default function KPIConfig({ bindings, onChange, npsWarningDismissed, onD
             <button
               type="button"
               onClick={onDismissNpsWarning}
-              className="text-[#7A5000] dark:text-[#FFF0CC] underline font-medium hover:no-underline"
+              className="text-d3-dark dark:text-d3-light underline font-medium hover:no-underline"
             >
               Use NPS anyway
             </button>
-            <span className="text-[#7A5000]/50">·</span>
+            <span className="text-d3-dark/50">·</span>
             <button
               type="button"
               onClick={() => {
                 onChange(bindings.filter(b => b.kpiType !== 'NPS'))
                 onDismissNpsWarning()
               }}
-              className="text-[#7A5000] dark:text-[#FFF0CC] underline font-medium hover:no-underline"
+              className="text-d3-dark dark:text-d3-light underline font-medium hover:no-underline"
             >
               Choose another KPI
             </button>
@@ -153,8 +153,8 @@ export default function KPIConfig({ bindings, onChange, npsWarningDismissed, onD
           <div className={cn(
             'flex items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium',
             weightError
-              ? 'bg-[#FFD6DA] text-[#6B0010] dark:bg-[#6B0010]/20 dark:text-[#FFD6DA]'
-              : 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]'
+              ? 'bg-d5-light text-d5-dark dark:bg-d5-dark/20 dark:text-d5-light'
+              : 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light'
           )}>
             <span>Total weight</span>
             <span className="tabular-nums font-bold">{total}%</span>

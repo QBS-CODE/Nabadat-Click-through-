@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
-import { ArrowRight, ArrowLeft, Search, LayoutTemplate, Lock } from "lucide-react"
+import { ArrowRight, ArrowLeft, Search, LayoutTemplate, Lock, Eye, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -12,7 +12,6 @@ import { useDirection } from "@/hooks/use-direction"
 import { MOCK_TEMPLATES } from "@/data/mock-surveys"
 import { INDUSTRY_OPTIONS } from "@/types/survey"
 import type { TemplateClass } from "@/types/survey"
-import { cn } from "@/lib/utils"
 
 const SECTOR_LABELS: Record<string, { ar: string; en: string }> = {
   Banking:            { ar: "البنوك", en: "Banking" },
@@ -31,57 +30,74 @@ export default function TemplatePickerPage() {
   const BackIcon = isRtl ? ArrowRight : ArrowLeft
 
   const [search, setSearch] = useState("")
-  // Default to tenant industry (Banking per mock M-11 setting)
-  const [sector, setSector] = useState("Banking")
+  const [sector, setSector] = useState("all")
   const [templateClass, setTemplateClass] = useState<"all" | TemplateClass>("all")
 
   const filtered = MOCK_TEMPLATES.filter((t) => {
     const name = isAr ? t.nameAr : t.nameEn
-    if (search && !name.toLowerCase().includes(search.toLowerCase())) return false
+    const hay = `${name} ${(t.tags ?? []).join(" ")}`.toLowerCase()
+    if (search && !hay.includes(search.toLowerCase())) return false
     if (sector !== "all" && !t.sectors.includes(sector)) return false
     if (templateClass !== "all" && t.templateClass !== templateClass) return false
     return true
   })
+  // Customized (Tenant) templates first, then Built-in (Platform) — matches the reference.
+  .sort((a, b) => (a.templateClass === "Tenant" ? 0 : 1) - (b.templateClass === "Tenant" ? 0 : 1))
 
   return (
-    <div className="space-y-6 py-5 px-8">
+    <div className="space-y-5 py-5 px-8">
+      <p className="text-xs text-muted-foreground">{isAr ? "الاستبيانات › اختر قالباً" : "Surveys › Choose template"}</p>
+
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           className="size-9 mt-0.5 shrink-0"
-          onClick={() => navigate("/surveys")}
+          onClick={() => navigate("/surveys/new")}
           aria-label={isAr ? "العودة" : "Back"}
         >
           <BackIcon className="size-4" />
         </Button>
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-heading font-bold">
             {isAr ? "اختر قالباً" : "Choose a Template"}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
             {isAr
-              ? "ابدأ من قالب جاهز — يمكنك تعديله بالكامل بعد اختياره"
-              : "Start from a ready-made template — fully editable after selection"}
+              ? "صفِّ حسب قطاع عملك، ثم اختر قالباً لبدء الاستبيان منه."
+              : "Filter by your business sector, then pick a template to start the survey from."}
           </p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-52">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <div className="flex-1 relative">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={isAr ? "ابحث عن قالب..." : "Search templates..."}
+            placeholder={isAr ? "ابحث عن قالب..." : "Search templates…"}
             className="ps-9"
           />
         </div>
+        <Select
+          value={templateClass}
+          onValueChange={(v) => setTemplateClass((v ?? "all") as "all" | TemplateClass)}
+        >
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue>{templateClass === "all" ? (isAr ? "جميع الأنواع" : "All Types") : templateClass === "Platform" ? (isAr ? "جاهز" : "Built-in") : (isAr ? "مخصص" : "Customized")}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{isAr ? "جميع الأنواع" : "All Types"}</SelectItem>
+            <SelectItem value="Platform">{isAr ? "جاهز" : "Built-in"}</SelectItem>
+            <SelectItem value="Tenant">{isAr ? "مخصص" : "Customized"}</SelectItem>
+          </SelectContent>
+        </Select>
         <Select value={sector} onValueChange={(v) => setSector(v ?? "all")}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder={isAr ? "القطاع" : "Sector"} />
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue>{sector === "all" ? (isAr ? "جميع القطاعات" : "All Sectors") : (isAr ? INDUSTRY_OPTIONS.find((o) => o.value === sector)?.labelAr : INDUSTRY_OPTIONS.find((o) => o.value === sector)?.labelEn) ?? sector}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{isAr ? "جميع القطاعات" : "All Sectors"}</SelectItem>
@@ -92,27 +108,7 @@ export default function TemplatePickerPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select
-          value={templateClass}
-          onValueChange={(v) => setTemplateClass((v ?? "all") as "all" | TemplateClass)}
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder={isAr ? "الفئة" : "Class"} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{isAr ? "جميع الفئات" : "All Classes"}</SelectItem>
-            <SelectItem value="Platform">{isAr ? "قوالب المنصة" : "Platform"}</SelectItem>
-            <SelectItem value="Tenant">{isAr ? "قوالب مخصصة" : "Tenant"}</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
-
-      {/* Results count */}
-      <p className="text-sm text-muted-foreground">
-        {isAr
-          ? `${filtered.length} قالب متاح`
-          : `${filtered.length} template${filtered.length !== 1 ? "s" : ""} available`}
-      </p>
 
       {/* Template grid */}
       {filtered.length === 0 ? (
@@ -138,81 +134,87 @@ export default function TemplatePickerPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((t) => {
             const name = isAr ? t.nameAr : t.nameEn
-            const isPlatform = t.templateClass === "Platform"
+            const isBuiltIn = t.templateClass === "Platform"
+            // Sectors for Built-in; #tags for Customized — matches the Templates-tab card.
+            const chips = isBuiltIn
+              ? t.sectors.map((s) => ({ key: s, label: isAr ? SECTOR_LABELS[s]?.ar ?? s : SECTOR_LABELS[s]?.en ?? s }))
+              : (t.tags ?? []).map((tg) => ({ key: tg, label: `#${tg}` }))
 
             return (
-              <button
+              <div
                 key={t.id}
-                onClick={() => navigate(`/surveys/new/from-template/${t.id}`)}
-                className="group text-start rounded-lg border border-border bg-card p-5 hover:border-primary/60 hover:shadow-md hover:shadow-primary/5 transition-all"
+                className="flex flex-col rounded-lg border border-border bg-card p-5 gap-3 hover:shadow-md transition-shadow duration-150"
               >
-                {/* Top row: icon + class badge */}
-                <div className="flex items-start justify-between gap-2 mb-4">
-                  <div className="p-2.5 rounded-md bg-nb-cyan-100/60 dark:bg-nb-cyan-900/20">
-                    <LayoutTemplate className="size-5 text-nb-cyan" />
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {isPlatform && (
-                      <Lock className="size-3 text-muted-foreground" />
-                    )}
-                    <Badge
-                      className={cn(
-                        "text-xs border-transparent",
-                        isPlatform
-                          ? "bg-nb-navy-100 text-nb-navy-800 dark:bg-nb-navy-700/40 dark:text-nb-navy-100"
-                          : "bg-nb-cyan-100 text-nb-cyan-800 dark:bg-nb-cyan-900/40 dark:text-nb-cyan-200"
-                      )}
-                    >
-                      {isPlatform ? (isAr ? "منصة" : "Platform") : (isAr ? "مخصص" : "Tenant")}
-                    </Badge>
-                  </div>
+                {/* Top: Built-in badge + lock, or "Customized" label */}
+                <div className="flex items-center gap-2 min-h-5">
+                  {isBuiltIn ? (
+                    <>
+                      <Badge className="text-xs font-medium bg-nb-navy-100 text-nb-navy-800 dark:bg-nb-navy-700/40 dark:text-nb-navy-100 border-transparent">
+                        {isAr ? "جاهز" : "Built-in"}
+                      </Badge>
+                      <Lock className="size-3.5 text-muted-foreground shrink-0" aria-label={isAr ? "للقراءة فقط" : "Read-only"} />
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">{isAr ? "مخصص" : "Customized"}</span>
+                  )}
                 </div>
 
-                {/* Template name */}
-                <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors mb-1.5 leading-snug">
-                  {name}
-                </h3>
+                {/* Title */}
+                <h3 className="font-bold text-base text-foreground leading-snug">{name}</h3>
+
+                {/* Tags — sectors (built-in) or #tags (customized) */}
+                {chips.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {chips.map((c) => (
+                      <Badge key={c.key} variant="outline" className="text-xs text-muted-foreground">
+                        {c.label}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
 
                 {/* Meta */}
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
-                  <span>
-                    {t.questionCount} {isAr ? "سؤال" : "questions"}
-                  </span>
-                  <span className="text-border">•</span>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mt-auto pt-1">
+                  <span>{isAr ? `${t.questionCount} أسئلة` : `${t.questionCount} questions`}</span>
                   <span>
                     {isAr
-                      ? `يستخدمه ${t.usedBySurveys} استبيان`
-                      : `Used by ${t.usedBySurveys} survey${t.usedBySurveys !== 1 ? "s" : ""}`}
+                      ? `مستخدم في ${t.usedBySurveys} استبيان`
+                      : `Used by ${t.usedBySurveys} survey${t.usedBySurveys === 1 ? "" : "s"}`}
                   </span>
                 </div>
 
-                {/* Sector tags */}
-                <div className="flex flex-wrap gap-1.5">
-                  {t.sectors.map((s) => (
-                    <span
-                      key={s}
-                      className={cn(
-                        "text-xs px-2 py-0.5 rounded-full",
-                        s === sector && sector !== "all"
-                          ? "bg-nb-cyan-100 text-nb-cyan-800 dark:bg-nb-cyan-900/40 dark:text-nb-cyan-200"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {isAr ? SECTOR_LABELS[s]?.ar ?? s : SECTOR_LABELS[s]?.en ?? s}
-                    </span>
-                  ))}
+                {/* Actions: use this template (→ survey details) + preview (→ design preview) */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    className="flex-1 bg-primary hover:bg-nb-cyan-700 text-primary-foreground"
+                    onClick={() => navigate(`/surveys/new/from-template/${t.id}`)}
+                  >
+                    <Check className="size-4" />
+                    {isAr ? "استخدم هذا القالب" : "Use this template"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-10 shrink-0"
+                    aria-label={isAr ? "معاينة استبيان القالب" : "Preview this template's survey"}
+                    onClick={() => navigate(`/surveys/new/from-template/${t.id}`, { state: { preview: true } })}
+                  >
+                    <Eye className="size-4" />
+                  </Button>
                 </div>
-
-                {/* Hover CTA */}
-                <div className="mt-4 pt-3 border-t border-border/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-xs font-semibold text-primary">
-                    {isAr ? "ابدأ من هذا القالب ←" : "Start from this template →"}
-                  </span>
-                </div>
-              </button>
+              </div>
             )
           })}
         </div>
+      )}
+
+      {/* Results count */}
+      {filtered.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          {isAr
+            ? `عرض ${filtered.length} من ${MOCK_TEMPLATES.length} قالب`
+            : `Showing ${filtered.length} of ${MOCK_TEMPLATES.length} templates`}
+        </p>
       )}
     </div>
   )

@@ -78,8 +78,8 @@ export default function TouchpointRow({ touchpoint, stageIndex, tpIndex, onEdit,
 
       {/* MoT indicator */}
       {touchpoint.isMoT && (
-        <span className="inline-flex items-center gap-1 shrink-0 text-[#7A5000] dark:text-[#FFF0CC] bg-[#FFF0CC] dark:bg-[#7A5000]/20 px-1.5 py-0.5 rounded text-[10px] font-medium">
-          <AlertTriangle className="size-3 text-[#E8A020]" />
+        <span className="inline-flex items-center gap-1 shrink-0 text-d3-dark dark:text-d3-light bg-d3-light dark:bg-d3-dark/20 px-1.5 py-0.5 rounded text-[10px] font-medium">
+          <AlertTriangle className="size-3 text-d3" />
           MoT
         </span>
       )}
@@ -87,7 +87,7 @@ export default function TouchpointRow({ touchpoint, stageIndex, tpIndex, onEdit,
       {/* KPI indicator */}
       <div className="shrink-0">
         {kpiError ? (
-          <span className="flex items-center gap-1 text-xs text-[#E05C1A]">
+          <span className="flex items-center gap-1 text-xs text-d4">
             <AlertTriangle className="size-3" /> KPI weights
           </span>
         ) : hasKpis ? (

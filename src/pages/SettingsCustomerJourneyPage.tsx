@@ -300,7 +300,7 @@ export default function SettingsCustomerJourneyPage() {
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
-            <Button variant="ghost" onClick={handleBack}>{t("common.cancel")}</Button>
+            <Button variant="outline" onClick={handleBack}>{t("common.cancel")}</Button>
             <Button
               disabled={!isDirty}
               onClick={handleSave}

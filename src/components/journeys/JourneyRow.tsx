@@ -15,15 +15,15 @@ import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 
 const statusConfig: Record<JourneyStatus, { label: string; className: string }> = {
-  Active: { label: 'Active', className: 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]' },
-  Draft: { label: 'Draft', className: 'bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC]' },
+  Active: { label: 'Active', className: 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light' },
+  Draft: { label: 'Draft', className: 'bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light' },
   Archived: { label: 'Archived', className: 'bg-muted text-muted-foreground' },
 }
 
 const typeConfig: Record<JourneyType, { label: string; className: string }> = {
   Transactional: { label: 'Transactional', className: 'bg-nb-cyan-100 text-nb-cyan-800 dark:bg-nb-cyan/10 dark:text-nb-cyan-300' },
   Lifecycle: { label: 'Lifecycle', className: 'bg-nb-mint-100 text-nb-mint-800 dark:bg-nb-mint/10 dark:text-nb-mint-300' },
-  'Issue-Resolution': { label: 'Issue-Resolution', className: 'bg-[#FFE4D0] text-[#7A2800] dark:bg-[#7A2800]/20 dark:text-[#FFE4D0]' },
+  'Issue-Resolution': { label: 'Issue-Resolution', className: 'bg-d4-light text-d4-dark dark:bg-d4-dark/20 dark:text-d4-light' },
   Onboarding: { label: 'Onboarding', className: 'bg-nb-navy-100 text-nb-navy dark:bg-nb-navy/20 dark:text-nb-navy-200' },
 }
 

@@ -113,7 +113,7 @@ export default function FeedbackPage() {
 
       {/* ── Filter Bar ────────────────────────── */}
       <Card>
-        <CardContent className="py-3">
+        <CardContent className="">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             {/* Search */}
             <div className="relative flex-1 w-full sm:max-w-xs">
@@ -166,7 +166,7 @@ export default function FeedbackPage() {
                 <TableHead className="text-start">{t("feedback.colRating")}</TableHead>
                 <TableHead className="text-start">{t("feedback.colSentiment")}</TableHead>
                 <TableHead className="text-start">{t("feedback.colComment")}</TableHead>
-                <TableHead className="text-end pe-6">{t("feedback.colDate")}</TableHead>
+                <TableHead className="text-start pe-6">{t("feedback.colDate")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -195,7 +195,7 @@ export default function FeedbackPage() {
                     <TableCell className="max-w-[200px] truncate text-muted-foreground">
                       {t(entry.commentKey)}
                     </TableCell>
-                    <TableCell className="text-end pe-6 tabular-nums text-muted-foreground">
+                    <TableCell className="text-start pe-6 tabular-nums text-muted-foreground">
                       {new Date(entry.date).toLocaleDateString(
                         i18n.language === "ar" ? "ar-SA" : "en-GB",
                         { day: "numeric", month: "short" }

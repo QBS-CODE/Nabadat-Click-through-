@@ -10,13 +10,15 @@ import KpiDetailPage from "./pages/KpiDetailPage"
 import FeedbackPage from "./pages/FeedbackPage"
 import SurveysLibraryPage from "./pages/SurveysLibraryPage"
 import SurveyBuilderPage from "./pages/SurveyBuilderPage"
+import UseTemplatePage from "./pages/UseTemplatePage"
 import TemplateBuilderPage from "./pages/TemplateBuilderPage"
 import TemplatePickerPage from "./pages/TemplatePickerPage"
 import AiSurveyPage from "./pages/AiSurveyPage"
 import SurveyTranslationsPage from "./pages/SurveyTranslationsPage"
-import SurveyPreviewPage from "./pages/SurveyPreviewPage"
 import SurveyFunnelPage from "./pages/SurveyFunnelPage"
 import SurveyStatsPage from "./pages/SurveyStatsPage"
+import PostExpiryStorePage from "./pages/PostExpiryStorePage"
+import SurveyWizardPage from "./pages/SurveyWizardPage"
 import PlaceholderPage from "./pages/PlaceholderPage"
 import JourneysPage from "./pages/JourneysPage"
 import JourneyBuilderPage from "./pages/JourneyBuilderPage"
@@ -27,6 +29,8 @@ import SettingsPage from "./pages/SettingsPage"
 import SettingsOrganizationPage from "./pages/SettingsOrganizationPage"
 import SettingsCustomerJourneyPage from "./pages/SettingsCustomerJourneyPage"
 import { SettingsProvider } from "./contexts/settings-context"
+import { TenantSwitcher } from "./components/dev/TenantSwitcher"
+import { Toaster } from "./components/ui/sonner"
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth()
@@ -58,14 +62,17 @@ function AppRoutes() {
       <Route path="/feedback" element={<LayoutRoute><FeedbackPage /></LayoutRoute>} />
       {/* Survey Builder module (M-01) */}
       <Route path="/surveys" element={<LayoutRoute><SurveysLibraryPage /></LayoutRoute>} />
+      <Route path="/surveys/new" element={<LayoutRoute><SurveyWizardPage /></LayoutRoute>} />
+      <Route path="/surveys/post-expiry" element={<LayoutRoute><PostExpiryStorePage /></LayoutRoute>} />
       <Route path="/surveys/new/builder" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
-      <Route path="/surveys/new/from-template/:templateId" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/new/from-template/:templateId" element={<LayoutRoute><UseTemplatePage /></LayoutRoute>} />
       <Route path="/surveys/new/ai" element={<LayoutRoute><AiSurveyPage /></LayoutRoute>} />
       <Route path="/surveys/templates/pick" element={<LayoutRoute><TemplatePickerPage /></LayoutRoute>} />
       <Route path="/surveys/templates/new" element={<LayoutRoute><TemplateBuilderPage /></LayoutRoute>} />
       <Route path="/surveys/templates/:id/edit" element={<LayoutRoute><TemplateBuilderPage /></LayoutRoute>} />
       <Route path="/surveys/:id/edit" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
-      <Route path="/surveys/:id/preview" element={<LayoutRoute><SurveyPreviewPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/preview" element={<LayoutRoute><SurveyBuilderPage initialStep={2} previewFull /></LayoutRoute>} />
+      <Route path="/surveys/new/translations" element={<LayoutRoute><SurveyTranslationsPage /></LayoutRoute>} />
       <Route path="/surveys/:id/translations" element={<LayoutRoute><SurveyTranslationsPage /></LayoutRoute>} />
       <Route path="/surveys/:id/funnel" element={<LayoutRoute><SurveyFunnelPage /></LayoutRoute>} />
       <Route path="/surveys/:id/stats" element={<LayoutRoute><SurveyStatsPage /></LayoutRoute>} />
@@ -95,6 +102,8 @@ export default function App() {
         <PersonaProvider>
           <SettingsProvider>
             <AppRoutes />
+            <Toaster position="bottom-right" richColors closeButton />
+            {import.meta.env.DEV && <TenantSwitcher />}
           </SettingsProvider>
         </PersonaProvider>
       </AuthProvider>

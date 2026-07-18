@@ -22,6 +22,7 @@ import {
   Send,
   Zap,
   BarChart3,
+  Clock,
   RefreshCcw,
   Target,
   Map,
@@ -66,6 +67,7 @@ const NAV_ITEMS: NavGroup[] = [
     groupKey: "cx.navAnalytics",
     items: [
       { key: "analytics", labelKey: "cx.navAnalyticsReports", icon: BarChart3, href: "/analytics" },
+      { key: "post_expiry", labelKey: "cx.navPostExpiry", icon: Clock, href: "/surveys/post-expiry" },
       { key: "ai_insights", labelKey: "cx.navAiInsights", icon: Sparkles, href: "#", phase2: true },
     ],
   },
@@ -93,9 +95,9 @@ const NAV_ITEMS: NavGroup[] = [
 ]
 
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
-  analyst: ["dashboard", "surveys", "feedback", "analytics", "ai_insights", "journey", "profiles"],
-  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
+  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
+  analyst: ["dashboard", "surveys", "feedback", "analytics", "post_expiry", "ai_insights", "journey", "profiles"],
+  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }

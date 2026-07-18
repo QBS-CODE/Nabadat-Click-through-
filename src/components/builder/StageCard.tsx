@@ -33,12 +33,12 @@ import type { Stage, Touchpoint, EmotionType } from '@/types/journey'
 const EMOTIONS: EmotionType[] = ['Excited', 'Neutral', 'Anxious', 'Frustrated', 'Confident', 'Confused', 'Relieved']
 
 const emotionColors: Record<EmotionType, string> = {
-  Excited: 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]',
+  Excited: 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light',
   Neutral: 'bg-muted text-muted-foreground',
-  Anxious: 'bg-[#FFE4D0] text-[#7A2800] dark:bg-[#7A2800]/20 dark:text-[#FFE4D0]',
-  Frustrated: 'bg-[#FFD6DA] text-[#6B0010] dark:bg-[#6B0010]/20 dark:text-[#FFD6DA]',
-  Confident: 'bg-[#CCF0FB] text-nb-cyan-800 dark:bg-nb-cyan/10 dark:text-nb-cyan-300',
-  Confused: 'bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC]',
+  Anxious: 'bg-d4-light text-d4-dark dark:bg-d4-dark/20 dark:text-d4-light',
+  Frustrated: 'bg-d5-light text-d5-dark dark:bg-d5-dark/20 dark:text-d5-light',
+  Confident: 'bg-nb-cyan-100 text-nb-cyan-800 dark:bg-nb-cyan/10 dark:text-nb-cyan-300',
+  Confused: 'bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light',
   Relieved: 'bg-nb-mint-100 text-nb-mint-800 dark:bg-nb-mint/10 dark:text-nb-mint-300',
 }
 
@@ -351,7 +351,7 @@ export default function StageCard({ stage, stageIndex, onUpdate, onDuplicate, on
           </div>
           <SheetFooter className="px-6 pt-3 pb-1 border-t border-border flex flex-col gap-2">
             <Button onClick={saveMeta} className="w-full h-10 rounded-md text-sm font-semibold bg-primary hover:bg-nb-cyan-700 text-primary-foreground">Save</Button>
-            <Button variant="ghost" onClick={() => setMetaOpen(false)} className="w-full h-10 rounded-md text-sm font-medium bg-muted hover:bg-muted/80 text-muted-foreground">Cancel</Button>
+            <Button variant="outline" onClick={() => setMetaOpen(false)} className="w-full">Cancel</Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>

@@ -1,3 +1,24 @@
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+at [specs/003-kpi-engine-settings/plan.md](specs/003-kpi-engine-settings/plan.md)
+<!-- SPECKIT END -->
+
+<!-- FRONTEND START -->
+
+## Frontend — design system (binding)
+
+For **any** UI / frontend task in `frontend/` you MUST read and follow the **Nabadat
+Design System** below before writing TSX, and treat it as binding (Vite + React 19 +
+Tailwind 4 + `@base-ui/react` + shadcn-style components).
+
+The styled components live in `frontend/src/components/` (`ui/` primitives, `cx/` feature
+components), design tokens in `frontend/src/index.css`, and helpers in
+`frontend/src/lib/` (`utils.ts` → `cn()`, `journey-data.ts` → `perfColor`/`perfLevel`).
+**Reuse them** per the Component Sourcing Rule below — never recreate what exists.
+
+<!-- FRONTEND END -->
+
 # Nabdat — Design System & Development Guidelines
 
 > **Voice of Customer (VOC) SaaS platform** for enterprise and government.
@@ -7,17 +28,21 @@
 ## Design Context
 
 ### Users
+
 Business analysts, customer success managers, quality teams, and executives in
 banking, telecom, and government. Desktop-first. Mixed technical proficiency.
 Arabic-speaking primary audience with English as secondary language.
 
 ### Brand Personality
+
 **Precise · Human · Action-Oriented · Credible** — Nabadat speaks with clarity
 and care. It earns the trust of government officials and enterprise leaders by
 being precise, never clinical. Warm, never casual.
 
 ### Brand Voice
+
 Four pillars define all UI copy, labels, insights, and AI-generated text:
+
 1. **Precise** — Numbers, percentages, and trends stated clearly. No hedging.
    No vague positives. Data speaks first.
    - DO: "NPS dropped 6 points this month across digital channels."
@@ -42,11 +67,13 @@ carry the same precision and warmth as the English voice, adapted to Arabic
 rhetorical conventions.
 
 ### Aesthetic Direction
+
 Nabadat Cyan/Mint brand with navy-tinted dark mode. Clean, data-dense dashboard
 style. Professional but not cold — approachable enterprise. Navy-tinted dark mode
 that maintains brand identity.
 
 ### Design Principles
+
 1. **Data first** — content and data are the hero, not the chrome
 2. **Clarity over decoration** — every element must earn its place
 3. **Consistency** — same patterns, same spacing, same behavior everywhere
@@ -57,18 +84,34 @@ that maintains brand identity.
 
 ## Self-Maintenance Rule
 
-CLAUDE.md is a **living document** owned by the **frontend lead**.
+CLAUDE.md holds two kinds of content with **different ownership**:
 
-**Owner identification:** Before modifying CLAUDE.md, check `git config user.email`.
+- **Frontend / design-system content** (the Nabadat Design System: color, typography,
+  components, RTL/bilingual, dark mode, brand voice, layout, data-viz, and all
+  DO / DO NOT lists) is a **living document owned by the frontend lead**. The
+  email-owner restriction below applies **only** to this content.
+- **Backend governance content** (Unit Test Policy, E2E Test Policy, Backend
+  Integration, Dev Environment Workflow) mirrors the platform constitution under
+  `.specify/memory/` and is owned by the platform/backend governance process. It is
+  kept in sync with the constitution by whoever lands the corresponding amendment —
+  the frontend-lead email restriction does **NOT** apply to it.
+
+**Owner identification (frontend / design-system content only):** Before modifying a
+**frontend / design-system** section, check `git config user.email`.
+
 - If the email is `mrwantarik50@gmail.com` or `m.elsayed@qbs.jo` → this is the owner. Apply updates directly.
-- If the email is **anything else** → this is a team member. **Do NOT modify CLAUDE.md.**
+- If the email is **anything else** → this is a team member. **Do NOT modify the frontend / design-system sections.**
   Instead, suggest changes as a message so the owner can review.
 
-Only the frontend developer should modify this file directly. All other team members
-(backend, business, COO) should **follow** CLAUDE.md but never change it.
+Only the frontend developer should modify the **frontend / design-system** sections
+directly. All other team members (backend, business, COO) should **follow** them but
+never change them. Backend governance sections are exempt from this restriction and
+track the constitution in `.specify/memory/`.
 
 ### For the frontend developer (owner)
+
 Update CLAUDE.md proactively — don't wait to be asked:
+
 - **Bug fix reveals a pattern** — add the rule so it never happens again.
 - **New reusable component created** — document it in the Component Sourcing Rule.
 - **New page pattern established** — document it for consistency.
@@ -77,8 +120,10 @@ Update CLAUDE.md proactively — don't wait to be asked:
 - **Gotcha or pitfall found** — add a warning to the relevant section.
 
 ### For everyone else (backend devs, COO, business team)
+
 **Read and follow CLAUDE.md — but do NOT modify it.** If you discover something that
 should be added (a new API endpoint, a pattern, a rule), tell Claude:
+
 > "Suggest this for CLAUDE.md: [your observation]"
 
 Claude will **not** write the change. Instead it will note the suggestion in a comment
@@ -86,6 +131,7 @@ or message so the frontend lead can review and apply it. This prevents conflicti
 rules from different team members.
 
 ### Protected sections (never modify without frontend lead approval)
+
 - Color System (brand palette, D1–D5, Two-Palette Rule)
 - Typography (fonts, scale, weights)
 - Spacing & Border Radius
@@ -95,11 +141,13 @@ rules from different team members.
 - DO / DO NOT lists
 
 ### When NOT to update
+
 - Ephemeral fixes (typos, one-off data changes)
 - Things already derivable from reading the code
 - Temporary workarounds that will be removed
 
 ### How to update (frontend lead only)
+
 Add the rule to the **most relevant existing section**. If no section fits, create a new one.
 Keep entries concise — one line per rule where possible. Always explain **why** the rule exists,
 not just what it is.
@@ -107,6 +155,7 @@ not just what it is.
 ---
 
 ## Stack
+
 - React 19 + TypeScript + Vite
 - Tailwind CSS v4 + shadcn/ui
 - React Router for navigation
@@ -114,6 +163,7 @@ not just what it is.
 - Lucide React for icons (never use emojis as icons)
 
 ### Recommended Claude Code Plugin
+
 For higher design quality when generating pages and components, install the
 **Impeccable** frontend-design plugin. It enforces creative, polished output that
 avoids generic AI aesthetics. Install it via Claude Code plugin manager.
@@ -138,11 +188,13 @@ When a prompt requires a component or visualization:
 > Always `import` from existing components rather than duplicating their logic.
 
 ### When to use Recharts vs Custom SVG
+
 Recharts is appropriate for **standard data charts**: line charts, bar charts, area charts, stacked
 charts, and basic pie charts — anywhere the data shape is tabular and the visual is conventional.
 
 **Always use custom SVG** for these visualization types — Recharts cannot achieve the required
 visual richness:
+
 - **KPI Gauges** — semicircular dual-ring gauges with colored zones (red→amber→green), needle
   dot indicator, target arrow marker, and gradient depth
 - **Spider/Radar charts** — radial gradient fills (red center → green outer showing performance
@@ -156,6 +208,7 @@ The rule is: **if the visualization needs gradients, zones, needles, per-element
 or depth effects → custom SVG. If it's a standard x/y data plot → Recharts.**
 
 ### After sourcing, always apply the Nabdat design system:
+
 - **Colors**: Replace any default/generic colors with Nabadat brand tokens (`bg-primary`, `text-nb-cyan`, `fill-chart-1`, etc.). Never ship a component with default blue/grey colors. Follow the Two-Palette Rule (see Color System).
 - **Dark mode**: Add `dark:` variants using the navy-tinted dark palette — never leave components unstyled in dark mode.
 - **Typography**: Use `font-sans` / `font-heading` / `font-mono` — never inherit external font families.
@@ -164,15 +217,29 @@ or depth effects → custom SVG. If it's a standard x/y data plot → Recharts.*
 - **Spacing**: Follow the 4px grid spacing scale (`p-6` for cards, `gap-4` / `gap-6` for grids, `space-y-4` for form fields).
 
 ### Custom SVG Visualizations
+
 When Recharts doesn't cover a chart type (e.g. bubble/ring sentiment charts), build custom SVG:
+
 - Use `stroke-dasharray` + `stroke-dashoffset` on `<circle>` elements for donut/ring segments
 - Use `transform="rotate(-90, cx, cy)"` to start arcs from 12 o'clock
 - Wrap in a `<svg viewBox="...">` with `className="w-full h-full"` for responsiveness
 - Always add `role="img"` and `aria-label` to the `<svg>` for accessibility
 - Use CSS variables from the design system (`var(--color-nb-cyan)`, etc.) for stroke/fill colors
+- **Neutral SVG chrome MUST be theme-aware — never a hardcoded light-slate hex (dark-mode
+  gotcha).** Only *status* colors (`perfColor` / the D1–D5 constants) may be raw hex in an SVG
+  `fill`/`stroke`, because those are fixed across themes. Everything **neutral** — unfilled
+  gauge/ring **tracks**, gridlines, **tick marks**, needle-pivot dots, and axis / center /
+  min-max **labels** — must adapt to dark mode. Put a Tailwind utility on the SVG element
+  (`className="stroke-muted/20"`, `fill-muted-foreground`, `stroke-foreground`, `stroke-card`
+  for a contrast ring) instead of a `stroke="#F1F5F9"` / `fill="#94A3B8"` attribute. A
+  hardcoded slate track is invisible-or-wrong on the navy dark surface. (This is why the
+  "allowed hex in JS" note covers `perfColor`/data-viz *status* values only — not neutral
+  track/label chrome.)
 
 ### KPI Gauge Design Spec
+
 KPI gauges must be visually rich — dual-ring semicircular design:
+
 - **Outer ring** (thick, ~6% of size): shows filled value arc in the KPI's brand color,
   unfilled portion in `stroke-muted/20`
 - **Inner ring** (thin, ~1.5% of size): three colored zones — red (0-33%), amber (33-55%),
@@ -181,13 +248,21 @@ KPI gauges must be visually rich — dual-ring semicircular design:
   stroke for contrast
 - **Target marker**: tick line + arrow at the target position on the arc, with small "T" label
 - **Center text**: large value (e.g., "+42", "78%") + small label below (e.g., "NPS", "CSAT")
-- **Min/Max labels**: at arc endpoints (e.g., "-100" and "+100" for NPS)
+- **Min/Max labels**: at arc endpoints (e.g., "-100" and "+100" for NPS). **Pad the `viewBox`
+  horizontally so these clear the arc — don't let them clip.** End labels sit *outside* the arc
+  radius at the far left/right, and a 3–4-char number (`100`, `−100`, `+100`) centered there
+  overflows a tight viewBox (numbers came out cut to `10` / `-100`→`100`). Give the `viewBox` a
+  negative min-x and extra width (e.g. `viewBox="-14 -2 248 136"` for a 220-wide gauge) and set
+  the label radius a couple px beyond the ring (`R_OUTER + 18`, not `+16`) so labels read as
+  spaced, not stuck to the arc. The gauge scales down a hair — correct trade for un-clipped labels.
 - Below gauge: **3-tile segment grid** (e.g., Promoters 51% | Passives 40% | Detractors 9%),
   each tile with colored background tint matching its category
 - Below segments: change indicator (▲/▼ + value) + total responses count
 
 ### Spider/Radar Chart Design Spec
+
 The KPI overview spider chart must use a custom SVG with:
+
 - **Radial gradient fill**: red (center, opacity 0.6) → orange → amber → green (outer,
   opacity 0.2) — showing performance zones from bad to great
 - **White cutout**: use `fill-rule="evenodd"` to create a white mask between the outer
@@ -208,15 +283,17 @@ These patterns apply to **all future charts and visualizations** in the app. Any
 building a new chart must follow these specs to maintain the premium data-rich feel.
 
 ### Journey Map — Stage Columns (Customer Journey)
+
 The Journey Map renders each stage as a **vertical column**, and every column is
 **color-coded by the stage's score on the D1–D5 scale — five colors, one per band**.
 This is mandatory, not optional styling:
+
 - **Column background = a lighter shade of the stage's status color:**
   `bg-d{n}-light dark:bg-d{n}-dark/25`, where `n = perfLevel(stage.score)` (from
   `journey-data.ts`). E.g. 93% → d1 (pale green), 80% → d2 (green), 65%/67% → d3 (pale
   amber). The five D-levels give the five stage colors.
 - **Score % (column header) = the matching deep shade:** `text-d{n}-dark
-  dark:text-d{n}-light`.
+dark:text-d{n}-light`.
 - **No / zero score →** neutral column (`bg-muted/30`), render the score as `—` — never
   default to D5 red.
 - **Emotion bubble:** white circle (`bg-card`) with a colored ring in the full-strength
@@ -233,8 +310,10 @@ This is mandatory, not optional styling:
 > Scale → "Status-tinted containers"**.
 
 ### Trend Chart Annotations
+
 When a time series chart tracks KPIs over time and there are **actions/events** that were
 taken during that period, mark them on the chart:
+
 - Use Recharts `ReferenceDot` for action markers: colored circle (r=6) with white stroke at
   the event's x/y position on the chart
 - Use Recharts `ReferenceLine` with `strokeDasharray="4 4"` for vertical dotted lines at
@@ -246,7 +325,9 @@ taken during that period, mark them on the chart:
 - Always include a small legend explaining what the dots mean
 
 ### Distribution / Progress Bars
+
 When showing percentage breakdowns (e.g., Promoters/Passives/Detractors, Satisfied/Neutral/Dissatisfied):
+
 - Use **horizontal bars** with `rounded-full` ends
 - Each bar width = proportional to its percentage value
 - Color each bar by its category (green for positive, amber for neutral, red for negative)
@@ -256,7 +337,9 @@ When showing percentage breakdowns (e.g., Promoters/Passives/Detractors, Satisfi
 - Animate bar width on mount: `motion-safe:transition-all motion-safe:duration-700`
 
 ### Segment / Branch Breakdown Bars
+
 When showing values per location, channel, or segment (e.g., branch NPS scores):
+
 - Each row: label on start side, mini **progress bar** in the middle, score value on end side
 - Bar width = proportional to the **maximum value** in the dataset (not 100%)
 - Color each bar using `perfColor(value)` — green for high, amber for mid, red for low
@@ -266,7 +349,9 @@ When showing values per location, channel, or segment (e.g., branch NPS scores):
 - Maximum 6-8 rows — if more exist, show a "View all" link
 
 ### Donut / Reasons Charts
+
 For categorical breakdowns shown as donut charts (e.g., reasons analysis on KPI flip cards):
+
 - Use Recharts `PieChart` with `Pie` component, `innerRadius` ~60% of `outerRadius`
 - **Center label**: large value or metric name (e.g., "+42" or "NPS") using Recharts `Label`
 - **Segment stroke**: use `stroke="var(--color-card)"` for clean separation between slices
@@ -275,7 +360,9 @@ For categorical breakdowns shown as donut charts (e.g., reasons analysis on KPI 
 - Animate on mount with Recharts' built-in animation props
 
 ### Chart Card Styling
+
 Every card that contains a chart or visualization must feel **elevated**:
+
 - Card: `shadow-sm` in light mode, `dark:shadow-none` (borders provide depth in dark)
 - Card header: `CardTitle` + `CardDescription` — always explain what the chart shows
 - Card content: adequate padding (`p-6`) so the chart doesn't touch edges
@@ -284,7 +371,9 @@ Every card that contains a chart or visualization must feel **elevated**:
   where possible. For custom SVG charts, use `viewBox` + `width="100%"` for responsiveness
 
 ### Comparison Charts (Current vs Previous Period)
+
 When showing two time periods side by side (e.g., customer journey current vs previous):
+
 - **Current period**: solid line, `strokeWidth={2.5}`, with gradient area fill below
   (`linearGradient` from 30% opacity at top to 5% at bottom)
 - **Previous period**: dashed line (`strokeDasharray="6 3"`), `strokeWidth={2}`, no fill
@@ -294,7 +383,9 @@ When showing two time periods side by side (e.g., customer journey current vs pr
   description of the decline)
 
 ### Funnel Visualizations
+
 For conversion funnels (e.g., survey impressions → completed):
+
 - Show as **stacked horizontal bars** with decreasing widths
 - Each bar: `rounded-full` ends, height `h-3`
 - Color progression: light shade at top → darker shade at bottom (e.g., blue-lite → blue)
@@ -307,33 +398,36 @@ For conversion funnels (e.g., survey impressions → completed):
 ## Arabic & Bilingual Support
 
 ### RTL-First Architecture
+
 The app is **RTL by default** (`dir="rtl"` and `lang="ar"` on `<html>`).
 All layouts must be built RTL-first, then verified in LTR.
 
 ### Mandatory Logical Properties
+
 **Never use physical direction properties.** Always use logical equivalents:
 
 ```tsx
 // Correct — works in both RTL and LTR
-className="ps-4 pe-2 ms-auto me-0 text-start rounded-s-lg border-e"
+className = "ps-4 pe-2 ms-auto me-0 text-start rounded-s-lg border-e";
 
 // Wrong — breaks in RTL
-className="pl-4 pr-2 ml-auto mr-0 text-left rounded-l-lg border-r"
+className = "pl-4 pr-2 ml-auto mr-0 text-left rounded-l-lg border-r";
 ```
 
-| Physical (NEVER use) | Logical (ALWAYS use) |
-|----------------------|---------------------|
-| `pl-*` / `pr-*` | `ps-*` / `pe-*` |
-| `ml-*` / `mr-*` | `ms-*` / `me-*` |
-| `left-*` / `right-*` | `start-*` / `end-*` |
-| `text-left` / `text-right` | `text-start` / `text-end` |
+| Physical (NEVER use)          | Logical (ALWAYS use)          |
+| ----------------------------- | ----------------------------- |
+| `pl-*` / `pr-*`               | `ps-*` / `pe-*`               |
+| `ml-*` / `mr-*`               | `ms-*` / `me-*`               |
+| `left-*` / `right-*`          | `start-*` / `end-*`           |
+| `text-left` / `text-right`    | `text-start` / `text-end`     |
 | `rounded-l-*` / `rounded-r-*` | `rounded-s-*` / `rounded-e-*` |
-| `border-l-*` / `border-r-*` | `border-s-*` / `border-e-*` |
+| `border-l-*` / `border-r-*`   | `border-s-*` / `border-e-*`   |
 | `scroll-pl-*` / `scroll-pr-*` | `scroll-ps-*` / `scroll-pe-*` |
 
 **Exception:** `mx-auto` and `px-*` (symmetric padding) are safe to use.
 
 ### Arabic Typography Rules
+
 - Arabic text should **never be justified** (`text-justify`) — it distorts letter connections
 - Minimum body text size: `text-sm` (14px). Never use `text-xs` for Arabic body text
 - Arabic reads more comfortably with slightly more line-height: use `leading-relaxed` (1.625) for Arabic body text
@@ -341,6 +435,7 @@ className="pl-4 pr-2 ml-auto mr-0 text-left rounded-l-lg border-r"
 - Never break Arabic words with `break-all` — use `break-words` or `overflow-wrap: break-word`
 
 ### Bilingual Text Patterns
+
 When the app supports both Arabic and English:
 
 ```tsx
@@ -355,9 +450,25 @@ When the app supports both Arabic and English:
 
 // Date formatting — position differs per locale
 <time>{isArabic ? "١٢ مايو ٢٠٢٦" : "May 12, 2026"}</time>
+
+// Stacked bilingual name (primary + secondary opposite-script) — use <bdi>, NOT a dir'd span
+<div className="flex min-w-0 flex-col items-start">
+  <bdi dir={primaryDir} className="max-w-full truncate text-start font-semibold">{primary}</bdi>
+  <bdi dir={secondaryDir} lang={secondaryLang} className="max-w-full truncate text-start text-sm text-muted-foreground">{secondary}</bdi>
+</div>
 ```
 
+**Two-name cells: `<bdi>` + `text-start`, never a `dir`-flipped `<span>`.** When a table cell
+stacks a primary + secondary name where the secondary is the *opposite* script (English name
+under an Arabic one, or vice-versa), a `<span dir="rtl">` sets that span's writing direction,
+so its `text-align: start` resolves to the **opposite** edge — the secondary name jumps to the
+far side of the cell and reads as broken (seen on the Personas table). Use `<bdi>` (bidi
+isolation: correct glyph shaping per its own `dir`) as a content-width flex item under
+`items-start`, with explicit `text-start` — both names then hug the cell's start edge while
+each still renders in its own direction.
+
 ### Content Guidelines for Arabic
+
 - Use Modern Standard Arabic (فصحى) for UI labels, not dialect
 - Keep labels concise — Arabic labels are typically 30-40% longer than English
 - Test with long Arabic text to ensure truncation works properly
@@ -368,21 +479,23 @@ When the app supports both Arabic and English:
 ## Color System
 
 ### Two-Palette Rule (THE HARD RULE)
+
 Nabadat uses **two separate color palettes** that must NEVER be mixed:
 
 | Brand Palette (Mint · Cyan · Navy) | Semantic Palette (D1 · D2 · D3 · D4 · D5) |
-|-------------------------------------|---------------------------------------------|
-| Marketing and communications | KPI status indicators only |
-| Product chrome and navigation | Dashboard severity states |
-| UI components and buttons | Performance threshold badges |
-| Illustrations and hero backgrounds | Alert and notification states |
-| Chart series colors (non-semantic) | Closed-loop case status |
-| Logo and identity elements | Survey score bands |
+| ---------------------------------- | ----------------------------------------- |
+| Marketing and communications       | KPI status indicators only                |
+| Product chrome and navigation      | Dashboard severity states                 |
+| UI components and buttons          | Performance threshold badges              |
+| Illustrations and hero backgrounds | Alert and notification states             |
+| Chart series colors (non-semantic) | Closed-loop case status                   |
+| Logo and identity elements         | Survey score bands                        |
 
 > **Brand colors never signal status.**
 > **Semantic colors never appear decoratively.**
 
 ### Brand Colors (`nb-*` prefix)
+
 The Nabadat brand palette — use for chrome, navigation, CTAs, chart series:
 
 ```
@@ -415,6 +528,7 @@ Navy family:     bg-nb-navy             #1E2235   (wordmark, dark surfaces, text
 Never reverse the gradient direction (Cyan → Mint) in LTR layouts.
 
 **Neutral Palette:**
+
 ```
 bg-nb-dark         #0D0F14   (darkest surface)
 bg-nb-dark-2       #1B1C27   (elevated dark surface)
@@ -425,50 +539,118 @@ bg-nb-cloud        #EEF1F7   (subtle backgrounds, table rows)
 ```
 
 ### Semantic KPI Colors (D1–D5 Scale)
+
 Shared standard with QBS. This is a universal KPI language — NOT a brand color.
 Enterprise clients who use both Nabadat and QBS see consistent KPI signaling.
 
-| Degree | Name | Base | Light Token | Dark Token | Threshold |
-|--------|------|------|-------------|------------|-----------|
-| D1 | Excellent | `#1A7A3C` | `#D4F4E2` | `#0D4A24` | >110% target · Revenue over target · NPS above benchmark |
-| D2 | Good | `#2EB85C` | `#C8F5DB` | `#156632` | 90–110% · Pipeline health · CSAT on track |
-| D3 | Caution | `#E8A020` | `#FFF0CC` | `#7A5000` | 70–89% · Drifting NPS · Response time rising |
-| D4 | Warning | `#E05C1A` | `#FFE4D0` | `#7A2800` | 50–69% · SLA breach risk · Escalation queue full |
-| D5 | Critical | `#C01B2A` | `#FFD6DA` | `#6B0010` | <50% · System failure · Major complaint surge |
+| Degree | Name      | Base      | Light Token | Dark Token | Threshold                                                |
+| ------ | --------- | --------- | ----------- | ---------- | -------------------------------------------------------- |
+| D1     | Excellent | `#1A7A3C` | `#D4F4E2`   | `#0D4A24`  | >110% target · Revenue over target · NPS above benchmark |
+| D2     | Good      | `#2EB85C` | `#C8F5DB`   | `#156632`  | 90–110% · Pipeline health · CSAT on track                |
+| D3     | Caution   | `#E8A020` | `#FFF0CC`   | `#7A5000`  | 70–89% · Drifting NPS · Response time rising             |
+| D4     | Warning   | `#E05C1A` | `#FFE4D0`   | `#7A2800`  | 50–69% · SLA breach risk · Escalation queue full         |
+| D5     | Critical  | `#C01B2A` | `#FFD6DA`   | `#6B0010`  | <50% · System failure · Major complaint surge            |
 
 **Token Usage:**
+
 - **Base color** — text values, icons, dot indicators
 - **Light token** — badge backgrounds, row fills
 - **Dark token** — text ON light-token backgrounds
+- **Hover token** (`d{n}-hover`) — a darker step of the *light* token for hover on a
+  D-tinted surface (e.g. `bg-d2-light hover:bg-d2-hover`). Only `--color-d2-hover`
+  exists today; add `--color-d{n}-hover` for other levels as needed — never reach for a
+  raw `hover:bg-[#hex]`.
 - **Scale direction** — always D1 (deep green) to D5 (deep red)
 
 **Hard Rules:**
+
 - Never use semantic colors for chart series or decorative fills
 - Never skip degrees — show actual state even if it jumped to D5
 - D1 and D5 must be rare — overuse destroys meaning
 - D2 should be the most common state on a healthy dashboard
 
 ### Semantic shadcn Colors (use these first)
+
 These map to shadcn utility classes. Always prefer semantic tokens over brand tokens:
 
-| Token | Light Mode | Dark Mode | Usage |
-|-------|-----------|-----------|-------|
-| `bg-primary` | Cyan `#0D8BBC` | Cyan-lite `#59CCEA` | CTAs, active nav, headline KPI values |
-| `text-primary-foreground` | White | Navy `#1E2235` | Text on primary backgrounds |
-| `bg-secondary` | Mint `#13DB9B` | Mint-lite `#54DE8C` | Secondary accents, chart series 1 |
-| `text-secondary-foreground` | White | Navy `#1E2235` | Text on secondary backgrounds |
-| `bg-accent` | Cloud `#EEF1F7` | Navy-dark `#161B29` | Feature sections, highlights |
-| `text-accent-foreground` | Navy `#1E2235` | Cloud `#EEF1F7` | Text on accent backgrounds |
-| `bg-muted` | Cloud `#EEF1F7` | Navy-800 `#0E1018` | Subtle backgrounds |
-| `text-muted-foreground` | Stone `#7A8196` | Stone-lite `#B8BFCE` | Secondary text, captions |
-| `bg-destructive` | D5 base `#C01B2A` | D5 lite `#FFD6DA` | Errors, delete actions |
-| `border-border` | Navy-200 `#C4CADD` | Navy tint `rgba(30,34,53,0.3)` | All borders |
-| `bg-background` | Off-white `#F7F9FC` | Dark `#0A0C11` | Page background — lightly navy-tinted, never pure white; just enough that white cards lift without the page reading grey |
-| `text-foreground` | Navy `#1E2235` | Off-white `#EDEDEF` | Primary body text |
-| `bg-card` | White | Dark-2 `#1B1C27` | Card surfaces |
+| Token                       | Light Mode          | Dark Mode                      | Usage                                                                                                                    |
+| --------------------------- | ------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `bg-primary`                | Cyan `#0D8BBC`      | Cyan-lite `#59CCEA`            | CTAs, active nav, headline KPI values                                                                                    |
+| `text-primary-foreground`   | White               | Navy `#1E2235`                 | Text on primary backgrounds                                                                                              |
+| `bg-secondary`              | Mint `#13DB9B`      | Mint-lite `#54DE8C`            | Secondary accents, chart series 1                                                                                        |
+| `text-secondary-foreground` | White               | Navy `#1E2235`                 | Text on secondary backgrounds                                                                                            |
+| `bg-accent`                 | Cloud `#EEF1F7`     | Navy-dark `#161B29`            | Feature sections, highlights                                                                                             |
+| `text-accent-foreground`    | Navy `#1E2235`      | Cloud `#EEF1F7`                | Text on accent backgrounds                                                                                               |
+| `bg-muted`                  | Cloud `#EEF1F7`     | Navy-800 `#0E1018`             | Subtle backgrounds                                                                                                       |
+| `text-muted-foreground`     | Stone `#7A8196`     | Stone-lite `#B8BFCE`           | Secondary text, captions                                                                                                 |
+| `bg-destructive`            | D5 base `#C01B2A`   | D5 lite `#FFD6DA`              | Errors, delete actions                                                                                                   |
+| `border-border`             | Navy-200 `#C4CADD`  | Navy tint `rgba(30,34,53,0.3)` | All borders                                                                                                              |
+| `bg-background`             | Off-white `#F7F9FC` | Dark `#0A0C11`                 | Page background — lightly navy-tinted, never pure white; just enough that white cards lift without the page reading grey |
+| `text-foreground`           | Navy `#1E2235`      | Off-white `#EDEDEF`            | Primary body text                                                                                                        |
+| `bg-card`                   | White               | Dark-2 `#1B1C27`               | Card surfaces                                                                                                            |
+
+### Multi-Tenant Theming (themeable vs fixed tokens — THE THEMING RULE)
+Nabadat is multi-tenant: each tenant's brand is driven by a small **seed** of colors
+stored per tenant, expanded at runtime into the full variable set. For that to work,
+**new pages and components MUST be built so a tenant theme reskins them with zero code
+change.** Three tiers of color, by whether they re-theme:
+
+1. **Themeable — semantic tokens (USE THESE for anything brand/chrome).** `bg-primary`,
+   `bg-secondary`, `bg-accent`, `bg-muted`, `bg-card`, `bg-popover`, `text-foreground`,
+   `border-border`, `ring`, `fill-chart-1…5`, and all `*-sidebar*` tokens read CSS
+   variables (`--primary`, …) that are overridden per tenant. A card built only from
+   these re-themes for free.
+2. **Themeable — brand `nb-*` shades (now tenant-aware).** `bg-nb-cyan`, `text-nb-mint-700`,
+   etc. resolve through `--color-nb-* → var(--nb-*)` (the raw `--nb-*` ramps live in a
+   `:root` block in `index.css`), so a tenant theme re-skins all of them by overriding the
+   `--nb-*` vars — **no component changes**. Keep using `bg-nb-cyan-700` freely; it follows
+   the tenant brand automatically. **Raw hex is still forbidden** (`bg-[#C8F5DB]` → use the
+   `d{n}-*` token; `bg-[#0D8BBC]` → use `bg-nb-cyan` or `bg-primary`).
+   **Stays FIXED (never themed):** the `nb-gradient-*` tokens (logo gradient — non-negotiable)
+   and the D1–D5 scale. Use `nb-gradient-*` for the logo so it never re-themes; decorative
+   gradients may use `from-nb-mint`/`to-nb-cyan` and will follow the tenant.
+3. **Global constants — NEVER tenant-themed.** The **D1–D5 KPI scale** and
+   **`destructive`** (which *is* D5) are semantic *meaning*, not branding: red = critical
+   for every tenant, consistent with QBS. They live permanently in `index.css` and the
+   theming engine never emits or overrides them.
+
+**Engine (`src/lib/theme/`):** a `TenantThemeSeed` is **3 required** (`primary`,
+`secondary`, `neutral`) **+ 3 optional** (`sidebar`, `accent`, `background`) colors.
+`deriveThemeVars(seed)` expands it (OKLCH ramps, contrast-picked `*-foreground`,
+`chart-*`, neutrals, dark-mode variants); `buildThemeCss(seed)` serializes to
+`:root{…} .dark{…}`; `applyTheme(seed)` injects a `<style id="tenant-theme">` (client),
+or inject the same string server/edge-side for zero-flash first paint. **The default
+Nabadat theme is NOT generated** — it stays pinned in `index.css` verbatim, so the
+default app is pixel-identical; derivation only runs for non-default tenants. The boot
+path is `loadCurrentTheme()` in `main.tsx`, calling `GET /api/theme/current` (relative,
+through the `/api` proxy with `xfwd` so the backend resolves the tenant by subdomain).
+
+**Theming self-review — run on every new page/component (and when reviewing one).**
+Two regex searches (VS Code regex mode, or `grep -rnoE … src --include='*.tsx'`) tell you
+if a page is tenant-safe. Don't search a bare `#` — it's ~90% noise (`url(#id)`, etc.).
+
+1. **The hard rule — MUST return 0:** `-\[#[0-9a-fA-F]{3,8}\]`
+   Hex used as a Tailwind class (`bg-[#0D8BBC]`). This bypasses tokens and never
+   re-themes. **Any hit is a defect** — replace with a token (`bg-primary` /
+   `bg-nb-cyan-700` / `bg-d2-light` / `text-foreground`).
+2. **Judgment check:** `style=\{\{[^}]*#[0-9a-fA-F]{6}`
+   Hex in an inline `style={{…}}`. Allowed **only** for an intentionally-fixed surface;
+   if it's a Nabadat brand color that should follow the tenant, move it to a token/class.
+
+**Allowed hex (NOT violations) — leave these alone:**
+- `fill="#…"` / `stroke="#…"` / `url(#id)` — SVG attributes & gradient/filter refs.
+- `perfColor` D-scale constants and chart/data-viz hex in **JS** — must be JS values
+  (can't be Tailwind classes); this is the documented SVG/canvas pattern.
+- **Third-party brand mockups** — external-app chrome (e.g. a WhatsApp/device preview).
+  These simulate an external app and must stay fixed; they are NOT Nabadat UI.
+
+**New-page rule of thumb:** every color is a token (`semantic` → `nb-*` → `d{n}-*`);
+zero hex in `className`; inline-`style` hex only for fixed third-party/device mockups.
 
 ### Chart Colors
+
 Charts use `chart-1` through `chart-5` — always brand palette, NEVER semantic:
+
 - Chart-1: Cyan `#0D8BBC` (use for primary data series inside dashboards — safer near semantic states)
 - Chart-2: Mint `#13DB9B`
 - Chart-3: Navy-300 `#8B90A5`
@@ -477,18 +659,27 @@ Charts use `chart-1` through `chart-5` — always brand palette, NEVER semantic:
 - Use `fill-chart-1`, `stroke-chart-2`, etc.
 - Always include a legend — never rely on color alone
 - Add patterns/textures as secondary differentiator for accessibility
+- **Inline chart/D-scale colors must use the raw `--chart-N` / `--d{n}` `:root`
+  token, NOT the `--color-chart-N` `@theme` alias.** Tailwind v4 only emits an
+  `@theme` token to `:root` when some utility class references it, so an inline
+  `style={{ background: "var(--color-chart-5)" }}` or a Recharts `fill="var(--color-chart-5)"`
+  can resolve to **empty** → an invisible dot/segment (this bit the per-question
+  donut: `chart-5` had no `bg-`/`fill-` utility anywhere, so its legend dot and
+  slice rendered transparent/black). Either use `var(--chart-5)` (the raw token
+  is always on `:root`) or a real `bg-chart-5` / `fill-chart-5` utility class.
 
 ### Performance Color Scale (uses D1–D5 semantic tokens)
+
 When values represent performance (KPIs, scores, percentages), always color-code
 them dynamically using the **D1–D5 semantic scale** — never use brand colors:
 
 ```tsx
 // D1–D5 semantic colors for performance indication
-const D1 = "#1A7A3C" // Excellent
-const D2 = "#2EB85C" // Good
-const D3 = "#E8A020" // Caution
-const D4 = "#E05C1A" // Warning
-const D5 = "#C01B2A" // Critical
+const D1 = "#1A7A3C"; // Excellent
+const D2 = "#2EB85C"; // Good
+const D3 = "#E8A020"; // Caution
+const D4 = "#E05C1A"; // Warning
+const D5 = "#C01B2A"; // Critical
 
 function perfColor(value: number, kpiId?: string): string {
   // KPI-aware thresholds — different metrics have different "good" ranges
@@ -498,25 +689,25 @@ function perfColor(value: number, kpiId?: string): string {
 
   if (kpiId === "ces") {
     // Inverted — lower effort = better
-    if (value <= 30) return D1
-    if (value <= 40) return D2
-    if (value <= 50) return D3
-    if (value <= 60) return D4
-    return D5
+    if (value <= 30) return D1;
+    if (value <= 40) return D2;
+    if (value <= 50) return D3;
+    if (value <= 60) return D4;
+    return D5;
   }
   if (kpiId === "nps") {
-    if (value >= 50) return D1
-    if (value >= 40) return D2
-    if (value >= 30) return D3
-    if (value >= 20) return D4
-    return D5
+    if (value >= 50) return D1;
+    if (value >= 40) return D2;
+    if (value >= 30) return D3;
+    if (value >= 20) return D4;
+    return D5;
   }
   // Default (CSAT, Agent, VFM, FCR — all 0-100%)
-  if (value >= 85) return D1
-  if (value >= 75) return D2
-  if (value >= 60) return D3
-  if (value >= 45) return D4
-  return D5
+  if (value >= 85) return D1;
+  if (value >= 75) return D2;
+  if (value >= 60) return D3;
+  if (value >= 45) return D4;
+  return D5;
 }
 ```
 
@@ -524,11 +715,12 @@ function perfColor(value: number, kpiId?: string): string {
 D1/green (great for NPS) while the same value 52 for CES shows D3/amber (poor for CES).
 
 **Status-tinted containers — use the D-scale light tokens.** When a container
-*represents* a scored entity — a journey-report **stage column**, a touchpoint card,
+_represents_ a scored entity — a journey-report **stage column**, a touchpoint card,
 a segment row — its background must reflect the entity's status color in a **clearly
 visible lighter shade**, and its headline number in the matching deep shade. Drive
 both off the **same** D-level via `perfLevel(value, kpiId?)` (in `journey-data.ts`,
 returns `"d1"…"d5"`), then map to the real D-scale tokens:
+
 ```tsx
 const level = perfLevel(stage.score ?? 0)          // "d1".."d5"
 const BG  = { d1:"bg-d1-light dark:bg-d1-dark/25", /* …d2–d5 */ }
@@ -537,13 +729,14 @@ const PCT = { d1:"text-d1-dark dark:text-d1-light", /* …d2–d5 */ }
   <span className={PCT[level]}>{stage.score}%</span>
 </div>
 ```
+
 Light mode uses the pale `d{n}-light` fill with the deep `d{n}-dark` text; dark mode
 uses a soft `d{n}-dark/25` tint with the `d{n}-light` text. Prefer this token approach
 over a faint hex-alpha tint — the light tokens are legible and read as a real heat-map
 (a ~8% alpha wash looks washed-out and grey). Score `0`/no-score → neutral
 (`bg-muted/30`, `text-muted-foreground`, render "—"), not D5 red. This keeps the
-Two-Palette Rule intact (semantic D-tokens signal state, never decorate). Bar *tracks*
-stay neutral (`bg-muted/40`); it is the stage/segment *container* that takes the tint.
+Two-Palette Rule intact (semantic D-tokens signal state, never decorate). Bar _tracks_
+stay neutral (`bg-muted/40`); it is the stage/segment _container_ that takes the tint.
 
 **Labels sitting on a tinted container need real contrast.** Small captions/status
 labels (e.g. the stage emotion label "excited"/"anxious") on a `d{n}-light` background
@@ -559,13 +752,14 @@ For **SVG / canvas status nodes** that can't take a Tailwind `bg-*` class (gauge
 radar vertices, ring segments), paint with `perfColor(score)` via `fill`/`stroke` or an
 inline `style`. **Journey Map bubble specifically:** it is a plain **white** circle
 (`bg-card`) with a colored **ring** in the full-strength `perfColor(score)` — the status
-shade lives in the *column background* behind it (see the Journey Map spec above), so the
+shade lives in the _column background_ behind it (see the Journey Map spec above), so the
 bubble interior stays white; do **not** also tint the bubble.
 
 Use this scale on: gauge fill colors, radar vertex dots, segment bar colors,
 distribution bars, branch scores, and any metric that has a target/benchmark.
 
 ### Data Visualization Quality Principles
+
 Every chart and visualization in the app must feel **premium and data-rich** — never flat,
 generic, or library-default. These principles apply to ALL future charts:
 
@@ -594,6 +788,7 @@ generic, or library-default. These principles apply to ALL future charts:
 ## Dark Mode
 
 ### Architecture
+
 Dark mode is toggled by adding/removing the `dark` class on `<html>`.
 Use `prefers-color-scheme` as default, allow user override, persist choice in `localStorage`.
 
@@ -603,7 +798,9 @@ function useTheme() {
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("theme");
     if (stored) return stored;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   });
 
   useEffect(() => {
@@ -611,29 +808,75 @@ function useTheme() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  return { theme, setTheme, toggle: () => setTheme(t => t === "dark" ? "light" : "dark") };
+  return {
+    theme,
+    setTheme,
+    toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+  };
 }
 ```
 
 ### Dark Mode Design Rules
 
 **Surface hierarchy (light-to-dark elevation):**
+
+A **stepped ladder** — each surface is a clear perceptual-lightness step above the last
+(OKLCH L in brackets), so regions read as distinct instead of one flat black mass:
+
 ```
-Background (deepest):  #0A0C11  — page base (navy-tinted black, deepened so cards lift)
-Card (elevated):       #1B1C27  — cards, panels, table rows
-Muted (subtle):        #2E3044  — hover states, active items
-Accent (highlight):    #161B29  — selected states, feature areas
+Sidebar (deepest):     #070B10  [L .147]  — nav rail; a WIDE ~.07 step below the canvas
+Sidebar divider:       #444753  [L .400]  — --sidebar-border; a bright seam sealing nav↔canvas
+Background (canvas):   #171923  [L .216]  — page base (navy-tinted, a wide step above the sidebar)
+Card / Popover:        #22252F  [L .266]  — cards, panels, table rows, dialogs, sheets, select menus
+Accent (highlight):    #292C37  [L .295]  — select-item focus, feature areas (LIGHTER than card → reads raised)
+Muted (RAISED):        #30333E  [L .323]  — hover states, tracks, status pills, skeletons, table-header band
+Border (divider):      #383C54  [L .363]  — card edges, table dividers, separators
+Input (field edge):    #434864  [L .409]  — input / select / textarea outlines (a step lighter than border)
 ```
 
+> **Two hard lessons baked into this ladder:**
+> 1. **Sidebar must sit a WIDE step BELOW the canvas.** They were once `#070B10` vs `#0D0F14`
+>    (0.02 L gap) → then `#14161F` (0.055) — both still let the near-black sidebar and the dark
+>    canvas blur into one flat sheet ("sidebar and background look the same"). The canvas is now
+>    `#171923` — a **~0.069 L step** above the sidebar — *and* the divider (`--sidebar-border`)
+>    is a **brightened** solid navy `#444753` (was `#313650`) so the seam clearly reads as an
+>    edge. The sidebar stays `#070B10`; going deeper is a trap (near-black can't hold tint, so a
+>    "deeper" sidebar reads muddier) — lift the canvas away from it instead. Never close this
+>    gap back up, and never dim the divider.
+> 2. **Muted is the RAISED surface, not a dark one.** It MUST sit clearly *above* Card so
+>    `hover:bg-muted/50`, `bg-muted/40` tracks, and `bg-muted` pills are visible. An earlier bug
+>    set it to `#0E1018` (= the page background) and every hover/track/badge vanished.
+>
+> Order (dark→light): **Sidebar < Background < Card < Accent < Muted < Border < Input.**
+> **This ladder lives in TWO files that MUST move together:** the default (navy) is pinned in
+> `index.css`'s `.dark` block and is used by every tenant *not* in `tenant-themes.json`; custom
+> tenants are generated by `deriveThemeVars` (the `DARK` anchors + `DARK_CHROMA ≈ 0.28` for big
+> surfaces, `SIDEBAR_DARK_CHROMA ≈ 0.9` for the sidebar's brand tint). Editing only one file
+> fixes only *some* tenants — the default and the derived tenants then diverge. Two
+> seed-independent rules for the derivation: (a) never derive a sidebar **deeper** than L .147
+> (near-black collapses every hue to muddy neutral); (b) keep big surfaces **low-chroma** so a
+> vivid seed (green, orange…) stays a clean near-neutral dark, never a murky saturated wash.
+
 **Key principles:**
+
 1. **Navy-tinted, not grey.** Dark mode uses deep navy-blues, never neutral greys. This keeps brand identity present even in dark mode.
-2. **Never use pure black `#000000`.** It causes OLED smearing and feels unnatural. Our deepest color is `#0A0C11`. Use Navy or Dark tokens instead.
+2. **Never use pure black `#000000`.** It causes OLED smearing and feels unnatural. Our deepest color is `#070B10` (the sidebar); the canvas is `#171923`. Use Navy or Dark tokens instead.
 3. **Lighten, don't invert.** Primary cyan goes from `#0D8BBC` (light) to `#59CCEA` (dark) — brighter, not simply inverted.
-4. **Borders go translucent.** Use `rgba(30, 34, 53, 0.3)` not solid colors. This creates depth.
+4. **Borders & field edges must be a real lightness STEP above their surface — NOT low-alpha
+   navy.** A translucent navy border (`rgba(30,34,53,0.5)`) resolves to *almost exactly* the
+   card/background it sits on (a 2–8/255 delta), so table dividers, card edges, and input
+   outlines become invisible — the exact bug that made "fields I can't even see." Use the solid
+   `--border` (`#313650`) / `--input` (`#3E4360`) tokens (i.e. `border-border` / `border-input`),
+   which are deliberately lighter than every surface. Never hand-roll a dark border from
+   `border-nb-navy/…` or a raw `rgba(30,34,53,·)` — reach for the tokens. The same values are
+   generated for tenant themes by `deriveThemeVars` (`withLightness(neutral, 0.31/0.37)`), so a
+   subdomain's dark mode inherits legible chrome automatically; never lower those anchors back
+   toward the surface lightness.
 5. **Test contrast separately.** Dark mode contrast must be verified independently — don't assume light mode values work. Minimum 4.5:1 for body text, 3:1 for large text.
 6. **Desaturate status colors slightly.** Bright green/red on dark backgrounds is jarring. Use D1–D5 light tokens in dark mode.
 
 **Conditional dark mode classes:**
+
 ```tsx
 // Apply different styles per theme
 <Card className="bg-card border border-border shadow-sm dark:shadow-none dark:border-border">
@@ -659,33 +902,126 @@ Accent (highlight):    #161B29  — selected states, feature areas
 
 ### Typography Scale (from designer spec — Poppins reference sizes)
 
-| Role | Font | Size | Weight | Notes |
-|------|------|------|--------|-------|
-| Display/Hero | Poppins/Sora | 40–64px | 800 | Letter-spacing -0.02em. Cover & hero only |
-| Heading 1 | Poppins/Sora | 26–32px | 700 | Line-height 1.2. Section titles |
-| Heading 2 | Poppins/Sora | 18–22px | 700 | Line-height 1.3. Card titles |
-| Body | Poppins | 14–16px | 400 | Line-height 1.7. Paragraphs and descriptions |
-| UI Label | Poppins | 10–12px | 500 | Uppercase. Letter-spacing 0.12em. Tags, badges |
-| Data / KPI | Poppins | 12–14px | 400 | Tabular numerals. KPI values, hex codes, data tables |
+| Role         | Font         | Size    | Weight | Notes                                                |
+| ------------ | ------------ | ------- | ------ | ---------------------------------------------------- |
+| Display/Hero | Poppins/Sora | 40–64px | 800    | Letter-spacing -0.02em. Cover & hero only            |
+| Heading 1    | Poppins/Sora | 26–32px | 700    | Line-height 1.2. Section titles                      |
+| Heading 2    | Poppins/Sora | 18–22px | 700    | Line-height 1.3. Card titles                         |
+| Body         | Poppins      | 14–16px | 400    | Line-height 1.7. Paragraphs and descriptions         |
+| UI Label     | Poppins      | 10–12px | 500    | Uppercase. Letter-spacing 0.12em. Tags, badges       |
+| Data / KPI   | Poppins      | 12–14px | 400    | Tabular numerals. KPI values, hex codes, data tables |
 
 **Tailwind mapping:**
 
-| Element | Classes | Notes |
-|---------|---------|-------|
-| Page title | `text-2xl font-heading font-bold` | One per page |
-| Section title | `text-lg font-bold` | |
-| Card title | `text-base font-bold` | |
-| Body text | `text-sm` or `text-base leading-relaxed` | Use `leading-relaxed` for Arabic paragraphs |
-| Caption/meta | `text-sm text-muted-foreground` | |
-| Small label / UI Label | `text-xs font-medium uppercase tracking-widest text-muted-foreground` | Avoid for Arabic body text |
-| Stat number | `text-3xl font-heading font-bold tabular-nums` | Use `tabular-nums` for aligned numbers |
-| Data table cell | `text-sm tabular-nums` | Numeric columns get `tabular-nums` |
+| Element                | Classes                                                               | Notes                                       |
+| ---------------------- | --------------------------------------------------------------------- | ------------------------------------------- |
+| Page title             | `text-2xl font-heading font-bold`                                     | One per page                                |
+| Section title          | `text-lg font-bold`                                                   |                                             |
+| Card title             | `text-base font-bold`                                                 |                                             |
+| Body text              | `text-sm` or `text-base leading-relaxed`                              | Use `leading-relaxed` for Arabic paragraphs |
+| Caption/meta           | `text-sm text-muted-foreground`                                       |                                             |
+| Small label / UI Label | `text-xs font-medium uppercase tracking-widest text-muted-foreground` | Avoid for Arabic body text                  |
+| Stat number            | `text-3xl font-heading font-bold tabular-nums`                        | Use `tabular-nums` for aligned numbers      |
+| Data table cell        | `text-sm tabular-nums`                                                | Numeric columns get `tabular-nums`          |
 
 ---
 
 ## Component Rules
 
+### Never define a component inside another component's render body
+
+Declaring a sub-component **inside** a parent's render (a `function Field(){…}`,
+`ColorField`, `QCard`, an `AccordionItem`, etc. defined in the parent function) gives it a
+**new function identity on every render**, so React **unmounts and remounts** its whole
+subtree on each parent update. The visible symptoms are real bugs we shipped and had to fix:
+
+- **Focus loss while typing** — a controlled `<Input>` in an inline `TextField` remounts on
+  every keystroke (parent re-renders on each `onChange`), so the field drops focus after each
+  character (was live on `SurveyDesignControls`' Footer-text field and the range slider).
+- **Dropped hover/scroll/animation state** and needless DOM churn (per-keystroke remount of
+  every question card).
+
+**Rule:** hoist field primitives / cards / rows to **module scope** and feed them data via
+props, or — when they need shared parent state — a small **React context** provider (the
+pattern `SurveyDesignControls` now uses: `DesignCtx` + module-scope `ColorField`/`SelectField`
+reading it). Only trivially-cheap, state-free JSX helpers may stay inline.
+
+### Multi-step builder wizard (survey / template creation) — one reusable component
+
+The survey/template creation flows all funnel through **one** reusable wizard,
+`SurveyStepsWizard` (`src/components/surveys/`), which owns the **Survey details → Questions →
+Design** steps (stepper, per-step header + Cancel/Preview, Continue/Save nav, routing-confirm
+dialog, and the live themed preview). Reuse it — never re-implement the steps:
+
+- **Add Survey**: a stepper-less **Build-method chooser** (`SurveyWizardPage`) → on "Survey
+  builder" it renders `SurveyStepsWizard` with `methodDone` (shows a done "Build method" chip
+  before the 3 steps).
+- **Add / Edit Template** (`TemplateBuilderPage`): a **New/Edit Template** settings screen
+  (name EN/AR · description · tags) → "Add questions" / "Edit questions" renders the same
+  wizard (3 steps, no method chip, breadcrumb "Templates › …").
+- **Use as Survey** (`UseTemplatePage`): renders the wizard directly, pre-filled from the
+  template (name + seeded questions), breadcrumb "Surveys".
+
+`SurveyQuestionsBuilder` is **controllable** — pass `sections` + `onSectionsChange` to lift
+the question state to the wizard (so the Design step's preview renders the real questions);
+omit them for standalone/uncontrolled use. The chooser step never shows the stepper; steps
+2–4 always do. Any new "create X from a form + questions" flow should reuse `SurveyStepsWizard`
+rather than adding a fourth builder.
+
+Wizard behaviors settled with the client — keep these when extending:
+
+- **The "Build method" done-chip appears ONLY in the New Survey → Survey builder flow.**
+  Every other entry (template, AI, edit, clone, preview) renders the plain 3-step stepper —
+  do not pass `methodDone` from those pages.
+- **Every stepper step is freely clickable** — users jump between Survey details ⇄ Questions
+  ⇄ Design without completing earlier steps. Never re-add a "reached steps only" gate.
+- **Continue placement differs by step**: on **Survey details** the primary Continue sits at
+  the **bottom of the form** (right-aligned); on Questions/Design it lives in the header next
+  to Cancel. This mirrors the reference and was explicitly requested.
+- **Cross-cutting state lives on the wizard, flows down as props**: the Questions builder
+  receives the survey's bound journey (`boundJourneyId={settings.journeyId}`) — KPI questions
+  bind to the SURVEY's journey, never a per-question journey select.
+- **`onTranslate` must be wired in every flow that shows the Questions step** (route
+  `/surveys/new/translations` exists for unsaved drafts) — a missing handler leaves the
+  Translate button as a dead toast.
+
+### Drag-and-drop builders (HTML5 DnD + React) — hard rules
+
+Rules distilled from real bugs shipped in the survey Questions builder. Any future
+drag-reorder canvas (form builders, list managers, kanban) MUST follow them:
+
+1. **NEVER `setState` synchronously inside `onDragStart`.** A sync re-render swaps the
+   dragged node's className while Chrome is still capturing the drag, and the drag is
+   **silently cancelled** — the symptom is "drag works sometimes" (a render race). Set
+   refs + `setDragImage` synchronously, then defer visual state:
+   `setTimeout(() => setDragging(id), 0)`.
+2. **Make the whole card draggable, not just a grip.** A 16px-grip-only drag feels broken;
+   `onClick` select still works (browsers distinguish click from drag). Use the card itself
+   as the drag image (`e.dataTransfer.setDragImage(cardEl, 20, 20)`).
+3. **Drops use cursor-midpoint before/after** — `e.clientY > rect.top + rect.height/2` →
+   insert *after* the anchor, else *before*; show the drop-line on the matching edge
+   (`before:` top / `after:` bottom pseudo-element). An insert-before-only model makes the
+   lower half of every card a wrong-position drop and the end-of-list unreachable.
+4. **Isolate nested drop zones with `stopPropagation()`** in `onDragOver`/`onDrop` at every
+   layer (card → set pool → section body → section block). Without it, parent zones fight
+   the child for the highlight (flicker) and drops double-fire. Outermost container = the
+   append-to-end fallback (accept any payload anywhere on the block).
+5. **One typed drag payload in a ref** — `{kind: "q"|"sec"|"set"|"new"|…}` in a
+   `useRef` (never state) — every handler branches on `kind`.
+6. **Interleaved lists need a unified `order` array.** Two sibling arrays (questions[] +
+   sets[]) rendered one-after-the-other can NEVER express "question below a set". Keep an
+   `order: {t, id}[]` per container (the reference's `g.order` pattern) with a
+   **self-healing derived view**: filter entries whose item no longer exists, append items
+   missing from it — then adds/deletes need no order bookkeeping, only moves do.
+
+### Toasts (sonner)
+
+`<Toaster />` must be mounted once at the app root (inside the theme provider) — `toast()`
+calls **silently no-op** without it, which reads as "save gives no feedback" (real bug: the
+save-confirmation toast was written but never appeared).
+
 ### Always use shadcn components
+
 Import from `@/components/ui/*`. Never use raw HTML when a shadcn component exists:
 
 ```tsx
@@ -698,33 +1034,57 @@ import { Button } from "@/components/ui/button"
 ```
 
 ### Icons
+
 Use **Lucide React** only. Never use emojis, FontAwesome, or other icon sets:
+
 ```tsx
-import { Plus, Search, Download, Trash2 } from "lucide-react"
-<Plus className="size-4" />
+import { Plus, Search, Download, Trash2 } from "lucide-react";
+<Plus className="size-4" />;
 ```
+
 - Icon-only buttons MUST have `aria-label`: `<Button size="icon" aria-label="حذف"><Trash2 /></Button>`
 - Standard size: `size-4` (16px) inline, `size-5` (20px) in nav
+- **Create/add buttons lead with the icon, consistently.** A `+`/action icon on a labelled
+  button goes **before** the label (`<Plus className="size-4" />{label}`), matching New
+  Journey · Add Stage · Add KPI · Add Parameter — never trail it on some buttons and lead it
+  on others (that mix looked inconsistent on the scope editor's "Add Parameter" vs "Create
+  Rule"). Let the button variant's own `gap` space the icon from the label — **don't** hand-add
+  `ms-1`/`ms-2` to the icon (a leading-icon `ms-*` pushes the wrong edge and double-spaces the
+  `gap`). The Loader2 spinner follows the same rule: place it where the icon would sit, no manual margin.
 
 ### Button Variants
-| Action | Component | Example |
-|--------|-----------|---------|
-| Primary action | `<Button className="bg-primary hover:bg-nb-cyan-700 text-primary-foreground">` (hover shadow is built into the variant) | اشتراك, إنشاء, حفظ, نشر |
-| Secondary action | `<Button variant="secondary">` — soft cyan, **derived from the primary** | تفاصيل, تحليلات, إضافة مرحلة |
-| Destructive | `<Button variant="destructive">` | حذف, إزالة |
-| Ghost/subtle | `<Button variant="ghost">` | Navigation, toolbar |
-| Loading state | `<Button disabled><Loader2 className="size-4 animate-spin ms-2" />جاري الحفظ...</Button>` | During async ops |
+
+| Action           | Component                                                                                                               | Example                      |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Primary action   | `<Button className="bg-primary hover:bg-nb-cyan-700 text-primary-foreground">` (hover shadow is built into the variant) | اشتراك, إنشاء, حفظ, نشر      |
+| Secondary action | `<Button variant="secondary">` — soft cyan, **derived from the primary**                                                | تفاصيل, تحليلات, إضافة مرحلة |
+| Destructive      | `<Button variant="destructive">`                                                                                        | حذف, إزالة                   |
+| Neutral / Cancel | `<Button variant="outline">` — **borderless soft-grey fill (`bg-muted`) + muted text**                                    | Cancel, Back, Skip, dismiss  |
+| Ghost/subtle     | `<Button variant="ghost">`                                                                                              | Navigation, toolbar          |
+| Loading state    | `<Button disabled><Loader2 className="size-4 animate-spin ms-2" />جاري الحفظ...</Button>`                               | During async ops             |
+
+**The `outline` variant is the one canonical Cancel/dismiss look — a *borderless* soft-grey
+fill, and every Cancel uses it.** Resting style: `bg-muted` (#EEF1F7) fill + `text-muted-foreground`,
+**no visible border** (the base keeps `border border-transparent`), hover `bg-muted/80`. Two
+things this replaced, both real bugs: (1) the old `bg-background` (#F7F9FC) fill was ~invisible
+on white cards/sheets (`bg-card`/`bg-popover` are pure white) so cancels looked like empty
+hairline rectangles; (2) a visible `border-border` made it read as a hard "outline" rather than
+the soft filled pill the app's journey dialogs already used. **Every Cancel/Back/Skip/dismiss
+button is now `variant="outline"`** — never `ghost` (invisible), never `secondary` (soft-cyan is
+for a real secondary *action*, not a dismiss), never a hand-rolled `bg-muted … text-muted-foreground`
+inline (that's exactly this variant — use it).
 
 **Action-button hierarchy (the one-blue rule).** A page header may show several
 action buttons, but **exactly one is the filled blue primary** (`variant="default"`,
 `bg-primary`). **Every other action uses the secondary style — regardless of how many
 there are.** With three actions (e.g. "Analytics" + "Add Stage" + "Publish") the
-2nd *and* 3rd are both secondary; with four, the 2nd/3rd/4th are all secondary. Only
+2nd _and_ 3rd are both secondary; with four, the 2nd/3rd/4th are all secondary. Only
 one stays the filled primary. Per-row actions like "Add Touchpoint" follow the same
 rule. Secondary actions use `variant="secondary"`: a **lighter shade of the same
 primary cyan** (`bg-nb-cyan-100 / text-nb-cyan-800`; dark `bg-nb-cyan-900/40 /
 text-nb-cyan-200`). It stays in the brand family but reads visibly quieter than the
-solid primary, so the one primary remains *the* action. Rules:
+solid primary, so the one primary remains _the_ action. Rules:
+
 - Never promote a second button to the **filled** blue — only one filled primary per page.
 - Never leave a secondary action as a plain neutral/`outline` button — it looks empty
   next to the primary; the secondary must carry the soft-cyan fill so the pair reads
@@ -733,13 +1093,13 @@ solid primary, so the one primary remains *the* action. Rules:
   semantic state. The button `secondary` variant has been redefined to the cyan-derived
   style specifically for action buttons (it no longer renders mint).
 - **Compact secondary (inside accordions / tables).** A secondary action that lives in
-  an accordion row or a table uses `variant="secondary" size="compact"` — the *same*
+  an accordion row or a table uses `variant="secondary" size="compact"` — the _same_
   soft-cyan style at **35px** tall (`size="compact"`, still `rounded-md`/12px) instead
   of the full 40px, so it doesn't crowd the row. Example: the per-stage "Add Touchpoint"
   button. Don't hand-set `h-7`/`h-8` on these — use `size="compact"`.
 
 **Action-button shadows are hover-only.** Both the blue primary and the soft-cyan
-secondary carry **no shadow at rest** — on hover, *both* lift with a soft colored
+secondary carry **no shadow at rest** — on hover, _both_ lift with a soft colored
 shadow (`hover:shadow-md hover:shadow-primary/30` for primary, `…/20` for secondary).
 This is baked into the `default` and `secondary` button variants, so **never add a
 resting shadow** to an action button (no `shadow-sm` on the button itself). Outline/
@@ -756,6 +1116,7 @@ icon-only buttons keep their square sizes. Never hand-tune an action button's he
 or radius inline — rely on the default size so the whole app stays consistent.
 
 ### Cards
+
 ```tsx
 <Card>
   <CardHeader>
@@ -766,14 +1127,16 @@ or radius inline — rely on the default size so the whole app stays consistent.
   <CardFooter>{/* actions */}</CardFooter>
 </Card>
 ```
+
 - Don't nest cards inside cards — flatten the hierarchy
 - Use `shadow-sm` in light mode, `dark:shadow-none` in dark mode (borders provide separation in dark)
 - The base `<Card>` already ships `rounded-lg` (16px) + `ring-1` + `shadow-sm dark:shadow-none` for elevation — **do not** re-add these or push a card past the 16px radius ceiling. Why: on the navy-tinted off-white background, white cards must lift via a tight radius + soft shadow, not a large curve.
 - **Minimize curves:** cards/popups cap at `rounded-lg` (16px) and inner containers/tiles (stat tiles, attribute chips, banners) at `rounded-md` (12px). Tighter radii read as more precise and data-dense — avoid `rounded-lg` on small nested tiles.
-- **Don't double the top padding.** The base `<Card>` already supplies `py-4` (16px top *and* bottom). Do **not** add `pt-6` (or any extra `pt-*`) to `CardContent` — that stacks on the card's own padding and makes the top visibly heavier than the bottom. Use a bare `<CardContent>` so vertical padding stays balanced (this applies to every card: header cards, filter cards, etc.).
+- **Don't double the vertical padding.** The base `<Card>` already supplies `py-4` (16px top _and_ bottom). Do **not** add **any** vertical padding to `CardContent` — not `pt-6`, and equally not `py-4`, `pt-4 pb-4`, or an asymmetric `pt-3 pb-2`. Every one of these stacks on the card's own `py-4` (making a doubled/lopsided card); a `py-4` on `CardContent` is redundant, not corrective. Use a bare `<CardContent>` (horizontal-only classes are fine, e.g. `<CardContent className="flex gap-3">`) so vertical padding stays balanced. Applies to every card — header cards, filter cards, chart cards, single-content cards alike.
 - **Header cards align center.** When a card's content is a header row (title/badges on one side, action buttons on the other), the flex row uses `lg:items-center` (not `lg:items-start`) so the action buttons sit vertically centered against the title block.
 
 ### Badges / Tags
+
 - **Outline tags have a white fill.** The Badge `outline` variant ships `bg-card`
   (white in light, dark surface in dark) — never leave a tag transparent, which makes
   it disappear into tinted backgrounds (e.g. the D-light stage columns). A plain
@@ -781,16 +1144,86 @@ or radius inline — rely on the default size so the whole app stays consistent.
 - **Colored tags keep their color.** Tags that set their own background via `className`
   (status pills like `bg-d2-light`, `bg-nb-cyan-100`, …) override the white fill — the
   Badge merges classes with `tailwind-merge`, so the explicit `bg-*` wins. Only
-  *backgroundless* (outline) tags pick up the white fill.
+  _backgroundless_ (outline) tags pick up the white fill.
+
+### Tabs (prominent page tabs → segmented pill)
+
+The base shadcn `Tabs` is a **compact** control (`h-8`, `py-0.5`) meant for inline/dense
+switches. For a **page-level primary tab switch** — the kind with a count badge per tab
+(e.g. Surveys `5` / Templates `6` on the library) — the compact tabs render cramped and
+broken (the count pill overflows the 32px height). Don't fight the base sizing; build a
+**segmented pill** instead:
+
+```tsx
+<div className="inline-flex rounded-lg border border-border bg-muted p-1 gap-1">
+  {TABS.map((t) => (
+    <button key={t.key} onClick={() => setTab(t.key)}
+      className={cn("flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors",
+        tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
+      {t.label}
+      <span className={cn("rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums",
+        tab === t.key ? "bg-primary/10 text-primary" : "bg-muted-foreground/15 text-muted-foreground")}>{t.count}</span>
+    </button>
+  ))}
+</div>
+{tab === "surveys" ? <SurveysTab /> : <TemplatesTab />}
+```
+
+Active tab = a **white pill** (`bg-card shadow-sm`) on the `bg-muted` track; the count badge
+is `bg-primary/10 text-primary` when active, neutral otherwise. Keep the compact base `Tabs`
+for in-card / secondary switches.
 
 ### Forms
+
 - Use shadcn `Input`, `Select`, `Checkbox`, `Textarea`, `Label`
+- **Popup surfaces (Select / DropdownMenu) — baked-in component defaults, don't re-fight
+  them.** These are set in `select.tsx` / `dropdown-menu.tsx`; new code inherits them:
+  - **Menu content sizes to its content (`w-auto`), never to the trigger.** A `DropdownMenu`
+    opened from a `size="icon"` (28px) button must NOT inherit `w-(--anchor-width)` — that
+    clamps the menu to ~trigger width and wraps items like "Open Builder" onto two lines.
+    Menus use `w-auto min-w-40`; items carry `whitespace-nowrap`. (A `Select` popup *does*
+    match the trigger width via `w-(--anchor-width)` — that's correct, the two differ.)
+  - **Select popup opens below the trigger** (`align="start"`, `alignItemWithTrigger=false`)
+    — a clean dropdown, not the native-style overlay where the selected item sits *on top of*
+    the trigger (that reads as a misplaced popup).
+  - **Popup items breathe:** `py-2` per item + `p-1` inset on the popup. `py-1` items look
+    cramped.
+- **Stack a label + `Select` with `flex flex-col gap-1.5`, NOT `space-y-1.5`.** base-ui's
+  `Select` renders a **trailing hidden node** after the trigger, so the trigger is no longer
+  its parent's last child — and `space-y-*` (which margins every non-last child) lands a stray
+  `margin-bottom: 6px` **on the select trigger**. In a vertical form that's just 6px of extra
+  gap (mostly harmless), but in a filter row aligned with `sm:items-end` it shoves the select
+  **6px above** the search input / other controls beside it — a visible misalignment (caught
+  via DevTools: trigger box `192×40, margin 0 0 6px`). `gap` spaces flex children without
+  per-child margins, so the trailing hidden node can't latch a margin. Rule: **any label+Select
+  column that sits in a horizontal `items-end`/`items-center` row MUST use `flex flex-col
+  gap-1.5`**; plain inputs are fine either way (no trailing node), but prefer `gap` for
+  uniformity.
+- **base-ui `<SelectValue />` renders the raw `value`, NOT the selected item's label —
+  override its children whenever value ≠ label.** A bare `<SelectValue />` on a
+  `<Select value="none">` shows the literal string **"none"** (and `value="group"` →
+  "group", `value="Relational"` → "Relational" instead of "Seasonal / Relational") because
+  base-ui echoes the value, not the chosen `<SelectItem>`'s text. Pass explicit children
+  that map the current value to its display label:
+  `<SelectTrigger><SelectValue>{settings.type === "Transactional" ? "Transactional" : "Seasonal / Relational"}</SelectValue></SelectTrigger>`,
+  or for lookups `{OPTIONS.find(o => o.value === v)?.label ?? fallback}`. This bit the
+  survey-details Bound-journey ("none"), Question-layout ("group"), and Survey-type selects.
+  A `<SelectValue placeholder="…" />` is only correct when the value is genuinely unset.
 - **Fields are white, not transparent.** Inputs, selects, and textareas use `bg-card`
   (white in light mode; the elevated dark surface in dark mode) — never `bg-transparent`,
   which would let the off-white page background bleed through and make fields look grey.
   The `border-input` edge provides the boundary.
-- **Always use visible labels** — never placeholder-only inputs
+- **Always use visible labels** — never placeholder-only inputs. **The one exception is an
+  inline tag/chip adder** (a small "type a value + Enter to add a pill" field, e.g. the
+  data-scope value/parameter editors): a floating `<Label>` there is awkward, so give the
+  `<Input>` an `aria-label` (mirroring the placeholder) instead. A placeholder alone is still
+  a defect — the accessible name is required; `aria-label` supplies it.
 - Labels go above inputs, use `<Label htmlFor="...">` for accessibility
+- **Label + inline hint: add `className="block leading-snug"` to the `<Label>`.** The shadcn
+  `Label` base is a **flex** container, so `<Label>Description <span>— optional…</span></Label>`
+  renders the bold text and the hint as two side-by-side flex boxes — in a narrow panel the
+  hint wraps into a ragged block next to the label ("Question sub-\ntype" bug). `block` makes
+  them flow as one sentence; keep the hint `<span>` as `text-muted-foreground font-normal`.
 - Group fields: `<div className="space-y-4">`
 - Required fields: add `<span className="text-destructive">*</span>` next to label
 - Validation errors below the field: `<p className="text-sm text-destructive mt-1" role="alert">رسالة الخطأ</p>`
@@ -799,30 +1232,85 @@ or radius inline — rely on the default size so the whole app stays consistent.
 - Use semantic input types: `type="email"`, `type="tel"`, `type="number"` for correct mobile keyboards
 
 ### Tables (Data-Dense)
+
 Use shadcn `Table` components. For data-heavy tables:
-- Sticky header: `<TableHeader className="sticky top-0 bg-background z-10">`
+
+- **Sticky header: `<TableHeader className="sticky top-0 z-10">` — NO `bg-background`.**
+  `TableHeader` now ships its own opaque `bg-muted` band by default (in `table.tsx`), so it
+  reads as a subtle raised header in both themes AND stays opaque while pinned. Never re-add
+  `bg-background`: a table is almost always wrapped in a card (`bg-card`), and in dark mode
+  the page background is *darker* than the card, so a `bg-background` header renders as a
+  jarring dark band that doesn't match the card ("weird header" bug). Just add
+  `sticky top-0 z-10` for stickiness; the band comes from the component.
+- **Wrap a table in a bordered card with `overflow-hidden`.** The card container is
+  `overflow-hidden rounded-lg border border-border bg-card shadow-sm dark:shadow-none`. The
+  `overflow-hidden` is **required**, not optional: `<Table>` ships its own
+  `overflow-x-auto` inner div, and the sticky header paints an opaque `bg-background` — both
+  push **square** corners past the card's rounded border, so the border reads as "cut" at
+  the top corners and any horizontal overflow bleeds past the right edge. `overflow-hidden`
+  clips the table to the radius. (The box-shadow is outside the border box, so it isn't
+  clipped.) Every list-table card in the app now carries it — match that.
 - Row hover: add `hover:bg-muted/50` to `<TableRow>`
-- Numeric columns: `text-end tabular-nums`
+- Numeric columns: `text-end tabular-nums` — but this is for **pure magnitudes** where
+  right-aligning digits aids comparison (counts, amounts, percentages). **Dates/timestamps and
+  text-ish columns stay `text-start` like every other column** — a lone `text-end` date column
+  floats to the far edge with a gap and reads as misaligned (audit-log "Time" bug). Keep the
+  numerals LTR with an inner `<span dir="ltr">`, not by flipping the cell to `text-end`.
 - Empty state: never show a blank table — show helpful message with action
 - Sortable columns: add `aria-sort` attribute (`ascending` / `descending` / `none`)
 - Consider virtualizing lists with 50+ rows
 
 ### Dialogs & Sheets
+
 - Confirmations and quick forms: `<Dialog>` — centered, max-w-md
 - Side panels and filters: `<Sheet>` — slides from `start` side (right in RTL)
+- **Dialog width: prefix the cap with `sm:` (`sm:max-w-md`), never a bare `max-w-md`.** The
+  `DialogContent` base keeps a mobile side-gutter via `max-w-[calc(100%-2rem)]`; a bare
+  `max-w-md/lg` overrides it (tailwind-merge drops the calc), so at ~375px the dialog goes
+  full-bleed edge-to-edge. `sm:max-w-md` lets the 1rem gutter survive below 640px and the cap
+  apply from `sm` up.
 - Confirm before destructive actions (delete, discard changes)
 - Scrim opacity: 40-60% for clear foreground separation
 - Always provide close/dismiss affordance
-- **Tall content rule:** Any dialog whose content can exceed the viewport
-  (provisioning forms, multi-section settings, long contact lists) MUST be
-  constrained with `max-h-[90vh]` and scroll internally with
-  `overflow-y-auto`. The default styling on `<DialogContent>` already
-  applies this — do not override it back. Never let a dialog clip off
-  screen edges or push the viewport into double-scrollbar territory.
-  Confirmation dialogs (short, fixed copy) inherit the same default
-  harmlessly because `overflow-y-auto` is a no-op when content fits.
+- **Footer Cancel gets `variant="outline"`, never `variant="ghost"`.** A bare ghost
+  Cancel stacked under the filled primary in a Sheet/Dialog footer reads as floating text,
+  not a button — it has no rest-state background or border. Use `variant="outline"` so the
+  Cancel carries a visible border/surface and pairs with the primary as a real button. (The
+  filled action stays the one primary; Cancel is a neutral bordered dismiss, not a soft-cyan
+  `secondary` — reserve `secondary` for an actual secondary *action*, not a dismiss.)
+- **Tall content rule — `DialogContent` does NOT self-constrain; you must add the height
+  cap + body scroll.** The base `<DialogContent>` has **no** `max-h`/`overflow` (it's a
+  `grid` that grows with its content), so a form dialog that exceeds the viewport clips its
+  title off the top and pushes the footer below the fold (real bug on the touchpoint dialog).
+  Any dialog whose content can get tall (multi-field forms, multi-section settings, long
+  lists) MUST pin the header/footer and scroll only the body — the same shape as the sheet
+  pattern below:
+  ```tsx
+  <DialogContent className="flex max-h-[90vh] max-w-lg flex-col">
+    <DialogHeader className="shrink-0"> … </DialogHeader>
+    <form className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-1"> …fields… </div>
+      <DialogFooter className="shrink-0 gap-2 sm:gap-2"> … </DialogFooter>
+    </form>
+  </DialogContent>
+  ```
+  `flex max-h-[90vh] flex-col` on the content overrides the default `grid` and caps height;
+  the body `<div>` carries `min-h-0 flex-1 overflow-y-auto` (the `px-1` keeps focus rings off
+  the scroll edge); header + footer get `shrink-0`. Short confirmation dialogs need none of
+  this (they never hit `max-h-[90vh]`).
+- **Sheet scroll pattern — pin header/footer, scroll only the body.** `SheetContent`
+  is already `h-full flex flex-col` for a side sheet. So structure the children as
+  `SheetHeader` (fixed) → **body `<div className="flex-1 min-h-0 overflow-y-auto …">`** →
+  `SheetFooter` (fixed). Two non-obvious rules, each a real bug we hit on the touchpoint
+  sheet: (1) the scroll body MUST include **`min-h-0`** — a flex child defaults to
+  `min-height:auto` and won't shrink below its content, so without it the body never scrolls
+  and instead pushes the footer off-screen; (2) do **NOT** put `overflow-y-auto` /
+  `max-h-screen` on `SheetContent` itself — that scrolls the whole sheet (header + footer
+  included) as one block and unpins the footer. The footer stays reachable only when the
+  body is the sole scroll container.
 
 ### Routes vs Dialogs
+
 **Use a full page route** for drill-down views that show rich detail (e.g. `/kpi/:id` for KPI
 detail, entity profiles, report detail). These deserve their own URL, back-button support,
 and full-width layout.
@@ -831,14 +1319,18 @@ and full-width layout.
 need their own URL. Never put complex, scrollable, multi-section content in a dialog.
 
 ### Empty States
+
 ```tsx
 <div className="flex flex-col items-center justify-center py-16 text-center">
   <Inbox className="size-12 text-muted-foreground mb-4" />
   <h3 className="text-lg font-bold mb-2">لا توجد بيانات بعد</h3>
-  <p className="text-muted-foreground mb-4 max-w-sm">ابدأ بإنشاء أول استبيان لجمع آراء العملاء</p>
+  <p className="text-muted-foreground mb-4 max-w-sm">
+    ابدأ بإنشاء أول استبيان لجمع آراء العملاء
+  </p>
   <Button className="bg-primary text-primary-foreground">إنشاء استبيان</Button>
 </div>
 ```
+
 Empty states must **teach the interface** — explain what goes here and how to fill it.
 
 ---
@@ -846,9 +1338,11 @@ Empty states must **teach the interface** — explain what goes here and how to 
 ## Layout Rules
 
 ### Page Container
+
 ```tsx
 <div className="px-8">
 ```
+
 **Fixed 32px gutters, full width — no `max-w-*` cap, no `mx-auto`.** The page fills
 the available width inside the sidebar inset with constant **32px** (`px-8`) left/right
 padding. Do **not** use `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` — that caps content at
@@ -856,19 +1350,21 @@ padding. Do **not** use `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` — that caps c
 unevenly. A fixed `px-8` keeps the gutters identical at every viewport width.
 
 ### Page Structure
+
 Every page follows this pattern. **Data-dense pages** (lists, builders, dashboards —
 e.g. the Journey module) use the tighter `space-y-5 py-5` rhythm; airier content pages
 may use `space-y-6 py-6`:
+
 ```tsx
 <div className="space-y-5 py-5">
-  {/* Page Header */}
-  <div className="flex items-center justify-between">
-    <div>
+  {/* Page Header — stacks on mobile, row on sm+ so the title never crowds the CTA */}
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className="min-w-0">
       <h1 className="text-2xl font-heading font-bold">عنوان الصفحة</h1>
       <p className="text-sm text-muted-foreground mt-1">وصف مختصر</p>
     </div>
     <Button className="bg-primary hover:bg-nb-cyan-700 text-primary-foreground">
-      <Plus className="size-4 ms-2" />
+      <Plus className="size-4" />
       إجراء رئيسي
     </Button>
   </div>
@@ -877,9 +1373,60 @@ may use `space-y-6 py-6`:
   {/* ... */}
 </div>
 ```
+
 - **One primary CTA per page** — secondary actions get `variant="outline"` or `variant="ghost"`
+- **Page header is responsive by default — `flex-col … sm:flex-row`, title block `min-w-0`.**
+  A bare `flex items-center justify-between` header pins the title and CTA on one row at every
+  width; a long (or localized-Arabic, ~30–40% longer) title then crowds the button on mobile.
+  Stack them under `sm` (`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`)
+  and give the title `<div>` `min-w-0` so it can shrink/wrap instead of shoving the CTA.
+
+**Header with many actions — give the toolbar its own row (don't squeeze the title).**
+The `flex items-center justify-between` header above works for a title + **one or two**
+short actions. Once a header/builder card carries **3+ action buttons** (e.g. the journey
+builder: Edit details · KPI & Scoring · Detection · Versions · Activate · Archive · Add
+Stage), do **NOT** keep them on the same row as the title with `lg:flex-row
+lg:justify-between` — the button group is `shrink-0`, so it steals the width and squeezes
+the title/meta into a broken one-word-per-line column (`0 / stages / · 0 TPs / Updated /
+Jul 7`). Instead **stack**: the title block on its own full-width row, then the action
+toolbar on a second full-width row (`flex flex-wrap items-center gap-2`, optionally a
+`border-t border-border pt-4` divider so it reads as a toolbar). Keep the lone filled
+primary (one-blue rule) last in DOM so it lands at the end of the toolbar. Also give meta
+segments `whitespace-nowrap` and wrap them in a `flex flex-wrap gap-x-3` row so a tight
+width breaks *between* segments ("0 stages · 0 TPs" | "Updated …"), never mid-phrase.
+
+### Filter / Toolbar Row (search + selects) — one consistent shape
+
+Every list page's filter row uses the **same** structure so search inputs and selects line
+up identically across KPI Management, Personas, Journeys, Audit Log, etc.:
+
+```tsx
+<div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+  {/* Search — bounded, never unbounded flex-1 */}
+  <div className="flex-1 flex flex-col gap-1.5 sm:max-w-sm"> <label/> <Input/> </div>
+  {/* Each select — fixed width; gap-1.5 (NOT space-y) so the base-ui trailing node
+      can't drop a 6px margin on the trigger and break items-end alignment */}
+  <div className="flex flex-col gap-1.5 sm:w-48"> <label/> <Select><SelectTrigger className="w-full"/></Select> </div>
+  {/* A label-less control (checkbox) — wrap so items-end bottom-aligns it with the inputs */}
+  <div className="flex h-10 items-center gap-2"> <Checkbox/> <Label/> </div>
+</div>
+```
+
+Hard points, each learned from a real misalignment:
+- **Bound the search with `sm:max-w-sm`.** A bare `flex-1` search sprawls to fill the whole
+  row and leaves a single filter select stranded at the far edge with a dead gap between
+  them (looked disconnected on Personas). Bounded search keeps search + selects **grouped**.
+- **Selects get a fixed `sm:w-48`** (via `sm:w-48` on the wrapper + `w-full` on the trigger)
+  — never let one select auto-size to its content while its neighbour is full-width.
+- **`sm:items-end`** so controls bottom-align even though labelled controls are taller than
+  a label-less checkbox; wrap the checkbox in `flex h-10 items-center` so its 40px box
+  bottom-aligns with the 40px inputs (it centres on the input row, not the label row).
+- **Label style is one or the other, consistently per page** — either the small-caps UI
+  label (`text-xs font-medium uppercase tracking-widest text-muted-foreground`) or a plain
+  `<Label>`; don't mix the two styles within one filter row.
 
 ### Grid Layouts
+
 ```tsx
 // KPI stat cards — 4 columns
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -895,20 +1442,21 @@ may use `space-y-6 py-6`:
 ```
 
 ### Spacing System
+
 Base unit: **4px**. All spacing values are multiples of 4. Use `rem` for layout-level
 spacing, `px` for component-internal gaps.
 
-| Value | Token | Usage | Tailwind |
-|-------|-------|-------|----------|
-| 4px | sp-1 | Icon internal gaps, tight inline elements | `gap-1` |
-| 8px | sp-2 | Tag padding, compact list items | `gap-2`, `p-2` |
-| 12px | sp-3 | Card inner padding small, form field gaps | `gap-3`, `p-3` |
-| 16px | sp-4 | Standard component padding, grid gap | `gap-4`, `p-4` |
-| 24px | sp-6 | Card padding, section sub-gaps | `gap-6`, `p-6` |
-| 32px | sp-8 | Section content padding, large card padding | `gap-8`, `p-8` |
-| 48px | sp-12 | Between major sections | `gap-12`, `py-12` |
-| 64px | sp-16 | Page-level section breaks | `gap-16`, `py-16` |
-| 96px | sp-24 | Hero/cover padding, document margins | `gap-24`, `py-24` |
+| Value | Token | Usage                                       | Tailwind          |
+| ----- | ----- | ------------------------------------------- | ----------------- |
+| 4px   | sp-1  | Icon internal gaps, tight inline elements   | `gap-1`           |
+| 8px   | sp-2  | Tag padding, compact list items             | `gap-2`, `p-2`    |
+| 12px  | sp-3  | Card inner padding small, form field gaps   | `gap-3`, `p-3`    |
+| 16px  | sp-4  | Standard component padding, grid gap        | `gap-4`, `p-4`    |
+| 24px  | sp-6  | Card padding, section sub-gaps              | `gap-6`, `p-6`    |
+| 32px  | sp-8  | Section content padding, large card padding | `gap-8`, `p-8`    |
+| 48px  | sp-12 | Between major sections                      | `gap-12`, `py-12` |
+| 64px  | sp-16 | Page-level section breaks                   | `gap-16`, `py-16` |
+| 96px  | sp-24 | Hero/cover padding, document margins        | `gap-24`, `py-24` |
 
 **Common patterns:**
 | Context | Class |
@@ -922,13 +1470,14 @@ spacing, `px` for component-internal gaps.
 | Between form fields | `space-y-4` |
 
 ### Border Radius Scale
-| Token | Value | Usage |
-|-------|-------|-------|
-| `rounded-sm` | 8px | Badges, tags, status chips, small chrome |
-| `rounded-md` | 12px | **Action buttons, inputs, selects**, inner containers / tiles |
-| `rounded-lg` | 16px | **Cards, dialogs, sheets, popovers, panels** — the max corner radius |
-| `rounded-xl` and up | 16px (capped) | Legacy aliases — resolve to 16px; never exceed it |
-| `rounded-full` | pill | Avatars, pill buttons, progress bars (exempt from the cap) |
+
+| Token               | Value         | Usage                                                                |
+| ------------------- | ------------- | -------------------------------------------------------------------- |
+| `rounded-sm`        | 8px           | Badges, tags, status chips, small chrome                             |
+| `rounded-md`        | 12px          | **Action buttons, inputs, selects**, inner containers / tiles        |
+| `rounded-lg`        | 16px          | **Cards, dialogs, sheets, popovers, panels** — the max corner radius |
+| `rounded-xl` and up | 16px (capped) | Legacy aliases — resolve to 16px; never exceed it                    |
+| `rounded-full`      | pill          | Avatars, pill buttons, progress bars (exempt from the cap)           |
 
 > **16px ceiling (hard rule).** No element's corner radius may exceed **16px**
 > (`rounded-lg`). Cards and popups sit at 16px; **all interactive controls — action
@@ -939,23 +1488,42 @@ spacing, `px` for component-internal gaps.
 > **informative ribbons/badges** (which keep their existing radius) are exempt.
 
 ### Sidebar Layout
+
 Use shadcn `Sidebar` component with `collapsible="icon"` for pages with navigation.
 The sidebar uses `--sidebar` tokens: navy background, white text, cyan active items.
 In dark mode, sidebar goes even deeper (`#070B10`) with navy-tinted borders.
 
+> **`SidebarInset` MUST keep `min-w-0` (horizontal-scroll gotcha).** The inset is a flex
+> child; without `min-w-0` it refuses to shrink below its content's intrinsic width, so any
+> wide table pushes the ENTIRE page — topbar included — into horizontal scroll (clipped
+> header buttons on the Survey Library). With `min-w-0`, wide content scrolls inside its own
+> card via `Table`'s built-in `overflow-x-auto`. Never remove it from `sidebar.tsx`.
+
+> **Dark-mode sidebar separation = a lightness STEP + a visible divider.** In light mode the
+> dark-navy sidebar contrasts hard against the light page; in dark mode the sidebar (`#070B10`)
+> and the canvas are both dark, so two things keep them distinct: (1) the canvas (`#14161F`)
+> sits a clear step *above* the sidebar (see the surface ladder — never close that gap), and
+> (2) the divider is a real line. `--sidebar-border` (dark) is a solid navy `#313650`
+> (derived: `withLightness(neutral, 0.34)`), and the inner border renders at full opacity
+> (`dark:border-sidebar-border`, not `/30`). Never drop the dark sidebar divider back to a
+> low-alpha navy, and never re-darken the canvas toward the sidebar — the sidebar then bleeds
+> into the content with no edge.
+
 **RTL-aware sidebar positioning:**
+
 - Pass `side={isRtl ? "right" : "left"}` so the sidebar is on the physical right in RTL
   and physical left in LTR. Never hardcode `side="left"`.
 - The sidebar uses physical CSS positioning (`left: 0` / `right: 0`), which does NOT flip
   with `dir="rtl"`. So rounding/border must also be physical, NOT logical.
 
 **Modern sidebar styling:**
+
 - Inner sidebar rounding/border is computed from the `side` JS variable, not CSS logical
   properties or `group-data` selectors (which can fail across nested DOM layers):
   ```tsx
   side === "left"
     ? "rounded-r-xl border-r shadow-[2px_0_12px_-2px_rgba(0,0,0,0.08)]"
-    : "rounded-l-xl border-l shadow-[-2px_0_12px_-2px_rgba(0,0,0,0.08)]"
+    : "rounded-l-xl border-l shadow-[-2px_0_12px_-2px_rgba(0,0,0,0.08)]";
   ```
 - Transitions use `duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]` — never `ease-linear`
 - No vertical padding on the container (sidebar spans full viewport height edge-to-edge)
@@ -972,20 +1540,47 @@ Also add the item's key to every persona's allowlist in `ROLE_NAV_KEYS` that
 should see it; role-level visibility is governed there, not by the route.
 
 ### Topbar
+
 The topbar must be `sticky top-0 z-30` so the sidebar toggle and search remain accessible
 when scrolling. Use `bg-background/95 backdrop-blur-sm` for a frosted-glass effect.
 
+The topbar also hosts the global **language toggle** and **light/dark theme toggle**,
+aligned to the end side (`ms-auto`) next to the sidebar trigger and search. Both are
+required app chrome — the platform is bilingual by design (ar/en) and dark mode must
+allow user override (see Dark Mode), so every authenticated layout MUST surface both
+controls. Language toggle: `Languages` icon + the *target* language's native name
+(shows "العربية" in EN, "English" in AR) wired to `useDirection().toggleLang`. Theme
+toggle: icon-only `Sun`/`Moon` button wired to `next-themes` `useTheme` (the project's
+theming solution — `ThemeProvider attribute="class"` is mounted at the app root and the
+sonner toaster depends on it). Both get an `aria-label` per the icon-only-button rule.
+
+**Unauthenticated pages need them too.** The auth flow (login, MFA challenge/enroll,
+password reset) renders through `AuthLayout`, which has **no topbar** — so both toggles
+MUST live in `AuthLayout` itself, pinned to the top-end corner (`absolute top-4 end-4`,
+logical `end-*` so it flips in RTL). A user must be able to pick language and light/dark
+**before** signing in (Arabic-first audience; a dark-mode user shouldn't get a white flash
+at the login screen). Use the **same** `useDirection().toggleLang` + `next-themes`
+`useTheme` wiring and the same `mounted` guard as the topbar, so the choice persists
+seamlessly into the authenticated app. Any future full-screen chrome-less layout (onboarding,
+error/404, standalone wizards) follows the same rule: no topbar ⇒ surface both toggles in a corner.
+
 ### Scroll Restoration
+
 The content area (`<div>` inside `SidebarInset`) uses `overflow-auto`. React Router does NOT
 auto-reset scroll position for inner scrollable containers. `AppLayout` handles this:
+
 ```tsx
-const mainRef = useRef<HTMLDivElement>(null)
-useEffect(() => { mainRef.current?.scrollTo(0, 0) }, [location.pathname])
+const mainRef = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  mainRef.current?.scrollTo(0, 0);
+}, [location.pathname]);
 ```
+
 Always scroll to top on route change — failing to do so makes the new page appear "below" the
 previous scroll offset, creating blank space above the content.
 
 ### Content Area Bottom Padding
+
 The content div uses `pb-20` on mobile (space for bottom nav) and `lg:pb-[50px]` on desktop
 (breathing room above the persona switcher bar). Every page benefits from this — never remove it.
 
@@ -994,6 +1589,7 @@ The content div uses `pb-20` on mobile (space for bottom nav) and `lg:pb-[50px]`
 ## Interaction & Animation
 
 ### Transitions
+
 - All hover/focus transitions: `transition-colors duration-150`
 - Accordion/expand: `transition-all duration-200 ease-out`
 - Modal/sheet entrance: `duration-200 ease-out`
@@ -1001,22 +1597,25 @@ The content div uses `pb-20` on mobile (space for bottom nav) and `lg:pb-[50px]`
 - Sidebar open/close: `duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]` — smooth, spring-like
 - Respect `prefers-reduced-motion`:
   ```tsx
-  className="motion-safe:transition-all motion-safe:duration-200"
+  className = "motion-safe:transition-all motion-safe:duration-200";
   ```
 
 ### Expand/Collapse Animation Pattern
+
 **Never use `{condition && <div>...}</div>}`** for expandable panels — this causes instant
 show/hide with no transition. Instead use the CSS `grid-rows` trick:
+
 ```tsx
-<div className={cn(
-  "grid transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-  expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-)}>
-  <div className="overflow-hidden">
-    {/* expandable content */}
-  </div>
+<div
+  className={cn(
+    "grid transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+    expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+  )}
+>
+  <div className="overflow-hidden">{/* expandable content */}</div>
 </div>
 ```
+
 This animates height to/from zero smoothly without needing a fixed `max-height` value.
 Used in the persona switcher and anywhere panels expand/collapse.
 
@@ -1027,24 +1626,28 @@ Content that hugs the divider line reads as a rendering glitch. (Builder stage b
 `px-4 pb-4 pt-4 … border-t`.)
 
 ### Loading States
+
 - Buttons: disable + show `<Loader2 className="animate-spin" />`
 - Content areas: use `Skeleton` component, not spinners
 - Tables: show skeleton rows matching expected data shape
 - Never block the user during loading — keep UI interactive where possible
 
 ### Hover States
+
 ```tsx
 // Cards
-className="hover:shadow-md transition-shadow duration-150 dark:hover:border-primary/30"
+className =
+  "hover:shadow-md transition-shadow duration-150 dark:hover:border-primary/30";
 
 // Table rows
-className="hover:bg-muted/50 transition-colors"
+className = "hover:bg-muted/50 transition-colors";
 
 // Interactive list items
-className="hover:bg-accent transition-colors cursor-pointer"
+className = "hover:bg-accent transition-colors cursor-pointer";
 ```
 
 ### Focus States
+
 - Never remove focus rings — they are critical for keyboard navigation
 - Default: `outline-ring/50` (set globally)
 - Custom: `focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2`
@@ -1054,6 +1657,7 @@ className="hover:bg-accent transition-colors cursor-pointer"
 ## Accessibility Checklist (WCAG AA)
 
 ### Must Have
+
 - [ ] Color contrast: 4.5:1 for normal text, 3:1 for large text — in BOTH themes
 - [ ] All images have descriptive `alt` text
 - [ ] All icon-only buttons have `aria-label`
@@ -1067,12 +1671,40 @@ className="hover:bg-accent transition-colors cursor-pointer"
 - [ ] `prefers-reduced-motion` respected for all animations
 
 ### RTL-Specific Accessibility
+
 - [ ] Logical tab order works correctly in RTL
 - [ ] Screen reader announces content in correct reading direction
 - [ ] `lang` attribute set correctly on mixed-language content
 - [ ] Icon placement follows reading direction (using `ms-*` / `me-*`)
 
 ---
+
+## Porting screens from a reference HTML mockup
+
+When a spec/story says "match the reference" (e.g. the M-01 click-through
+`M01-SU~2 1.HTM`), screenshots are NOT the spec — **the mockup's JavaScript is**. Process
+rules learned rebuilding the survey module:
+
+1. **Read the reference's JS handlers, not just its pixels.** Behavior lives in functions
+   (`renderConfig`, `journeyChanged`, `typeAdvisory`, `aiGenerate`, drag handlers…). Grep
+   the .HTM for the feature's function names and port the *logic* — conditional visibility,
+   field resets, midpoint math, default values — line by line. Eyeballing screenshots
+   produced repeated "close but wrong" rework (routing gate, advisory conditions, KPI
+   panel).
+2. **Mirror the reference's domain data tables VERBATIM into mocks** — never invent values.
+   `KPI_SCALE` (FCR is 0–1, CES 1–10…), `KPI_PERSPECTIVES` (NPS/FCR/CHS have none),
+   `SUBTYPES`, journey/stage/touchpoint lists. Invented mock data reads as bugs the moment
+   the client compares side-by-side (a KPI named CXI that doesn't exist, FCR showing 1–5).
+3. **Derived fields follow their driver** — the reference links fields the UI must keep in
+   sync (no journey ⇒ type becomes Seasonal/Relational; binding one flips it to
+   Transactional; changing a KPI resets perspective/touchpoint). Port these `onChange`
+   cascades, not just the fields.
+4. **Disabled ≠ hidden.** The reference disables dependent controls (Stage/Touchpoint when
+   the journey toggle is off) rather than unmounting them. Match that — hiding reads as a
+   missing feature.
+5. **Shared components mean fix-once**: every "match the reference" fix belongs in the
+   shared component (`SurveyDetailsForm`, `SurveyQuestionsBuilder`, `SurveyStepsWizard`) so
+   all flows (new/edit/template/AI) inherit it — the client explicitly expects this.
 
 ## Backend Integration
 
@@ -1082,10 +1714,13 @@ implications for the frontend. Before writing any TS code that calls a `.NET`
 endpoint, run the following pre-flight checks.
 
 ### 1. Enum serialization — assume integers
+
 Run:
+
 ```sh
 grep -rn "JsonStringEnumConverter\|AddJsonOptions" src/
 ```
+
 - If the converter is **not** registered globally: every .NET enum (`LifecycleState`,
   `ContactType`, `QuotaType`, `ProvisioningOutcome`, …) arrives on the wire as an
   **integer**, not the string name. Build normalize helpers at the api.ts response
@@ -1100,39 +1735,48 @@ grep -rn "JsonStringEnumConverter\|AddJsonOptions" src/
   member of the union if it doesn't match.
 
 ### 2. DTO contract — read the source
+
 Before writing a TS interface for a request/response, read the actual C# DTO file.
 Pay attention to:
-- Field names — they camelCase on the wire, but the *base name* matters. `contactId`
+
+- Field names — they camelCase on the wire, but the _base name_ matters. `contactId`
   is NOT the same as `newPrimaryContactId`. Do not guess.
 - C# record positional parameters with `[property: Required]` will throw at request
   binding (the validator reads constructor parameters). Flag this if you see it in
   a DTO — it is a backend bug, not a frontend issue.
 
 ### 3. API-05 error envelope
+
 Every non-2xx response from the platform follows `{ error: { code, message, request_id, tenant_id } }`.
 The `callJson` helper in `tenants/api.ts` parses this — reuse the same pattern for any new feature.
 
 ### 4. `callJson` edge cases (non-negotiable)
+
 A successful response is **not always JSON**. Endpoints that return `Ok()` or `NoContent()`
 send a 2xx with an empty body and no `content-type` header. The fetch helper MUST:
+
 - Treat 204 as `undefined`.
 - Treat 2xx with `content-length: 0` (or missing) and an empty body as `undefined`.
 - Only error out if the response is non-2xx OR the body claims JSON but fails to parse.
 
 ### 5. Vite dev proxy targets HTTPS, not HTTP
+
 The .NET backend's `app.UseHttpsRedirection()` 307-redirects every HTTP request to
 the HTTPS port. Node's `fetch` follows the redirect, hits the self-signed dev cert,
 and throws. Configure the proxy as:
+
 ```ts
 server: {
   proxy: {
-    "/api": { target: "https://localhost:7002", changeOrigin: true, secure: false },
+    "/api": { target: "https://localhost:7286", changeOrigin: true, secure: false },
   },
 },
 ```
+
 Do not target `http://localhost:5209`. `secure: false` accepts the self-signed dev cert.
 
 ### 6. Auth header convention
+
 The TenantAdmin backend's `PortalSessionAdmin` scheme reads `Authorization: Bearer <opaque session token>`.
 The login page stores it as `localStorage.session_token`; every authenticated `fetch` MUST
 send it. The `useQbsRole` hook supplies the `X-Qbs-Role` header for the role gate stub.
@@ -1145,9 +1789,11 @@ These are mechanical steps the agent must take automatically — they are easy t
 and break the dev loop silently.
 
 ### When creating a new top-level feature folder under `src/`
+
 After adding `src/<feature>/`, the Vite dev server's optimize-deps cache can fail to
 discover the new module paths and emits `Failed to resolve import "@/..."` errors for
 files that exist. **Always** restart the dev server and clear the cache:
+
 ```powershell
 Stop-Process -Name "node" -Force   # only if you know which node is vite
 Remove-Item -Recurse -Force frontend/portal/node_modules/.vite
@@ -1155,20 +1801,24 @@ cd frontend/portal; npm run dev
 ```
 
 ### Before `dotnet build` on the backend
+
 The running `Nabadat.TenantAdmin.exe` locks its own DLLs. Build fails with
 MSB3026/MSB3027 (file locked). Stop the process first:
+
 ```powershell
 Get-Process -Name "Nabadat.TenantAdmin" -ErrorAction SilentlyContinue |
     Stop-Process -Force
 ```
 
 ### Before applying control-plane migrations
+
 `tools/Nabadat.Migrations` is a separate project. Migration classes are discovered by
-reflecting over the *built* assembly — if you added a new `IMigration` and forgot to
+reflecting over the _built_ assembly — if you added a new `IMigration` and forgot to
 rebuild, the runner silently skips it and reports "N migrations applied" with the wrong N.
 Always `dotnet build` the tool before `dotnet run --target=control-plane`.
 
 ### Library convention check before writing UI
+
 This repo uses **`@base-ui/react`**, not `@radix-ui`. The two libraries have a
 near-identical API surface with one crucial difference: Base UI does NOT support
 the Radix `asChild` prop. Passing `asChild` is silently ignored (React warns about
@@ -1193,6 +1843,7 @@ error. Always apply styling **directly on the trigger** using `buttonVariants(..
 ```
 
 ### Defensive rendering for tab-style components
+
 Base UI `Tabs.Panel` mounts every panel eagerly (and hides inactive ones with the
 `hidden` attribute). That means a `useState(() => obj.nested.field)` initializer in
 an inactive panel still runs on mount. Any tab/accordion/stepper that reads nested
@@ -1202,6 +1853,7 @@ defaults for every nested object. Never assume the backend will populate a field
 ---
 
 ## DO NOT
+
 - Use physical direction properties (`pl-*`, `ml-*`, `left-*`, `text-left`) — always logical.
   **Exception:** the sidebar inner div uses physical rounding/border (`rounded-r-xl`, `border-r`)
   because the sidebar itself uses physical CSS positioning (`left: 0` / `right: 0`) which does
@@ -1227,7 +1879,11 @@ defaults for every nested object. Never assume the backend will populate a field
 - Use `{condition && <div>}` for expandable panels — use CSS `grid-rows` animation trick
 - Use `ease-linear` for sidebar or panel transitions — use `cubic-bezier(0.16,1,0.3,1)`
 - Forget scroll restoration on route changes — inner scrollable containers don't auto-reset
-- Use Mint as a dashboard background fill — conflicts with D2 Good semantic state
+- Use Mint as a dashboard background fill — conflicts with D2 Good semantic state. This
+  extends to **solid/tinted badges & type-pills** (a `bg-nb-mint` MoT tag, a "Standard" KPI-type
+  pill, etc.): a mint fill on a KPI/dashboard surface reads as the D2 "Good" state. Use
+  **cyan** (`bg-nb-cyan` / `bg-nb-cyan-100`) for such brand pills — it carries no semantic
+  meaning and stays on-brand.
 - Use semantic red or green decoratively — they must always signal KPI state
 - Reverse the gradient (Cyan → Mint in LTR layouts) — always Mint → Cyan
 - Recolor the logo gradient — it is fixed and non-negotiable
@@ -1236,6 +1892,7 @@ defaults for every nested object. Never assume the backend will populate a field
 - Treat accent #2ECC8F as a UI color — it's logo-only
 
 ## DO
+
 - Use logical properties (`ps-*`, `ms-*`, `text-start`, `rounded-s-*`) for RTL
 - Use semantic shadcn tokens first, brand tokens (`nb-*`) second
 - Use Cyan (#0D8BBC) for primary CTAs, active nav states, and headline KPI values
@@ -1263,3 +1920,367 @@ defaults for every nested object. Never assume the backend will populate a field
 - Use `grid-rows-[0fr]`/`grid-rows-[1fr]` for smooth expand/collapse animations
 - Ensure `pb-[50px]` bottom padding on desktop content area for persona switcher clearance
 - Run the gradient always Mint → Cyan (never reversed in LTR)
+<!-- FRONTEND END -->
+
+## Backend Module Structure _(applies to .NET backend stories only)_
+
+Backend modules follow a **fixed folder structure** — constitution **AMENDMENT-009** /
+architecture-constitution **Article 1A**, with `Nabadat.UserManagement` as the reference.
+A backend story adds files into the existing layout; it never invents a new top-level
+folder kind. Within `src/Nabadat.<DomainName>/`:
+
+- **`Api/`** — `Controllers/`, `Contracts/` (request/response DTOs), `Middleware/`,
+  `Accessors/`, `Interfaces/`, `Tenancy/`. Thin controllers that delegate to Application.
+- **`Application/`** — `Interfaces/` (EF context ports `ITenantDbContext` /
+  `IControlPlaneDbContext` / `ICurrentTenant`) + one **`<SubDomain>/`** folder per bounded
+  concern (`Auth`, `Users`, `Permissions`, `Events`, …), each holding its services plus
+  `Interfaces/` (the unit-test mock seam), `Dtos/`, `Exceptions/`.
+- **`Domain/`** — `Entities/`, `ValueObjects/`, `Interfaces/` (the **published cross-module
+  interfaces** + cross-cutting client ports). References nothing.
+- **`Infrastructure/`** — **data-access (fixed, when the module owns tables):**
+  `Persistence/` (+`Configurations/`), `ControlPlane/` (+`Configurations/`, only if it
+  owns control-plane tables), `Migrations/` (`_Baseline.sql`/`_ControlPlane.sql`). **Every
+  other sub-folder is a module-specific adapter grouping** named by the external concern it
+  wraps — open set, not a fixed list (M-10 happens to have `Crypto/`, `Auth/`, `Audit/`,
+  `Notifications/`). All persistence lives here only.
+
+Dependency direction is inward-only (`Api`/`Infrastructure` → `Application` → `Domain`;
+`Api` and `Infrastructure` never reference each other); wiring lives only in
+`<DomainName>ServiceCollectionExtensions`. One type per file. Data-access specifics:
+DB-08 / database-constitution Article 7.
+
+**Naming — "Context" is reserved for the EF `DbContext`** (architecture-constitution
+Article 1A rule 7). Don't put *Context* in `Api`/`Application` type names for
+request-scoped state — name those for what they hold (`ICurrentTenant`, a current-session
+accessor like `ICurrentSessionAccessor`). An unqualified *Context* always means a
+`DbContext` (`ITenantDbContext` / `IControlPlaneDbContext`).
+
+<!-- TESTING START -->
+
+## Unit Test Policy _(applies to .NET backend stories only)_
+
+**Scope.** This policy applies to **.NET backend code only** — i.e., user stories
+that ship code under `src/Nabadat.*` and unit-tested via `tests/Nabadat.*` xUnit v3
+projects. **Frontend testing (`frontend/portal/`, Vitest) is currently out of
+scope** of the spec-kit-enforced flow. Frontend stories may include unit tests at
+the team's discretion but no `/speckit-tasks`, `/speckit-implement`, or
+`/speckit-analyze` enforcement applies to them; the build gate for frontend stories
+is `npm run build` only.
+
+Spec-kit features in this repo treat backend unit tests as a first-class story
+artifact, not an optional polish task. The full rules are encoded in the spec template
+(`.specify/templates/spec-template.md` → "Unit Test Policy") and the tasks template
+(`.specify/templates/tasks-template.md`). Summary:
+
+1. **Every user story in `spec.md` MUST contain a `Unit Test Coverage` block** listing
+   _Units under test_ and _Required cases_. The block is generated by `/speckit-specify`
+   and validated by its Spec Quality Checklist.
+2. **A story may skip coverage only by writing exactly**
+   `unit-tests: skipped — <one-sentence justification>` in place of the bullets.
+   Skipping is reserved for stories with no testable units (pure copy / static markup /
+   a scaffold that only composes existing components). "We'll add tests later" is not
+   a valid justification.
+3. **`/speckit-tasks` emits a `Unit Tests for User Story X (REQUIRED — write FIRST,
+must FAIL before implementation)` subsection per non-skipped story.** It refuses to
+   generate tasks for a story that has neither populated coverage nor an explicit skip
+   declaration — that is a spec defect, fix the spec first.
+4. **`/speckit-implement` runs the unit-test tasks before their implementation
+   tasks** (red → green). If the unit tests pass on first run against empty stubs,
+   that is a defect (the tests are not exercising real behaviour) and must be fixed
+   before implementation proceeds.
+5. **Test projects are split by kind — never combined.** A single test assembly
+   never mixes unit tests with integration tests. The split is a hard separation
+   at the `.csproj` level, not a `[Trait]` filter inside one project. This makes
+   the per-task build gate fast and Docker-free.
+   - **Project naming (constitution AMENDMENT-008)**: backend modules use a
+     meaningful domain name `Nabadat.<DomainName>` (the `<Area>` placeholder below)
+     — the `M{NN}` token MUST NOT appear in any project / assembly / namespace /
+     type name. (Reference module M-10 → `Nabadat.UserManagement`.)
+   - **Unit tests**: pure logic, no I/O, no containers, runs in milliseconds.
+     `tests/Nabadat.<Area>.UnitTests/<Type>Tests.cs` (e.g.
+     `Nabadat.UserManagement.UnitTests`).
+   - **Integration tests**: real Postgres / Elasticsearch via Testcontainers,
+     ASP.NET Core `WebApplicationFactory`, end-to-end module flows.
+     `tests/Nabadat.<Area>.IntegrationTests/`.
+   - **Contract tests** (only when a story ships an interface contract):
+     `tests/Nabadat.<Area>.ContractTests/`.
+   - **Migration note**: any legacy unified `*.Tests` project (mixing unit +
+     integration) must be carved into separate `Nabadat.<DomainName>.UnitTests` /
+     `Nabadat.<DomainName>.IntegrationTests` projects BEFORE the next story lands in
+     that module — track the carve-out as a Foundational task in that story's tasks.md.
+6. **Every build = compile + unit tests green** (backend stories only). The build
+   is green only when **both** the compile step **and** the affected unit-test
+   suite pass. A failing unit test is a build failure and blocks the workflow
+   exactly like a compile error.
+   - **Per-task gate (between implementation tasks within a story)**: run only
+     the affected `Nabadat.<Area>.UnitTests` project. Integration and contract
+     tests do NOT run here — they are slow and would force a Docker spin-up
+     between every commit. Command: `dotnet test tests/Nabadat.<Area>.UnitTests`.
+   - **Per-story checkpoint (end of a user-story phase)**: run the affected unit
+     project AND the affected integration project (if the story has one):
+     `dotnet test tests/Nabadat.<Area>.UnitTests && dotnet test tests/Nabadat.<Area>.IntegrationTests`.
+     Both must be green to declare the checkpoint reached.
+   - **Feature-end / CI**: run the full solution: `dotnet test Nabadat.sln`.
+     Contract tests included if the feature ships any.
+   - **Order on failure**: compile error → stop immediately, do not run tests
+     against a project that didn't compile. Test failure → stop, surface the
+     failing test, do not advance to the next task.
+   - Frontend stories use `npm run build` only (typecheck + bundle). No
+     test-pass requirement is enforced for frontend.
+7. **Red Checkpoint between tests and implementation (mandatory).** Inside
+   `/speckit-implement`, every non-skipped backend user story has a `T0XXR` "Red
+   Checkpoint" task between the Unit Tests subsection and the Implementation
+   subsection. It:
+   - runs `dotnet test tests/Nabadat.<Area>.UnitTests` after the unit-test files
+     are written,
+   - verifies the run is **red for the right reason** — see "Valid red states"
+     below,
+   - pastes the failing transcript as evidence,
+   - and **commits the red baseline via `/speckit-git-commit`** before any
+     implementation task is read or written.
+
+   **Valid red states** (either is accepted, depending on phase state):
+   - **Compile error is valid red IF no production type exists yet.** When the
+     first test references `RoleAssignmentService` and the class doesn't yet
+     exist, the test project fails to compile. That's an honest red state.
+     Capture the compiler error in the red commit transcript and proceed.
+   - **Assertion failure is required once the production type exists.** Once
+     the implementer has scaffolded the class (with stub methods returning
+     `default`/`throw new NotImplementedException()`), subsequent test runs MUST
+     fail with `Xunit.Sdk.*Exception` (assertion failure) — not a compile
+     error, not "no tests found." A test passing against a `null`-returning
+     stub is a defect; strengthen the test.
+
+   This makes "tests written before implementation" auditable: `git show <red-commit>`
+   shows exactly what the tests asserted before any code existed. Skipping the
+   red-commit step defeats the split and is a process defect.
+
+8. **Time is injected, never read directly.** Production code that depends on
+   the current time MUST take a `System.TimeProvider` (BCL since .NET 8) via
+   constructor injection. Tests inject `Microsoft.Extensions.TimeProvider.Testing.FakeTimeProvider`
+   to control time deterministically. **`DateTime.UtcNow`, `DateTimeOffset.Now`,
+   and `Stopwatch.GetTimestamp()` MUST NOT appear in tested production code** —
+   replace with `_timeProvider.GetUtcNow()` / `GetTimestamp()`. Existing code
+   that violates this rule is grandfathered but must be migrated when its
+   owning module is next touched.
+9. **Soft case-concreteness check.** `/speckit-specify`'s Spec Quality Checklist
+   warns (do NOT block) when a Required-case bullet in any Unit Test Coverage
+   block contains no literal input/output. Cases like
+   `validateRoleAssignment(new RoleAssignmentRequest(userId, roleId)) → Invalid("user.not_found")`
+   pass; cases like "validator rejects invalid input" trigger a warning. The
+   reason: concrete cases shrink the room a downstream implementer has to
+   shape the test to match the implementation. Concreteness is a recommendation
+   today; it may be hardened to a blocking gate later.
+10. **Integration tests are MANDATORY for backend stories with observable
+    side-effects.** Each backend-bearing story carries an **Integration Test
+    Coverage** block in spec.md describing what gets tested end-to-end (which
+    endpoints, which service paths). No per-acceptance-scenario ID matrix is
+    tracked — the block is authoring guidance, not a verified matrix.
+
+    **Qualifier rule** — a story REQUIRES integration tests if ANY of its
+    acceptance scenarios has a "Then" clause involving:
+    - **HTTP layer** — status code, response body shape, headers, routing,
+      middleware behavior, API-05 envelope.
+    - **Database side-effect** — a row written, updated, deleted; a transaction
+      committed; an advisory lock acquired.
+    - **M-17 event emission** — a row appended to `event_log`.
+    - **Cross-module call** — a live in-process call to another module's
+      interface (e.g., M-10 → M-11's `IOrgHierarchyService`).
+
+    **Skip declaration**: a backend-bearing story whose acceptance scenarios are
+    all pure-logic (verified by unit tests alone) MAY write
+    `integration-tests: skipped — <one-sentence justification>` in place of the
+    coverage block. Rare — most backend stories ship at least one HTTP/DB/event
+    scenario.
+
+11. **API, service, and scenario tests all live inside the IntegrationTests
+    project — never separate projects.** They share the same fixture
+    (Testcontainers Postgres, migration runner, application factory) so
+    splitting them would duplicate infrastructure for no testability gain.
+    Inside `tests/Nabadat.<Area>.IntegrationTests/`, organise by intent in
+    subfolders:
+    - `Infrastructure/` — `<DomainName>ApplicationFactory.cs` (e.g.
+      `UserManagementApplicationFactory`), shared seeding helpers, fixture lifecycle.
+    - `Endpoints/` — API tests. One test per `<HTTP method> <route>` outcome,
+      entered via `WebApplicationFactory<Program>` HTTP requests.
+    - `Services/` — service-method integration tests. Skip the HTTP layer to
+      verify inner concerns (concurrency, advisory locks, atomic writes,
+      transaction isolation) that don't translate cleanly through HTTP.
+    - `Scenarios/` — multi-step business-cycle tests. **One test per user
+      story whose `Independent Test` field in spec.md describes a flow
+      spanning ≥2 endpoints or ≥2 sequential user actions with state carried
+      between them** (challenge tokens, JWTs, invitation links, session
+      supersession). Each scenario test walks the steps named in the spec's
+      Independent Test in order, asserts the final state-of-the-world (event
+      counts, user status, session existence) at the end — not after every
+      step. The scenario test method name MUST match the user journey it
+      verifies (e.g., `NewUser_completes_onboarding_and_logs_in`) so a
+      reviewer can map test → story → business requirement at a glance.
+
+    **Scenario-test qualifier rule** — a story REQUIRES a scenario test if
+    its `Independent Test` describes a flow that:
+    - spans 2+ distinct endpoints or service entry points (e.g., login →
+      totp → logout), OR
+    - carries state between calls (challenge token round-trips through the
+      challenge cache, JWT carries forward to the next call, invitation token
+      gates the next call), OR
+    - asserts on an aggregate side-effect that only manifests after multiple
+      calls (e.g., "after the full onboarding flow, exactly one
+      `password.changed` AND one `session.established` event were emitted").
+
+    A story whose `Independent Test` is a single API round-trip (e.g.,
+    "lists notes; returns sorted result") does NOT need a scenario test —
+    its API test covers the same surface. Declare this with
+    `scenario-test: not-needed — <one-sentence reason>` in the spec.
+
+    Keep the scenario-test count small: roughly one per user story that
+    qualifies, not one per permutation. The goal is to prove the business
+    journey holds together, not to re-test each step.
+
+12. **First-feature-in-module carve-out.** The first backend-bearing story that
+    lands in a module without `tests/Nabadat.<DomainName>.IntegrationTests/`
+    (named per constitution AMENDMENT-008 — not `Nabadat.Platform.M{NN}`)
+    MUST include a Foundational task that creates the project AND the
+    `<DomainName>ApplicationFactory : WebApplicationFactory<TEntryPoint>,
+IAsyncLifetime` fixture (boots Testcontainers Postgres, applies the
+    module's `_Baseline.sql` migration, exposes per-test `HttpClient` and
+    seeding helpers). Subsequent stories in that module reuse the factory; the
+    one-time cost is amortised by every later story.
+
+13. **Integration tests run at the per-story checkpoint only — not between
+    implementation tasks** (already encoded in rule 6's build-gate scope) **and
+    do NOT get a Red Checkpoint** (rule 7 is unit-only). Integration tests
+    exercise existing types end-to-end; red→green discipline applies to
+    unit-test authoring alone. Integration tests are written and run as-is at
+    the checkpoint.
+
+14. **Test conventions** (binding across all `.UnitTests` and `.IntegrationTests`
+    projects):
+    - **Framework**: xUnit v3 (`xunit.v3` `1.*`, `xunit.runner.visualstudio` `3.*`).
+    - **Assertion library**: FluentAssertions, **pinned to `6.12.*`** (last MIT-licensed
+      release; v7+ requires a paid XCEED commercial license). New test projects
+      copy this pin. Bare `Assert.*` is allowed inside FluentAssertions code but
+      prefer FluentAssertions for readability.
+    - **Mocking / substitution**: NSubstitute `5.*`. Hand-rolled in-memory
+      fakes (`Dictionary<Guid, Foo>`-backed `IFooRepository`) are also
+      acceptable when stateful behaviour matters — use NSubstitute for
+      behaviour verification (call count, argument matchers), fakes for
+      stateful collaborators.
+    - **Time**: `Microsoft.Extensions.TimeProvider.Testing` `9.*` provides
+      `FakeTimeProvider`. Inject it wherever production code takes a
+      `TimeProvider`. Shared anchor in
+      `tests/Nabadat.TestSupport/Time/TestTime.cs`.
+    - **Integration / API testing (`.IntegrationTests` projects only)**:
+      `Testcontainers.PostgreSql` `4.*` provisions a fresh Dockerised Postgres
+      per fixture lifecycle; `Microsoft.AspNetCore.Mvc.Testing` `10.*` provides
+      `WebApplicationFactory<Program>` for in-process HTTP. Docker must be
+      running locally and on CI for these tests to execute. Both API and
+      service integration tests use this single stack — no parallel
+      mock-Postgres or in-memory-EF alternatives are permitted.
+    - **Test naming**: `<MethodOrSubject>_<expected_result>_when_<condition>`,
+      snake_case for the predicate parts, PascalCase for the subject. Examples:
+      `Validate_returns_invalid_when_title_is_empty`,
+      `CreateNote_persists_to_storage_when_input_is_valid`,
+      `POST_auth_login_returns_401_and_emits_event_when_user_is_deactivated`.
+      This convention is mandatory for all new test methods.
+    - **One test class per file** (project memory rule
+      `feedback_one_type_per_file`).
+    - **Test method = public, no parameters unless `[Theory]`**, no `async void`
+      (use `async Task` for async tests).
+
+**Frontend testing — unit/Vitest is non-scope; the E2E browser lane IS enforced.**
+The **component/unit** layer of `frontend/portal/` and `frontend/admin-portal/` is
+NOT covered by this Unit Test Policy: the spec template, tasks template, and
+`/speckit-*` skills do not require Unit Test Coverage, Integration Test Coverage,
+or red checkpoints for frontend stories, and frontend authors may write Vitest
+tests at their discretion without spec-kit enforcement. **However**, the
+**end-to-end browser lane is now a first-class, enforced frontend lane** — see the
+**E2E Test Policy** section immediately below. Any frontend story that ships
+pages/routes in **any `frontend/*` SPA workspace** (`frontend/portal/`,
+`frontend/tenant-app/`, …) carries enforced E2E coverage; only the
+Vitest/unit layer remains optional. (If the team later brings the unit layer
+under enforcement too, the changes are: re-add a Vitest layout bullet to rule 14
+and re-introduce `npm test` to the build gate rule 6.)
+
+## E2E Test Policy _(frontend browser lane — applies to stories that ship pages in any `frontend/_` SPA workspace)\*
+
+Each frontend SPA's pages are proven end-to-end by a **Playwright browser lane** authored
+with the **`e2e-testing` skill** (`.claude/skills/e2e-testing/SKILL.md`). This is the
+frontend's enforced lane — it sits ON TOP OF the backend lanes, it does not replace
+them.
+
+1. **Stack & location — one E2E project, organized by module.** The lane uses **MSTest +
+   `Microsoft.Playwright.MSTest`** in a **single project, `tests/Nabadat.E2ETests/`**, covering the
+   `frontend/` SPA (the repo ships **one** frontend app today — there is no `frontend/portal/` or
+   `frontend/tenant-app/` subfolder). Tests are grouped into **module-named folders** (mirroring the
+   `Nabadat.<Module>` unit/integration taxonomy — `KpiManagement/`, `CustomerJourneyManagement/`,
+   `UserManagement/`, `OrganizationSettings/`, `Accessibility/`). **MSTest is a deliberate exception**
+   to the backend's xUnit rule: Playwright ships an official `PageTest` base for MSTest, and MSTest
+   `TestContext.AddResultFile` screenshot+trace attachments render in the VS Test Explorer
+   _Attachments_ section. The project references no other project and drives the **running** Vite SPA
+   over HTTP via `E2E_BASE_URL` (dev default `http://e2e.localhost:5173`, proxying `/api` →
+   `https://localhost:7286`). One `COVERAGE.md` matrix (at the project root) carries a row per test.
+
+   **All tests share one harness, `Infrastructure/E2ETestBase.cs`** — a `PageTest` subclass that signs
+   in through the app's real, MFA-gated flow (`/login` → TOTP → `sessionStorage.session_token`) and
+   exposes persona / active-user / explicit-credential sign-in plus dev-fixture reseed/reset helpers;
+   `Infrastructure/E2ETenantDb.cs` seeds the one KPI-binding row no UI can create. If a **second,
+   separately authenticated SPA** is ever added (e.g. a future tenant-app), give it its own
+   `Infrastructure/<App>/E2ETestBase.cs` rather than branching the existing one — do **not** create a
+   second project. Below, **`<E2E project>`** means `tests/Nabadat.E2ETests`.
+
+2. **Mandatory for page-bearing frontend stories.** A frontend story that ships pages or
+   routes in any `frontend/*` workspace MUST carry an **E2E Test Coverage** block in
+   `spec.md` (user flows under test + required scenarios). It MAY skip only by writing exactly
+   `e2e-tests: skipped — <one-sentence justification>` in place of the bullets. Skipping is
+   reserved for changes that ship no navigable flow (pure copy edits, a leaf component with
+   no route or user journey). "We'll add E2E later" is not a valid justification.
+
+3. **Authored AFTER the pages exist; run at the per-story checkpoint; NO red checkpoint.**
+   Unlike backend unit tests, E2E tests are NOT written first and are NOT run between
+   implementation tasks (they need a running app + a browser, which is too slow for a
+   per-task gate). `/speckit-tasks` emits the **E2E Tests for User Story X 🎭** subsection
+   _after_ the Implementation subsection; `/speckit-implement` runs it at the per-story
+   checkpoint. Rule 7's red→green discipline (unit lane) does NOT apply to E2E — they
+   exercise existing pages, exactly like the integration lane (rule 13).
+
+4. **Build gate for page-bearing frontend stories.** The frontend per-story checkpoint is
+   green only when BOTH `npm run build` (typecheck + bundle, from the workspace) AND
+   the story's E2E filter pass: `dotnet test <E2E project> --filter
+"FullyQualifiedName~<Feature>Tests"`. The E2E run requires the stack up (Postgres + the
+   workspace's backend host + `npm run dev`), `E2E_BASE_URL` set to the dev-server URL, and
+   the Playwright browsers installed (`playwright.ps1 install`, one-time). A failing E2E test
+   that reflects a real app bug is a finding — do not weaken the assertion to force green.
+
+5. **Auth model.** E2E points at the running Vite dev server (which proxies `/api` to the backend
+   host) and signs in through the real, **MFA-gated** flow with a **seeded test user** (`SignInAsync`;
+   creds + TOTP secret in the gitignored `appsettings.local.json`). The flow is `/login` → TOTP
+   challenge, landing the opaque session token in `sessionStorage.session_token` (the app's
+   `features/auth/session-token.ts` key). **Token reuse for speed:** `SignInAsync(...)` runs the real
+   login+MFA flow only on the *first* sign-in per user in a run, caches the token, and boots later
+   tests pre-authenticated by re-seeding it (no form, no TOTP, no 30s anti-replay wait); it self-heals
+   if a token goes stale (the AuthGuard bounce falls back to a real sign-in). **A test that is
+   verifying the login/MFA flow itself MUST pass `SignInAsync(forceLogin: true)`** — that bypasses the
+   cache and always drives the real login UI (otherwise the test would short-circuit and prove nothing).
+   E2E writes are **real DB rows** (no transaction rollback, unlike the integration lane) — keep
+   inputs unique, clean up, or assert read-only.
+
+6. **One shared harness inside the project (first feature owns it).** The `tests/Nabadat.E2ETests/`
+   project is registered once in `Nabadat.TenantAdmin.sln`; the single `Infrastructure/E2ETestBase.cs`
+   fixture is reused by every page-bearing story. Because the repo has one frontend app, there is one
+   harness. A future second, separately authenticated SPA would add its own
+   `Infrastructure/<App>/E2ETestBase.cs` (see the skill's "Adding a new SPA to the merged project") —
+   it does NOT create a new project.
+
+7. **Conventions.** One scenario per `[TestMethod]`; one feature class per file
+   (`feedback_one_type_per_file`); every test traces to a `COVERAGE.md` row carrying its
+   `ID`; method naming follows the same `<Subject>_<expected>_when_<condition>` pattern as
+   the backend lanes; prefer stable `id`/`role`/`data-testid` selectors over translated
+   text (the portal is bilingual ar/en + RTL); read the screenshot/trace before concluding
+   a test passed.
+
+If this policy ever conflicts with the platform constitution
+(`.specify/memory/constitution.md`), surface it as a constitution amendment proposal —
+do **not** silently resolve it in the spec.
+
+<!-- TESTING END -->

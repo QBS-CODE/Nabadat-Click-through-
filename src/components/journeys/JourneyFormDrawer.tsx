@@ -205,7 +205,7 @@ export default function JourneyFormDrawer({ open, journey, onClose, onSave }: Pr
           <Button onClick={handleSave} className="w-full h-10 rounded-md text-sm font-semibold bg-primary hover:bg-nb-cyan-700 text-primary-foreground">
             {isEdit ? 'Save Changes' : 'Create Journey'}
           </Button>
-          <Button variant="ghost" onClick={onClose} className="w-full h-10 rounded-md text-sm font-medium bg-muted hover:bg-muted/80 text-muted-foreground">
+          <Button variant="outline" onClick={onClose} className="w-full">
             Cancel
           </Button>
         </SheetFooter>

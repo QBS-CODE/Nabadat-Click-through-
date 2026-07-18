@@ -186,7 +186,7 @@ export default function SettingsOrganizationPage() {
 
             {/* Actions */}
             <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
-              <Button variant="ghost" onClick={handleBack}>{t("common.cancel")}</Button>
+              <Button variant="outline" onClick={handleBack}>{t("common.cancel")}</Button>
               <Button
                 disabled={!isDirty}
                 onClick={handleSave}
@@ -204,7 +204,7 @@ export default function SettingsOrganizationPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm">{t("common.preview")}</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center gap-4 py-6">
+            <CardContent className="flex flex-col items-center gap-4">
               {logoUrl ? (
                 <img
                   src={logoUrl}

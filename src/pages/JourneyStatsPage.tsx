@@ -46,23 +46,23 @@ function perfColor(v: number) {
 }
 
 function perfBg(v: number) {
-  if (v >= 85) return 'bg-[#D4F4E2] text-[#0D4A24] dark:bg-[#0D4A24]/30 dark:text-[#D4F4E2]'
-  if (v >= 75) return 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]'
-  if (v >= 60) return 'bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC]'
-  if (v >= 45) return 'bg-[#FFE4D0] text-[#7A2800] dark:bg-[#7A2800]/20 dark:text-[#FFE4D0]'
-  return 'bg-[#FFD6DA] text-[#6B0010] dark:bg-[#6B0010]/20 dark:text-[#FFD6DA]'
+  if (v >= 85) return 'bg-d1-light text-d1-dark dark:bg-d1-dark/30 dark:text-d1-light'
+  if (v >= 75) return 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light'
+  if (v >= 60) return 'bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light'
+  if (v >= 45) return 'bg-d4-light text-d4-dark dark:bg-d4-dark/20 dark:text-d4-light'
+  return 'bg-d5-light text-d5-dark dark:bg-d5-dark/20 dark:text-d5-light'
 }
 
 const statusConfig: Record<JourneyStatus, string> = {
-  Active: 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]',
-  Draft: 'bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC]',
+  Active: 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light',
+  Draft: 'bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light',
   Archived: 'bg-muted text-muted-foreground',
 }
 
 const typeConfig: Record<JourneyType, string> = {
   Transactional: 'bg-nb-cyan-100 text-nb-cyan-800 dark:bg-nb-cyan/10 dark:text-nb-cyan-300',
   Lifecycle: 'bg-nb-mint-100 text-nb-mint-800 dark:bg-nb-mint/10 dark:text-nb-mint-300',
-  'Issue-Resolution': 'bg-[#FFE4D0] text-[#7A2800] dark:bg-[#7A2800]/20 dark:text-[#FFE4D0]',
+  'Issue-Resolution': 'bg-d4-light text-d4-dark dark:bg-d4-dark/20 dark:text-d4-light',
   Onboarding: 'bg-nb-navy-100 text-nb-navy dark:bg-nb-navy/20 dark:text-nb-navy-200',
 }
 
@@ -124,13 +124,13 @@ function KpiCard({ label, value, unit = '', trend, color, sub }: {
   const positive = trend >= 0
   return (
     <Card className="shadow-sm dark:shadow-none">
-      <CardContent className="p-5">
+      <CardContent className="px-5">
         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">{label}</p>
         <div className="flex items-end gap-2">
           <span className="text-3xl font-heading font-bold tabular-nums" style={{ color }}>
             {value}{unit}
           </span>
-          <span className={cn('text-xs font-medium mb-1 flex items-center gap-0.5', positive ? 'text-[#2EB85C]' : 'text-[#E05C1A]')}>
+          <span className={cn('text-xs font-medium mb-1 flex items-center gap-0.5', positive ? 'text-d2' : 'text-d4')}>
             {positive ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
             {positive ? '+' : ''}{trend}
           </span>
@@ -218,7 +218,7 @@ export default function JourneyStatsPage() {
         {[
           { icon: Map, label: `${journey.stages.length} Stages`, className: 'bg-nb-cyan-100 text-nb-cyan-800 dark:bg-nb-cyan/10 dark:text-nb-cyan-300' },
           { icon: Zap, label: `${totalTouchpoints} Touchpoints`, className: 'bg-nb-navy-100 text-nb-navy dark:bg-nb-navy/20 dark:text-nb-navy-200' },
-          { icon: AlertTriangle, label: `${moTCount} Moments of Truth`, className: 'bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC]' },
+          { icon: AlertTriangle, label: `${moTCount} Moments of Truth`, className: 'bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light' },
           { icon: Users, label: `${responses.toLocaleString()} Responses`, className: 'bg-nb-mint-100 text-nb-mint-800 dark:bg-nb-mint/10 dark:text-nb-mint-300' },
         ].map(({ icon: Icon, label, className }) => (
           <Badge key={label} className={cn('gap-1.5 px-3 py-1.5 text-xs font-medium border-0', className)}>
@@ -247,12 +247,12 @@ export default function JourneyStatsPage() {
               <AreaChart data={trend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="csatGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0D8BBC" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#0D8BBC" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0.02} />
                   </linearGradient>
                   <linearGradient id="npsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#13DB9B" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#13DB9B" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.5} />
@@ -263,17 +263,17 @@ export default function JourneyStatsPage() {
                   formatter={(v, name) => [`${Number(v).toFixed(1)}${name === 'csat' ? '%' : ''}`, String(name).toUpperCase()]}
                 />
                 {visibleKpis.csat && (
-                  <Area type="monotone" dataKey="csat" stroke="#0D8BBC" strokeWidth={2.5} fill="url(#csatGrad)" dot={{ r: 3, fill: '#0D8BBC' }} name="csat" />
+                  <Area type="monotone" dataKey="csat" stroke="var(--color-chart-1)" strokeWidth={2.5} fill="url(#csatGrad)" dot={{ r: 3, fill: 'var(--color-chart-1)' }} name="csat" />
                 )}
                 {visibleKpis.nps && (
-                  <Area type="monotone" dataKey="nps" stroke="#13DB9B" strokeWidth={2} strokeDasharray="6 3" fill="url(#npsGrad)" dot={{ r: 3, fill: '#13DB9B' }} name="nps" />
+                  <Area type="monotone" dataKey="nps" stroke="var(--color-chart-2)" strokeWidth={2} strokeDasharray="6 3" fill="url(#npsGrad)" dot={{ r: 3, fill: 'var(--color-chart-2)' }} name="nps" />
                 )}
               </AreaChart>
             </ResponsiveContainer>
             <div className="flex items-center gap-3 mt-3">
               {[
-                { key: 'csat', label: 'CSAT %', color: '#0D8BBC' },
-                { key: 'nps', label: 'NPS', color: '#13DB9B' },
+                { key: 'csat', label: 'CSAT %', color: 'var(--color-chart-1)' },
+                { key: 'nps', label: 'NPS', color: 'var(--color-chart-2)' },
               ].map(({ key, label, color }) => {
                 const active = visibleKpis[key]
                 return (
@@ -355,7 +355,7 @@ export default function JourneyStatsPage() {
                         : <span className="flex items-center justify-center gap-1 text-xs text-muted-foreground"><AlertTriangle className="size-3" /> None</span>}
                     </td>
                     <td className="px-4 py-2.5 text-center">
-                      {tp.isMoT && <AlertTriangle className="size-4 text-[#E8A020] mx-auto" aria-label="Moment of Truth" />}
+                      {tp.isMoT && <AlertTriangle className="size-4 text-d3 mx-auto" aria-label="Moment of Truth" />}
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center justify-end gap-2">

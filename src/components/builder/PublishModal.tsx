@@ -37,7 +37,7 @@ export default function PublishModal({ open, currentVersion, changes, onPublish,
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-heading">
             <ArrowUpCircle className="size-5 text-primary" />
@@ -63,12 +63,12 @@ export default function PublishModal({ open, currentVersion, changes, onPublish,
             <p className="text-sm font-medium text-foreground">Change summary</p>
             <div className="flex flex-wrap gap-2">
               {hasMajor && (
-                <Badge className="bg-[#FFE4D0] text-[#7A2800] dark:bg-[#7A2800]/20 dark:text-[#FFE4D0] border-0">
+                <Badge className="bg-d4-light text-d4-dark dark:bg-d4-dark/20 dark:text-d4-light border-0">
                   {changes.major} structural change{changes.major > 1 ? 's' : ''} · Major
                 </Badge>
               )}
               {hasMinor && (
-                <Badge className="bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC] border-0">
+                <Badge className="bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light border-0">
                   {changes.minor} cosmetic change{changes.minor > 1 ? 's' : ''} · Minor
                 </Badge>
               )}
@@ -81,8 +81,8 @@ export default function PublishModal({ open, currentVersion, changes, onPublish,
           {/* What counts as what */}
           <div className="rounded-md border border-border p-3 space-y-1.5 text-xs text-muted-foreground">
             <p className="font-medium text-foreground text-xs">Change types</p>
-            <p><span className="font-medium text-[#E05C1A]">Major:</span> Stage/touchpoint additions, removals, reordering, KPI changes</p>
-            <p><span className="font-medium text-[#E8A020]">Minor:</span> Renames, descriptions, goals, emotions, importance scores, MoT toggle</p>
+            <p><span className="font-medium text-d4">Major:</span> Stage/touchpoint additions, removals, reordering, KPI changes</p>
+            <p><span className="font-medium text-d3">Minor:</span> Renames, descriptions, goals, emotions, importance scores, MoT toggle</p>
           </div>
         </div>
 

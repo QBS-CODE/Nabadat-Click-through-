@@ -133,7 +133,7 @@ export default function TouchpointDrawer({ open, touchpoint, onClose, onSave }: 
 
             {/* MoT suggestion */}
             {showMotSuggestion && (
-              <div className="rounded-md bg-[#CCF0FB] dark:bg-nb-cyan/10 border border-nb-cyan/30 p-3 text-xs text-nb-cyan-800 dark:text-nb-cyan-300">
+              <div className="rounded-md bg-nb-cyan-100 dark:bg-nb-cyan/10 border border-nb-cyan/30 p-3 text-xs text-nb-cyan-800 dark:text-nb-cyan-300">
                 <p className="font-medium mb-1">High customer importance — mark as Moment of Truth?</p>
                 <div className="flex gap-2">
                   <button type="button" onClick={() => { setIsMoT(true); setMotSuggestionDismissed(true) }} className="underline font-medium hover:no-underline">Yes</button>
@@ -208,7 +208,7 @@ export default function TouchpointDrawer({ open, touchpoint, onClose, onSave }: 
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="mot-toggle" className="text-sm font-medium flex items-center gap-1.5">
-                    <AlertTriangle className="size-4 text-[#E8A020]" />
+                    <AlertTriangle className="size-4 text-d3" />
                     Moment of Truth
                   </Label>
                   <p className="text-xs text-muted-foreground">Critical touchpoint that defines customer perception</p>
@@ -251,7 +251,7 @@ export default function TouchpointDrawer({ open, touchpoint, onClose, onSave }: 
           <Button onClick={handleSave} className="w-full h-10 rounded-md text-sm font-semibold bg-primary hover:bg-nb-cyan-700 text-primary-foreground">
             Save Changes
           </Button>
-          <Button variant="ghost" onClick={onClose} className="w-full h-10 rounded-md text-sm font-medium bg-muted hover:bg-muted/80 text-muted-foreground">
+          <Button variant="outline" onClick={onClose} className="w-full">
             Cancel
           </Button>
         </SheetFooter>

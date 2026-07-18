@@ -24,15 +24,15 @@ let stageIdCounter = 9000
 let tpIdCounter = 9000
 
 const statusConfig: Record<JourneyStatus, { label: string; className: string }> = {
-  Active: { label: 'Active', className: 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]' },
-  Draft: { label: 'Draft', className: 'bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC]' },
+  Active: { label: 'Active', className: 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light' },
+  Draft: { label: 'Draft', className: 'bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light' },
   Archived: { label: 'Archived', className: 'bg-muted text-muted-foreground' },
 }
 
 const typeConfig: Record<JourneyType, string> = {
   Transactional: 'bg-nb-cyan-100 text-nb-cyan-800 dark:bg-nb-cyan/10 dark:text-nb-cyan-300',
   Lifecycle: 'bg-nb-mint-100 text-nb-mint-800 dark:bg-nb-mint/10 dark:text-nb-mint-300',
-  'Issue-Resolution': 'bg-[#FFE4D0] text-[#7A2800] dark:bg-[#7A2800]/20 dark:text-[#FFE4D0]',
+  'Issue-Resolution': 'bg-d4-light text-d4-dark dark:bg-d4-dark/20 dark:text-d4-light',
   Onboarding: 'bg-nb-navy-100 text-nb-navy dark:bg-nb-navy/20 dark:text-nb-navy-200',
 }
 
@@ -237,9 +237,9 @@ export default function JourneyBuilderPage() {
 
       {/* Limit banners */}
       {stageLimitBanner && (
-        <Alert className="border-[#E8A020]/30 bg-[#FFF0CC] dark:bg-[#7A5000]/20">
-          <AlertTriangle className="size-4 text-[#E8A020]" />
-          <AlertDescription className="text-[#7A5000] dark:text-[#FFF0CC] flex items-center justify-between">
+        <Alert className="border-d3/30 bg-d3-light dark:bg-d3-dark/20">
+          <AlertTriangle className="size-4 text-d3" />
+          <AlertDescription className="text-d3-dark dark:text-d3-light flex items-center justify-between">
             <span>You've reached the maximum of 20 stages. Consider splitting this into multiple journeys.</span>
             <button type="button" onClick={() => setStageLimitBanner(false)} aria-label="Dismiss" className="ms-3 shrink-0"><X className="size-4" /></button>
           </AlertDescription>
@@ -247,9 +247,9 @@ export default function JourneyBuilderPage() {
       )}
 
       {tpJourneyLimitBanner && (
-        <Alert className="border-[#E8A020]/30 bg-[#FFF0CC] dark:bg-[#7A5000]/20">
-          <AlertTriangle className="size-4 text-[#E8A020]" />
-          <AlertDescription className="text-[#7A5000] dark:text-[#FFF0CC] flex items-center justify-between">
+        <Alert className="border-d3/30 bg-d3-light dark:bg-d3-dark/20">
+          <AlertTriangle className="size-4 text-d3" />
+          <AlertDescription className="text-d3-dark dark:text-d3-light flex items-center justify-between">
             <span>You've reached the total touchpoint limit (300) for this journey.</span>
             <button type="button" onClick={() => setTpJourneyLimitBanner(false)} aria-label="Dismiss" className="ms-3 shrink-0"><X className="size-4" /></button>
           </AlertDescription>
@@ -258,9 +258,9 @@ export default function JourneyBuilderPage() {
 
       {/* Reorder banner */}
       {reorderBannerVisible && (
-        <Alert className="border-[#E8A020]/30 bg-[#FFF0CC] dark:bg-[#7A5000]/20">
-          <Info className="size-4 text-[#E8A020]" />
-          <AlertDescription className="text-[#7A5000] dark:text-[#FFF0CC] flex items-center justify-between">
+        <Alert className="border-d3/30 bg-d3-light dark:bg-d3-dark/20">
+          <Info className="size-4 text-d3" />
+          <AlertDescription className="text-d3-dark dark:text-d3-light flex items-center justify-between">
             <span>Reordering stages will trigger a <strong>Major version bump</strong> on next publish.</span>
             <button type="button" onClick={() => setReorderBannerVisible(false)} aria-label="Dismiss" className="ms-3 shrink-0"><X className="size-4" /></button>
           </AlertDescription>
@@ -270,7 +270,7 @@ export default function JourneyBuilderPage() {
       {/* Unsaved changes indicator */}
       {isDirty && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="size-2 rounded-full bg-[#E8A020] inline-block" />
+          <span className="size-2 rounded-full bg-d3 inline-block" />
           Unsaved changes — {majorChanges > 0 && `${majorChanges} major`}{majorChanges > 0 && minorChanges > 0 && ', '}{minorChanges > 0 && `${minorChanges} minor`}
         </div>
       )}

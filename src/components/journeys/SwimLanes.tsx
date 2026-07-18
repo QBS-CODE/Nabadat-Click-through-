@@ -14,19 +14,19 @@ function perfLevel(v: number): 'd1' | 'd2' | 'd3' | 'd4' | 'd5' {
 
 // Tailwind arbitrary-class strings kept static so purge can find them
 const D_BG: Record<string, string> = {
-  d1: 'bg-[#D4F4E2] dark:bg-[#0D4A24]/25',
-  d2: 'bg-[#C8F5DB] dark:bg-[#156632]/20',
-  d3: 'bg-[#FFF0CC] dark:bg-[#7A5000]/20',
-  d4: 'bg-[#FFE4D0] dark:bg-[#7A2800]/20',
-  d5: 'bg-[#FFD6DA] dark:bg-[#6B0010]/20',
+  d1: 'bg-d1-light dark:bg-d1-dark/25',
+  d2: 'bg-d2-light dark:bg-d2-dark/20',
+  d3: 'bg-d3-light dark:bg-d3-dark/20',
+  d4: 'bg-d4-light dark:bg-d4-dark/20',
+  d5: 'bg-d5-light dark:bg-d5-dark/20',
 }
 
 const D_SCORE_TEXT: Record<string, string> = {
-  d1: 'text-[#0D4A24] dark:text-[#D4F4E2]',
-  d2: 'text-[#156632] dark:text-[#C8F5DB]',
-  d3: 'text-[#7A5000] dark:text-[#FFF0CC]',
-  d4: 'text-[#7A2800] dark:text-[#FFE4D0]',
-  d5: 'text-[#6B0010] dark:text-[#FFD6DA]',
+  d1: 'text-d1-dark dark:text-d1-light',
+  d2: 'text-d2-dark dark:text-d2-light',
+  d3: 'text-d3-dark dark:text-d3-light',
+  d4: 'text-d4-dark dark:text-d4-light',
+  d5: 'text-d5-dark dark:text-d5-light',
 }
 
 // ─── Performance color (D1–D5) ───────────────────────────────────────────────
@@ -108,7 +108,7 @@ function TouchpointTooltip({ data }: { data: TpTooltipState }) {
           {[['Customer', tp.importanceCustomer], ['Business', tp.importanceBusiness]].map(([label, val]) => (
             <div key={label as string}>
               <p className="text-[10px] uppercase tracking-wide mb-1">{label}</p>
-              <span className="text-[#E8A020] text-sm">
+              <span className="text-d3 text-sm">
                 {'★'.repeat(val as number)}<span className="opacity-25">{'★'.repeat(5 - (val as number))}</span>
               </span>
             </div>
@@ -117,8 +117,8 @@ function TouchpointTooltip({ data }: { data: TpTooltipState }) {
 
         <div className="flex flex-wrap gap-1.5">
           {tp.isMoT && (
-            <span className="inline-flex items-center gap-1 bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC] px-2 py-0.5 rounded-full text-[10px] font-medium">
-              <AlertTriangle className="size-3 text-[#E8A020]" />
+            <span className="inline-flex items-center gap-1 bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light px-2 py-0.5 rounded-full text-[10px] font-medium">
+              <AlertTriangle className="size-3 text-d3" />
               Moment of Truth
             </span>
           )}
@@ -188,10 +188,10 @@ export default function SwimLanes({ stages }: { stages: Stage[] }) {
                   <div className={cn(
                     'inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full',
                     isUp
-                      ? 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]'
+                      ? 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light'
                       : isFlat
                       ? 'bg-muted text-muted-foreground'
-                      : 'bg-[#FFD6DA] text-[#6B0010] dark:bg-[#6B0010]/20 dark:text-[#FFD6DA]'
+                      : 'bg-d5-light text-d5-dark dark:bg-d5-dark/20 dark:text-d5-light'
                   )}>
                     {isUp
                       ? <TrendingUp className="size-3" />
@@ -223,8 +223,8 @@ export default function SwimLanes({ stages }: { stages: Stage[] }) {
             >
               <defs>
                 <linearGradient id="sw-mint-cyan" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#13DB9B" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#0D8BBC" stopOpacity="0.5" />
+                  <stop offset="0%" stopColor="var(--color-nb-mint)" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="var(--color-nb-cyan)" stopOpacity="0.5" />
                 </linearGradient>
               </defs>
               <path
@@ -328,7 +328,7 @@ export default function SwimLanes({ stages }: { stages: Stage[] }) {
                         onMouseLeave={() => setTooltip(null)}
                       >
                         {tp.isMoT && (
-                          <AlertTriangle className="size-3.5 text-[#E8A020] shrink-0" aria-label="Moment of Truth" />
+                          <AlertTriangle className="size-3.5 text-d3 shrink-0" aria-label="Moment of Truth" />
                         )}
                         <span className="truncate text-[11px] font-medium">{tp.nameEn}</span>
                       </button>

@@ -316,7 +316,7 @@ export default function KpiConfigPage() {
 
         {/* LEFT PANEL: Form */}
         <Card>
-          <CardContent className="space-y-5 pt-5">
+          <CardContent className="space-y-5">
 
             {/* Short Name */}
             <div className="space-y-1.5">

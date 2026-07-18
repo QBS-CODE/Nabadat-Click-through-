@@ -21,7 +21,7 @@ const OPTIONS = [
     descEn: "Start with a blank survey and build your questions manually",
     iconBg: "bg-nb-cyan-100 dark:bg-nb-cyan-900/40",
     iconColor: "text-nb-cyan",
-    route: "/surveys/new/builder",
+    route: "/surveys/new",
   },
   {
     id: "template",
@@ -62,7 +62,7 @@ export function CreateSurveyChooser({ open, onOpenChange }: CreateSurveyChooserP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">
             {isAr ? "إنشاء استبيان جديد" : "Create New Survey"}
@@ -109,8 +109,8 @@ export function CreateSurveyChooser({ open, onOpenChange }: CreateSurveyChooserP
 
         <div className="pt-2">
           <Button
-            variant="ghost"
-            className="w-full text-muted-foreground"
+            variant="outline"
+            className="w-full"
             onClick={() => onOpenChange(false)}
           >
             {isAr ? "إلغاء" : "Cancel"}

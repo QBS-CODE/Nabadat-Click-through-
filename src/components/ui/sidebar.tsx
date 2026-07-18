@@ -248,7 +248,7 @@ function Sidebar({
             side === "left"
               ? "rounded-r-xl border-r shadow-[2px_0_12px_-2px_rgba(0,0,0,0.08)]"
               : "rounded-l-xl border-l shadow-[-2px_0_12px_-2px_rgba(0,0,0,0.08)]",
-            "border-sidebar-border/60 dark:border-sidebar-border/30",
+            "border-sidebar-border/60 dark:border-sidebar-border",
             "dark:shadow-[2px_0_16px_-2px_rgba(0,0,0,0.3)]",
             variant === "floating" && "rounded-2xl shadow-xl border-0 ring-1 ring-sidebar-border",
           )}
@@ -316,7 +316,10 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+        // `min-w-0` is required: as a flex child, the inset would otherwise refuse to
+        // shrink below its content's intrinsic width, so a wide table pushes the whole
+        // page (topbar included) into horizontal scroll instead of scrolling in-place.
+        "relative flex w-full min-w-0 flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         className
       )}
       {...props}

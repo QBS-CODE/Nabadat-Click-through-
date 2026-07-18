@@ -159,8 +159,8 @@ export default function JourneysPage() {
       <div className="flex flex-wrap gap-3">
         {[
           { label: 'Total', value: statusCounts.total, className: 'bg-muted text-foreground' },
-          { label: 'Active', value: statusCounts.active, className: 'bg-[#C8F5DB] text-[#156632] dark:bg-[#156632]/20 dark:text-[#C8F5DB]' },
-          { label: 'Draft', value: statusCounts.draft, className: 'bg-[#FFF0CC] text-[#7A5000] dark:bg-[#7A5000]/20 dark:text-[#FFF0CC]' },
+          { label: 'Active', value: statusCounts.active, className: 'bg-d2-light text-d2-dark dark:bg-d2-dark/20 dark:text-d2-light' },
+          { label: 'Draft', value: statusCounts.draft, className: 'bg-d3-light text-d3-dark dark:bg-d3-dark/20 dark:text-d3-light' },
           { label: 'Archived', value: statusCounts.archived, className: 'bg-muted text-muted-foreground' },
         ].map(c => (
           <Badge key={c.label} className={`text-sm px-3 py-1.5 font-medium border-0 ${c.className}`}>
@@ -278,10 +278,10 @@ export default function JourneysPage() {
 
       {/* Archive Confirmation */}
       <Dialog open={!!archiveTarget} onOpenChange={v => !v && setArchiveTarget(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="size-5 text-[#E8A020]" />
+              <AlertTriangle className="size-5 text-d3" />
               Archive Journey
             </DialogTitle>
           </DialogHeader>

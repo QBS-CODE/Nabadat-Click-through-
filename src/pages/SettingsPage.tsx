@@ -258,7 +258,7 @@ export default function SettingsPage() {
                 </div>
 
                 <Card className="max-w-2xl">
-                  <CardContent className="space-y-5 pt-5">
+                  <CardContent className="space-y-5">
 
                     {/* Name */}
                     <div className="space-y-1.5">
@@ -337,7 +337,7 @@ export default function SettingsPage() {
 
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
-                      <Button variant="ghost" disabled={!orgIsDirty} onClick={handleOrgCancel}>
+                      <Button variant="outline" disabled={!orgIsDirty} onClick={handleOrgCancel}>
                         {t("common.cancel")}
                       </Button>
                       <Button
@@ -364,7 +364,7 @@ export default function SettingsPage() {
                 </div>
 
                 <Card className="max-w-2xl">
-                  <CardContent className="space-y-8 pt-5">
+                  <CardContent className="space-y-8">
 
                     {/* Alpha */}
                     <div className="space-y-3">
@@ -511,7 +511,7 @@ export default function SettingsPage() {
 
                     {/* CJ Actions */}
                     <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
-                      <Button variant="ghost" disabled={!cjIsDirty} onClick={handleCjCancel}>
+                      <Button variant="outline" disabled={!cjIsDirty} onClick={handleCjCancel}>
                         {t("common.cancel")}
                       </Button>
                       <Button

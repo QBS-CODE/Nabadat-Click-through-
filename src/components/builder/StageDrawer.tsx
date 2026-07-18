@@ -196,9 +196,9 @@ export default function StageDrawer({ open, onClose, onSave }: Props) {
             Add Stage
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={onClose}
-            className="w-full h-10 rounded-full text-sm font-medium bg-muted hover:bg-muted/80 text-muted-foreground"
+            className="w-full"
           >
             Cancel
           </Button>
