@@ -286,7 +286,7 @@ function DualRingGauge({
       aria-label={`${label}: ${value}`}
     >
       {/* Inner ring — zone colors (thin) */}
-      <path d={arcPath(startAngle, startAngle + totalAngle, rInner)} fill="none" stroke="#F1F5F9" strokeWidth={innerSW} strokeLinecap="round" />
+      <path d={arcPath(startAngle, startAngle + totalAngle, rInner)} fill="none" className="stroke-muted/40" strokeWidth={innerSW} strokeLinecap="round" />
       {zones.map((z, i) => (
         <path
           key={i}
@@ -299,26 +299,26 @@ function DualRingGauge({
       ))}
 
       {/* Outer ring — value arc (thick) */}
-      <path d={arcPath(startAngle, startAngle + totalAngle, rOuter)} fill="none" stroke="#F1F5F9" strokeWidth={outerSW} strokeLinecap="round" />
+      <path d={arcPath(startAngle, startAngle + totalAngle, rOuter)} fill="none" className="stroke-muted/40" strokeWidth={outerSW} strokeLinecap="round" />
       <path d={arcPath(startAngle, valueAngle, rOuter)} fill="none" stroke={color} strokeWidth={outerSW} strokeLinecap="round" />
 
       {/* Target marker */}
       {targetPct !== undefined && (
         <>
-          <line x1={thTx1} y1={thTy1} x2={thTx2} y2={thTy2} stroke="#334155" strokeWidth={2.5} strokeLinecap="round" />
-          <text x={thLx} y={thLy} textAnchor="middle" fontSize={8} fontWeight={700} fill="#64748B" dominantBaseline="middle">T</text>
+          <line x1={thTx1} y1={thTy1} x2={thTx2} y2={thTy2} className="stroke-foreground" strokeWidth={2.5} strokeLinecap="round" />
+          <text x={thLx} y={thLy} textAnchor="middle" fontSize={8} fontWeight={700} className="fill-muted-foreground" dominantBaseline="middle">T</text>
         </>
       )}
 
       {/* Needle dot */}
-      <circle cx={needleX} cy={needleY} r={5} fill={color} stroke="#fff" strokeWidth={2} />
-      <circle cx={cx} cy={cy} r={3.5} fill="#E2E8F0" />
+      <circle cx={needleX} cy={needleY} r={5} fill={color} className="stroke-card" strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={3.5} className="fill-muted-foreground" />
 
       {/* Center value */}
       <text x={cx} y={cy - 6} textAnchor="middle" fontSize={28} fontWeight={800} fill={color}>
         {displayVal}
       </text>
-      <text x={cx} y={cy + 12} textAnchor="middle" fontSize={9} fontWeight={600} fill="#94A3B8">
+      <text x={cx} y={cy + 12} textAnchor="middle" fontSize={9} fontWeight={600} className="fill-muted-foreground">
         {label}
       </text>
     </svg>
@@ -411,7 +411,7 @@ function KpiFlipCard({
               <PieChartIcon className="size-3.5" />
             </Button>
 
-            <CardContent className="pt-4 pb-4 flex flex-col items-center text-center">
+            <CardContent className="flex flex-col items-center text-center">
               <span className="text-sm font-bold" style={{ color: kpi.color }}>
                 {kpi.title}
               </span>
@@ -423,7 +423,7 @@ function KpiFlipCard({
                   value={gaugeValue}
                   min={gaugeMin}
                   max={gaugeMax}
-                  color={perfColor(kpi.gaugePercent)}
+                  color={perfColor(kpi.value, kpi.id)}
                   targetPct={targetPct}
                   label={kpi.title}
                 />
@@ -479,7 +479,7 @@ function KpiFlipCard({
 
           {/* ── BACK FACE ─────────────────────── */}
           <Card className="absolute inset-0 overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]">
-            <CardContent className="pt-4 pb-4 h-full flex flex-col">
+            <CardContent className="h-full flex flex-col">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-sm font-bold">{t("cx.reasonsAnalysis")}</h3>

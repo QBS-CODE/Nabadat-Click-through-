@@ -384,7 +384,7 @@ function KpiCard({ kpi, delay }: { kpi: KpiItem; delay: number }) {
             aria-hidden="true"
           />
 
-          <CardContent className="pt-5">
+          <CardContent className="">
             <div className="flex items-start justify-between">
               <div className="space-y-1.5">
                 <p className="text-sm text-muted-foreground">{kpi.title}</p>
@@ -759,7 +759,7 @@ export default function VocDashboard() {
                     <TableHead className="text-start">الملاحظة</TableHead>
                     <TableHead className="text-center">المشاعر</TableHead>
                     <TableHead className="text-center">المصدر</TableHead>
-                    <TableHead className="text-end pe-6">التاريخ</TableHead>
+                    <TableHead className="text-start pe-6">التاريخ</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -795,7 +795,7 @@ export default function VocDashboard() {
                             {src.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-end pe-6 text-muted-foreground tabular-nums whitespace-nowrap">
+                        <TableCell className="text-start pe-6 text-muted-foreground tabular-nums whitespace-nowrap">
                           {row.date}
                         </TableCell>
                       </TableRow>

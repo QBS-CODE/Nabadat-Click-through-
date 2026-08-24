@@ -22,11 +22,14 @@ import {
   Send,
   Zap,
   BarChart3,
+  Clock,
   RefreshCcw,
   Target,
   Map,
   Sparkles,
   Users,
+  Gauge,
+  Settings,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -64,6 +67,7 @@ const NAV_ITEMS: NavGroup[] = [
     groupKey: "cx.navAnalytics",
     items: [
       { key: "analytics", labelKey: "cx.navAnalyticsReports", icon: BarChart3, href: "/analytics" },
+      { key: "post_expiry", labelKey: "cx.navPostExpiry", icon: Clock, href: "/surveys/post-expiry" },
       { key: "ai_insights", labelKey: "cx.navAiInsights", icon: Sparkles, href: "#", phase2: true },
     ],
   },
@@ -77,16 +81,23 @@ const NAV_ITEMS: NavGroup[] = [
   {
     groupKey: "cx.navCustomers",
     items: [
-      { key: "journey", labelKey: "cx.navJourney", icon: Map, href: "/journey" },
+      { key: "journey", labelKey: "cx.navJourney", icon: Map, href: "/journeys" },
       { key: "profiles", labelKey: "cx.navProfiles", icon: Users, href: "#", phase2: true },
+    ],
+  },
+  {
+    groupKey: "cx.navPlatform",
+    items: [
+      { key: "kpi_management", labelKey: "cx.navKpiManagement", icon: Gauge, href: "/kpi-management" },
+      { key: "settings", labelKey: "cx.navSettings", icon: Settings, href: "/settings" },
     ],
   },
 ]
 
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles"],
-  analyst: ["dashboard", "surveys", "feedback", "analytics", "ai_insights", "journey", "profiles"],
-  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "ai_insights", "closed_loop", "actions", "journey", "profiles"],
+  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
+  analyst: ["dashboard", "surveys", "feedback", "analytics", "post_expiry", "ai_insights", "journey", "profiles"],
+  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }

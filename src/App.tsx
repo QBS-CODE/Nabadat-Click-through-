@@ -8,8 +8,29 @@ import VocDashboard from "./pages/VocDashboard"
 import ComponentGuide from "./pages/ComponentGuide"
 import KpiDetailPage from "./pages/KpiDetailPage"
 import FeedbackPage from "./pages/FeedbackPage"
-import SurveysPage from "./pages/SurveysPage"
+import SurveysLibraryPage from "./pages/SurveysLibraryPage"
+import SurveyBuilderPage from "./pages/SurveyBuilderPage"
+import UseTemplatePage from "./pages/UseTemplatePage"
+import TemplateBuilderPage from "./pages/TemplateBuilderPage"
+import TemplatePickerPage from "./pages/TemplatePickerPage"
+import AiSurveyPage from "./pages/AiSurveyPage"
+import SurveyTranslationsPage from "./pages/SurveyTranslationsPage"
+import SurveyFunnelPage from "./pages/SurveyFunnelPage"
+import SurveyStatsPage from "./pages/SurveyStatsPage"
+import PostExpiryStorePage from "./pages/PostExpiryStorePage"
+import SurveyWizardPage from "./pages/SurveyWizardPage"
 import PlaceholderPage from "./pages/PlaceholderPage"
+import JourneysPage from "./pages/JourneysPage"
+import JourneyBuilderPage from "./pages/JourneyBuilderPage"
+import JourneyStatsPage from "./pages/JourneyStatsPage"
+import KpiManagementPage from "./pages/KpiManagementPage"
+import KpiConfigPage from "./pages/KpiConfigPage"
+import SettingsPage from "./pages/SettingsPage"
+import SettingsOrganizationPage from "./pages/SettingsOrganizationPage"
+import SettingsCustomerJourneyPage from "./pages/SettingsCustomerJourneyPage"
+import { SettingsProvider } from "./contexts/settings-context"
+import { TenantSwitcher } from "./components/dev/TenantSwitcher"
+import { Toaster } from "./components/ui/sonner"
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth()
@@ -39,13 +60,36 @@ function AppRoutes() {
       <Route path="/kpi/:id" element={<LayoutRoute><KpiDetailPage /></LayoutRoute>} />
       <Route path="/voc" element={<LayoutRoute><VocDashboard /></LayoutRoute>} />
       <Route path="/feedback" element={<LayoutRoute><FeedbackPage /></LayoutRoute>} />
-      <Route path="/surveys" element={<LayoutRoute><SurveysPage /></LayoutRoute>} />
+      {/* Survey Builder module (M-01) */}
+      <Route path="/surveys" element={<LayoutRoute><SurveysLibraryPage /></LayoutRoute>} />
+      <Route path="/surveys/new" element={<LayoutRoute><SurveyWizardPage /></LayoutRoute>} />
+      <Route path="/surveys/post-expiry" element={<LayoutRoute><PostExpiryStorePage /></LayoutRoute>} />
+      <Route path="/surveys/new/builder" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/new/from-template/:templateId" element={<LayoutRoute><UseTemplatePage /></LayoutRoute>} />
+      <Route path="/surveys/new/ai" element={<LayoutRoute><AiSurveyPage /></LayoutRoute>} />
+      <Route path="/surveys/templates/pick" element={<LayoutRoute><TemplatePickerPage /></LayoutRoute>} />
+      <Route path="/surveys/templates/new" element={<LayoutRoute><TemplateBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/templates/:id/edit" element={<LayoutRoute><TemplateBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/edit" element={<LayoutRoute><SurveyBuilderPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/preview" element={<LayoutRoute><SurveyBuilderPage initialStep={2} previewFull /></LayoutRoute>} />
+      <Route path="/surveys/new/translations" element={<LayoutRoute><SurveyTranslationsPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/translations" element={<LayoutRoute><SurveyTranslationsPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/funnel" element={<LayoutRoute><SurveyFunnelPage /></LayoutRoute>} />
+      <Route path="/surveys/:id/stats" element={<LayoutRoute><SurveyStatsPage /></LayoutRoute>} />
       <Route path="/distribution" element={<LayoutRoute><PlaceholderPage titleKey="cx.navDistribution" /></LayoutRoute>} />
       <Route path="/sending-rules" element={<LayoutRoute><PlaceholderPage titleKey="cx.navSendingRules" /></LayoutRoute>} />
       <Route path="/analytics" element={<LayoutRoute><PlaceholderPage titleKey="cx.navAnalyticsReports" /></LayoutRoute>} />
       <Route path="/closed-loop" element={<LayoutRoute><PlaceholderPage titleKey="cx.navClosedLoop" /></LayoutRoute>} />
       <Route path="/actions" element={<LayoutRoute><PlaceholderPage titleKey="cx.navActions" /></LayoutRoute>} />
-      <Route path="/journey" element={<LayoutRoute><PlaceholderPage titleKey="cx.navJourney" /></LayoutRoute>} />
+      <Route path="/journeys" element={<LayoutRoute><JourneysPage /></LayoutRoute>} />
+      <Route path="/journeys/:id" element={<LayoutRoute><JourneyBuilderPage /></LayoutRoute>} />
+      <Route path="/journeys/:id/stats" element={<LayoutRoute><JourneyStatsPage /></LayoutRoute>} />
+      <Route path="/kpi-management" element={<LayoutRoute><KpiManagementPage /></LayoutRoute>} />
+      <Route path="/kpi-management/new" element={<LayoutRoute><KpiConfigPage /></LayoutRoute>} />
+      <Route path="/kpi-management/:id" element={<LayoutRoute><KpiConfigPage /></LayoutRoute>} />
+      <Route path="/settings" element={<LayoutRoute><SettingsPage /></LayoutRoute>} />
+      <Route path="/settings/organization" element={<LayoutRoute><SettingsOrganizationPage /></LayoutRoute>} />
+      <Route path="/settings/customer-journey" element={<LayoutRoute><SettingsCustomerJourneyPage /></LayoutRoute>} />
       <Route path="/guide" element={<ComponentGuide />} />
     </Routes>
   )
@@ -56,7 +100,11 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <PersonaProvider>
-          <AppRoutes />
+          <SettingsProvider>
+            <AppRoutes />
+            <Toaster position="bottom-right" richColors closeButton />
+            {import.meta.env.DEV && <TenantSwitcher />}
+          </SettingsProvider>
         </PersonaProvider>
       </AuthProvider>
     </BrowserRouter>

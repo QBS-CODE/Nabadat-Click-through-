@@ -8,6 +8,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+
   type ChartConfig,
 } from "@/components/ui/chart"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts"
@@ -76,7 +77,7 @@ export default function KpiDetailPage() {
       {/* ── AI Insight + Trend (side by side) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="border-s-4 border-s-nb-cyan bg-nb-cyan-100/50 dark:bg-nb-cyan-900/20">
-          <CardContent className="py-4 flex gap-3 items-start">
+          <CardContent className="flex gap-3 items-start">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-nb-cyan-100 dark:bg-nb-cyan-900/30">
               <Sparkles className="size-5 text-nb-cyan" />
             </div>
@@ -90,7 +91,7 @@ export default function KpiDetailPage() {
         </Card>
 
         <Card>
-          <CardContent className="pt-3 pb-2">
+          <CardContent className="">
             <h3 className="text-sm font-bold mb-2">{t("cx.detailTrend")}</h3>
             <ChartContainer config={trendChartConfig} className="h-40 w-full">
               <AreaChart data={trendData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -123,7 +124,7 @@ export default function KpiDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Response Distribution */}
         <Card>
-          <CardContent className="pt-4 pb-4">
+          <CardContent className="">
             <h3 className="text-sm font-bold mb-4">{t("cx.detailDistribution")}</h3>
             <div className="divide-y divide-border">
               {data.distribution.map((item) => {
@@ -152,7 +153,7 @@ export default function KpiDetailPage() {
 
         {/* Segment Breakdown */}
         <Card>
-          <CardContent className="pt-4 pb-4">
+          <CardContent className="">
             <h3 className="text-sm font-bold mb-4">{t("cx.detailSegments")}</h3>
             <div className="divide-y divide-border">
               {data.segments.map((seg) => {
@@ -182,7 +183,7 @@ export default function KpiDetailPage() {
       {/* ── Top Drivers ──────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="border-s-4 border-s-d2">
-          <CardContent className="py-4">
+          <CardContent className="">
             <div className="flex items-start gap-3">
               <div className="flex items-center justify-center size-8 rounded-lg bg-d2-light dark:bg-d2-dark/20 shrink-0">
                 <ThumbsUp className="size-4 text-d2-dark dark:text-d2-light" />
@@ -200,7 +201,7 @@ export default function KpiDetailPage() {
         </Card>
 
         <Card className="border-s-4 border-s-d5">
-          <CardContent className="py-4">
+          <CardContent className="">
             <div className="flex items-start gap-3">
               <div className="flex items-center justify-center size-8 rounded-lg bg-d5-light dark:bg-d5-dark/20 shrink-0">
                 <ThumbsDown className="size-4 text-d5-dark dark:text-d5-light" />

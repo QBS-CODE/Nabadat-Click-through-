@@ -51,7 +51,6 @@ import {
 import {
   TrendingUp,
   TrendingDown,
-  Plus,
   Download,
   Calendar,
   AlertTriangle,
@@ -527,7 +526,7 @@ export default function CxDashboard() {
               { label: t("cx.todayResponses"), value: "47", colorClass: "text-secondary" },
             ].map((k) => (
               <Card key={k.label} className="cx-fade-in-up">
-                <CardContent className="pt-4 pb-4">
+                <CardContent className="">
                   <p className="text-xs text-muted-foreground font-medium mb-1">{k.label}</p>
                   <p className={cn("text-3xl font-heading font-bold tabular-nums", k.colorClass)}>{k.value}</p>
                 </CardContent>
@@ -577,7 +576,7 @@ export default function CxDashboard() {
               { label: t("cx.openCases"), value: "3", delta: "−2 vs prev", up: true },
             ].map((k) => (
               <Card key={k.label} className="cx-fade-in-up">
-                <CardContent className="pt-4 pb-4">
+                <CardContent className="">
                   <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-2">{k.label}</p>
                   <p className="text-3xl font-heading font-bold tabular-nums mb-1">{k.value}</p>
                   <p className={cn("text-xs font-medium", k.up ? "text-d2 dark:text-d2-light" : "text-d5 dark:text-d5-light")}>
@@ -666,11 +665,7 @@ export default function CxDashboard() {
                 <SelectItem value="90">{t("cx.last90")}</SelectItem>
               </SelectContent>
             </Select>
-            <Button className="bg-primary hover:bg-nb-cyan-700 text-primary-foreground">
-              <Plus className="size-4 ms-1.5" />
-              {t("cx.newSurvey")}
-            </Button>
-            <Button variant="outline">
+            <Button variant="secondary">
               <Download className="size-4 ms-1.5" />
               {t("cx.export")}
             </Button>
@@ -914,7 +909,7 @@ export default function CxDashboard() {
                 className={cn("cx-scale-in overflow-hidden border-s-4", action.color, "motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-0.5 hover:shadow-md")}
                 style={{ animationDelay: `${1.15 + i * 0.1}s` }}
               >
-                <CardContent className="pt-4 pb-4">
+                <CardContent className="">
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-2">
                       <h3 className="text-sm font-bold">{action.title}</h3>
