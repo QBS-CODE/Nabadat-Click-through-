@@ -28,6 +28,18 @@ import KpiConfigPage from "./pages/KpiConfigPage"
 import SettingsPage from "./pages/SettingsPage"
 import SettingsOrganizationPage from "./pages/SettingsOrganizationPage"
 import SettingsCustomerJourneyPage from "./pages/SettingsCustomerJourneyPage"
+// Action Management (M-15)
+import AllActionsPage from "./features/actions/pages/AllActionsPage"
+import ActionFormPage from "./features/actions/pages/ActionFormPage"
+import ActionDetailsPage from "./features/actions/pages/ActionDetailsPage"
+// Integration Hub (M-13)
+import AllIntegrationsPage from "./features/integration-hub/pages/AllIntegrationsPage"
+import IntegrationWizardPage from "./features/integration-hub/pages/IntegrationWizardPage"
+import RequestLogsPage from "./features/integration-hub/pages/RequestLogsPage"
+import AllServiceChannelsPage from "./features/integration-hub/pages/AllServiceChannelsPage"
+import ServiceChannelFormPage from "./features/integration-hub/pages/ServiceChannelFormPage"
+import AllParametersPage from "./features/integration-hub/pages/AllParametersPage"
+import ParameterMappingsPage from "./features/integration-hub/pages/ParameterMappingsPage"
 import { SettingsProvider } from "./contexts/settings-context"
 import { TenantSwitcher } from "./components/dev/TenantSwitcher"
 import { Toaster } from "./components/ui/sonner"
@@ -44,6 +56,13 @@ function LayoutRoute({ children }: { children: React.ReactNode }) {
       <AppLayout>{children}</AppLayout>
     </ProtectedRoute>
   )
+}
+
+// Ported feature pages (Action Management, Integration Hub) were authored against a layout
+// that provided the 32px page gutter itself. The clickthrough layout doesn't, so this adds the
+// standard `px-8` gutter around them — same as every native page carries on its own root.
+function ModulePage({ children }: { children: React.ReactNode }) {
+  return <div className="px-8">{children}</div>
 }
 
 function AppRoutes() {
@@ -80,7 +99,23 @@ function AppRoutes() {
       <Route path="/sending-rules" element={<LayoutRoute><PlaceholderPage titleKey="cx.navSendingRules" /></LayoutRoute>} />
       <Route path="/analytics" element={<LayoutRoute><PlaceholderPage titleKey="cx.navAnalyticsReports" /></LayoutRoute>} />
       <Route path="/closed-loop" element={<LayoutRoute><PlaceholderPage titleKey="cx.navClosedLoop" /></LayoutRoute>} />
-      <Route path="/actions" element={<LayoutRoute><PlaceholderPage titleKey="cx.navActions" /></LayoutRoute>} />
+      {/* Action Management (M-15). Ported pages assume the layout supplies the 32px page
+          gutter (as the source app-layout did via px-8); the clickthrough layout has none, so
+          each module page is wrapped in ModulePage to add it — matching every native page's px-8. */}
+      <Route path="/actions" element={<LayoutRoute><ModulePage><AllActionsPage /></ModulePage></LayoutRoute>} />
+      <Route path="/actions/new" element={<LayoutRoute><ModulePage><ActionFormPage /></ModulePage></LayoutRoute>} />
+      <Route path="/actions/:id/edit" element={<LayoutRoute><ModulePage><ActionFormPage /></ModulePage></LayoutRoute>} />
+      <Route path="/actions/:id" element={<LayoutRoute><ModulePage><ActionDetailsPage /></ModulePage></LayoutRoute>} />
+      {/* Integration Hub (M-13) */}
+      <Route path="/integration-hub/integrations" element={<LayoutRoute><ModulePage><AllIntegrationsPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/integrations/new" element={<LayoutRoute><ModulePage><IntegrationWizardPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/integrations/:id" element={<LayoutRoute><ModulePage><IntegrationWizardPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/logs" element={<LayoutRoute><ModulePage><RequestLogsPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/service-channels" element={<LayoutRoute><ModulePage><AllServiceChannelsPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/service-channels/new" element={<LayoutRoute><ModulePage><ServiceChannelFormPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/service-channels/:id" element={<LayoutRoute><ModulePage><ServiceChannelFormPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/parameters" element={<LayoutRoute><ModulePage><AllParametersPage /></ModulePage></LayoutRoute>} />
+      <Route path="/integration-hub/mappings" element={<LayoutRoute><ModulePage><ParameterMappingsPage /></ModulePage></LayoutRoute>} />
       <Route path="/journeys" element={<LayoutRoute><JourneysPage /></LayoutRoute>} />
       <Route path="/journeys/:id" element={<LayoutRoute><JourneyBuilderPage /></LayoutRoute>} />
       <Route path="/journeys/:id/stats" element={<LayoutRoute><JourneyStatsPage /></LayoutRoute>} />

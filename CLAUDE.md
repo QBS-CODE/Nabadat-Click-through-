@@ -187,6 +187,24 @@ When a prompt requires a component or visualization:
 > **Anti-pattern:** Creating a new inline KPI card when `<KpiFlipCard>` already exists.
 > Always `import` from existing components rather than duplicating their logic.
 
+### Multi-select is `Combobox`, never a hand-rolled Popover + checkbox list
+
+Any field where the user picks **more than one** value from a set (KPI filters, tag pickers, audience
+selectors, channel pickers) MUST use **`@/components/ui/combobox`** with `multiple` — the base-ui
+Combobox — and render the selection as chips via `ComboboxChips` / `ComboboxChip` /
+`ComboboxChipsInput`. It ships type-ahead filtering, keyboard navigation, chip removal, and the
+correct ARIA roles for free.
+
+**Do NOT** build a `Popover` + list-of-`Checkbox` (or `role="menuitemcheckbox"` buttons) multi-select
+by hand. It looks close but silently loses type-ahead and chip removal, gives no visible summary of
+what is selected beyond an "N selected" string, and every hand-rolled copy drifts in padding, radius
+and keyboard behaviour from the next one. Single-select stays `Select`; multi-select is `Combobox`.
+
+Trigger sizing follows the 40px control family (`h-10`, `rounded-md`) like every other field, and the
+chips inside use `rounded-sm` — chips are chrome, so they take **brand/neutral** tokens, never the
+D-scale (a KPI *name* in a filter is a category, not a status).
+
+
 ### When to use Recharts vs Custom SVG
 
 Recharts is appropriate for **standard data charts**: line charts, bar charts, area charts, stacked
@@ -335,6 +353,23 @@ When showing percentage breakdowns (e.g., Promoters/Passives/Detractors, Satisfi
 - Add a small **category label** to the left/start side
 - Bars should have a subtle background track (`bg-muted/20`) so empty space is visible
 - Animate bar width on mount: `motion-safe:transition-all motion-safe:duration-700`
+
+> **Sentiment-graded vs categorical — the chart-colouring decision (Two-Palette Rule
+> in practice).** A distribution's colours depend on **what the buckets mean**, and this is
+> the single most common data-viz mistake:
+> - **Sentiment / rating scales** (KPI question 5→1, Scale stars/points, Promoters/Passives/
+>   Detractors) → colour each bar by **rank on the D-scale**, green→red best→worst
+>   (`D1…D5` mapped by index: `RAMP[Math.round(i/(n-1)*4)]`). Value text is "%" only.
+> - **Categorical breakdowns** (single-select options, multi-select options, **delivery
+>   channels**, reasons) → colour by the **brand `chart-1…5` palette**, NEVER `perfColor`.
+>   Painting a channel red because its completion rate is "low" is a Two-Palette violation
+>   *and* misreads as an alarm — a channel is a category, not a status. Multi-select value
+>   text is "count · %"; single/channel legends show "%".
+>
+> Rule of thumb: **if a lower value is genuinely "worse", grade it D-scale; if the buckets
+> are just different things, use brand chart colours.** `perfColor` on a categorical
+> breakdown is always wrong.
+
 
 ### Segment / Branch Breakdown Bars
 
@@ -926,6 +961,63 @@ Input (field edge):    #434864  [L .409]  — input / select / textarea outlines
 
 ---
 
+### Subordinate text is 12px — hints, placeholders, and explanatory card lines
+
+Text that **explains a control rather than being content** drops to `text-xs` (12px) with
+`leading-relaxed`. At `text-sm` it competes with the field's own `<Label>` and with card titles,
+which made forms read as a wall of same-size grey text (caught on SCR-04, the service-channel
+form: a four-line 14px hint under the channel-ID field out-shouted every label on the card).
+Three specific cases:
+
+- **Field hint / help text** under an input → `text-xs leading-relaxed text-muted-foreground`.
+  The `leading-relaxed` is not optional — multi-line hints at 12px need the line-height back.
+- **Field text on a data-dense form** → `text-xs md:text-xs` on the `Input` / `Textarea`, which
+  takes the typed value **and** its placeholder to 12px. The `md:` variant is required: the
+  component default is `text-base md:text-sm`, so `text-xs` alone is overridden back to 14px at
+  `md` and up. Use this on **dense, multi-field module forms** (SCR-04 and the rest of Integration
+  Hub) where a 14px value column made the card read as oversized. Keep 14px for **short, isolated
+  forms** (login, a single-field dialog) — there is no density pressure there and a bigger value is
+  easier to proofread.
+  **Trade-off, stated so it isn't rediscovered:** 12px is the small end for text the user is
+  actively editing and proofreading — identifier-shaped values (`E2E-BACK-210731708`) are exactly
+  where a mistyped character hides. That is the accepted cost of the denser form; it is **not**
+  licence to shrink editable text below 12px, ever.
+- **Explanatory `CardDescription`** that instructs about the content below it →
+  `className="text-xs leading-relaxed"`. A card *title* stays `text-base font-bold`.
+
+**Validation errors NEVER shrink** — keep `text-sm text-destructive`. An error occupies the same
+slot as the hint it replaces, and must not be quieter than the hint.
+
+**Emphasise control names inline** when an explanatory line names the exact controls it's telling
+you to use: the gating control gets `font-semibold text-foreground`, a secondary one
+`font-medium text-foreground`. Render it with `<Trans>` and named component tags so the emphasis
+travels with the translation instead of being spliced in per-locale:
+
+```tsx
+// en.json → "Turn on <s>Supported</s> for every field …; mark <r>Required</r> to make it mandatory."
+<Trans
+  i18nKey="…contractDescription"
+  components={{
+    s: <span className="font-semibold text-foreground" />,
+    r: <span className="font-medium text-foreground" />,
+  }}
+/>
+```
+
+**Arabic exception to the 12px rule.** The "never `text-xs` for Arabic body text" rule still
+holds for *paragraphs*. These three cases are captions, not body text, so 12px is allowed — but
+**check any multi-line Arabic hint at 12px before shipping it**; if it reads cramped, raise that
+one instance to `text-sm` rather than lowering the whole page.
+
+**Per-instance, not per-component.** Apply these as `className` on the usage site. Do **not** edit
+`input.tsx`, `textarea.tsx`, or `card.tsx` to change their default sizes — those defaults are
+shared by every form and card in the app, and a global shift is a separate, deliberate decision.
+If the same override starts appearing on most screens, that is the signal to change the default
+once, in the component, and delete the overrides.
+
+---
+
+
 ## Component Rules
 
 ### Never define a component inside another component's render body
@@ -1260,6 +1352,73 @@ Use shadcn `Table` components. For data-heavy tables:
 - Sortable columns: add `aria-sort` attribute (`ascending` / `descending` / `none`)
 - Consider virtualizing lists with 50+ rows
 
+### Row actions in a table — icon-only, muted, unlabelled column
+
+**Every per-row action in a list table is an icon-only ghost button, and its column has no
+visible header.** This is the app-wide pattern (SCR-03 Service channels, SCR-05 Parameters):
+
+```tsx
+// header — width reserved, label kept for screen readers only
+<TableHead className="w-16 text-center">
+  <span className="sr-only">{t("…colActions")}</span>
+</TableHead>
+
+// cell
+<TableCell className="w-16 text-center">
+  <Button
+    variant="ghost"
+    size="icon"
+    className="text-muted-foreground hover:text-foreground"
+    aria-label={label}
+    title={label}
+    data-testid={canManage ? `edit-${row.key}` : `view-${row.key}`}
+    onClick={…}
+  >
+    {canManage ? <Pencil className="size-4" /> : <Eye className="size-4" />}
+  </Button>
+</TableCell>
+```
+
+Rules, each from a real defect:
+
+- **Icon-only, `variant="ghost"` — NOT the filled `secondary` compact button.** A soft-cyan
+  filled button repeated down 70 rows becomes a solid cyan stripe and competes with the page's
+  one primary CTA. The in-row `secondary size="compact"` rule still applies to **accordion rows
+  and single-action toolbars** ("Add Touchpoint"), not to a per-row edit in a long list.
+- **`text-muted-foreground hover:text-foreground`.** At default `text-foreground` the icon is
+  near-black navy and pulls focus away from the row's own content while scanning.
+- **`w-16 text-center` on BOTH the header and the cell.** A `w-px` column collapses to the
+  icon's own width and pins it against the card edge with no breathing room.
+- **The visible header goes, the accessible name stays** (`sr-only`). Never drop the name
+  entirely, and never leave a bare `<TableHead />`.
+- **Read-only personas get `<Eye>` + a `view-` testid**, not a disabled pencil — the action
+  differs, so the affordance should too. E2E selects on `edit-*` / `view-*`, so the prefix
+  switch is what proves the permission split.
+
+### Read-only yes/no cells — `Check` / `Minus`, in brand cyan
+
+For boolean **capability** columns (Filterable, Reporting visibility, …), render Lucide icons —
+**never the literal `"✓"` / `"—"` characters.** Text glyphs resolve through whatever font falls
+back, so they arrive hairline-thin, vertically off-centre, and inconsistent between the Latin and
+Arabic stacks (exactly how SCR-05's flag columns looked before). Use `FlagGlyph` in
+`ParameterDrawer.tsx` as the reference:
+
+```tsx
+{on ? <Check className="size-4 text-nb-cyan-700 dark:text-nb-cyan-300" strokeWidth={3} />
+    : <Minus className="size-4 text-muted-foreground/40" strokeWidth={2.5} />}
+```
+
+- **The tick is brand cyan, NOT semantic green — this is a Two-Palette rule, not a preference.**
+  A capability flag ("filterable: yes") is not a health state. Spending D2 green on "yes"
+  weakens it everywhere it means "good". The ratified prototype shows green ticks here; we
+  deliberately deviate. If that is ever overridden, it needs a Two-Palette amendment, not a
+  one-off className.
+- **Shape carries the meaning too** (tick vs dash), so the column survives colour-blindness and
+  greyscale printing — required by "colour is never the only indicator".
+- Wrap in `role="img"` with an `aria-label` that includes the **value** (`"Filterable: yes"`),
+  not just the column name.
+
+
 ### Dialogs & Sheets
 
 - Confirmations and quick forms: `<Dialog>` — centered, max-w-md
@@ -1308,6 +1467,30 @@ Use shadcn `Table` components. For data-heavy tables:
   `max-h-screen` on `SheetContent` itself — that scrolls the whole sheet (header + footer
   included) as one block and unpins the footer. The footer stays reachable only when the
   body is the sole scroll container.
+
+### Overriding a component default? Match its variant prefix (the silent-no-op trap)
+
+**`cn()` / tailwind-merge only de-duplicates classes with the SAME variant chain.** A plain
+utility does **not** override a modifier-prefixed one — both survive, and CSS specificity hands
+the win to the prefixed class. The override looks correct in the source and does nothing in the
+browser, with no warning. This has bitten us three times:
+
+| You write | The component already has | What actually happens |
+| --------- | ------------------------- | --------------------- |
+| `sm:max-w-xl` on `SheetContent` | `data-[side=right]:sm:max-w-sm` | Sheet stays **384px** |
+| `text-xs` on `Input` | `text-base md:text-sm` | Reverts to **14px** at `md`+ |
+| `h-auto` / `rounded-lg` on `TabsList` | `group-data-horizontal/tabs:h-8`, `data-[variant=line]:rounded-none` | Padding squashed |
+
+**Rule: before overriding a `components/ui/*` default, grep the component for that utility and
+copy its full prefix.** So `data-[side=right]:sm:max-w-lg` (both sides — sheets flip in RTL),
+`text-xs md:text-xs`, `group-data-horizontal/tabs:h-auto`.
+
+**Diagnosing it:** if a className appears to do nothing, inspect the element and look for a
+prefixed sibling of the same property in the computed styles — do not assume the value is wrong
+and start guessing larger numbers. And when the same override keeps recurring across screens,
+that is the signal to add a **variant to the component** (as `TabsList`'s `segmented` did) rather
+than to keep re-prefixing at every call site.
+
 
 ### Routes vs Dialogs
 

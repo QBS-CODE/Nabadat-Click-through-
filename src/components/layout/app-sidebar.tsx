@@ -30,6 +30,11 @@ import {
   Users,
   Gauge,
   Settings,
+  Plug,
+  ScrollText,
+  Building2,
+  Table2,
+  ArrowLeftRight,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -92,12 +97,30 @@ const NAV_ITEMS: NavGroup[] = [
       { key: "settings", labelKey: "cx.navSettings", icon: Settings, href: "/settings" },
     ],
   },
+  {
+    // Integration Hub (M-13) — inbound integration edge. P-07 (Tenant IT Admin) owns
+    // integrations + request logs; P-01 (CX Manager) sees integrations read-only but not logs.
+    groupKey: "cx.navIntegrationHub",
+    items: [
+      { key: "ih_integrations", labelKey: "cx.navIntegrations", icon: Plug, href: "/integration-hub/integrations" },
+      { key: "ih_logs", labelKey: "cx.navRequestLogs", icon: ScrollText, href: "/integration-hub/logs" },
+    ],
+  },
+  {
+    // Integration Hub → data model (FR-GBL). Owned by P-01 (CX Manager).
+    groupKey: "cx.navDataModel",
+    items: [
+      { key: "ih_channels", labelKey: "cx.navServiceChannels", icon: Building2, href: "/integration-hub/service-channels" },
+      { key: "ih_parameters", labelKey: "cx.navParameters", icon: Table2, href: "/integration-hub/parameters" },
+      { key: "ih_mappings", labelKey: "cx.navParameterMappings", icon: ArrowLeftRight, href: "/integration-hub/mappings" },
+    ],
+  },
 ]
 
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
+  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings"],
   analyst: ["dashboard", "surveys", "feedback", "analytics", "post_expiry", "ai_insights", "journey", "profiles"],
-  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings"],
+  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings"],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }
@@ -138,6 +161,9 @@ export function AppSidebar() {
                   const Icon = item.icon
                   const isActive =
                     location.pathname === item.href ||
+                    (item.href !== "#" &&
+                      item.href !== "/dashboard" &&
+                      location.pathname.startsWith(item.href + "/")) ||
                     (item.href === "/dashboard" && location.pathname === "/")
                   return (
                     <SidebarMenuItem key={item.key}>
