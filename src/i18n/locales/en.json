@@ -824,7 +824,9 @@
     "colTimer": "Timer",
     "colPace": "Pace",
     "paceTime": "time {{n}}%",
-    "deactivatedExplain": "KPI inactive in M-06: excluded from results. Reactivate once the KPI is active again, or delete this target."
+    "deactivatedExplain": "KPI inactive in M-06: excluded from results. Reactivate once the KPI is active again, or delete this target.",
+    "upperThresholdPlaceholder": "e.g. 20",
+    "lowerThresholdPlaceholder": "e.g. 3"
   },
   "integrationHub": {
     "moduleTitle": "Integration Hub",

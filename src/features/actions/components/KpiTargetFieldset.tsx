@@ -101,28 +101,27 @@ export function KpiTargetFieldset({
   className,
 }: KpiTargetFieldsetProps) {
   const { t } = useTranslation()
-  // BR-004: whether U has been independently set. Seed `true` for a prefilled Target so edit mode
-  // doesn't re-mirror an existing pair.
-  const [upperTouched, setUpperTouched] = useState(
-    () => !(value.lowerThreshold === 0 && value.upperThreshold === 0),
-  )
+  // Both thresholds start EMPTY and are set independently: each field is blank until the user
+  // enters (or drags) it, and its flag only appears on the bar once set. A prefilled Target (edit
+  // mode) seeds both as touched so existing values show. `bothZero` distinguishes a brand-new
+  // (0, 0) draft — genuinely unset — from a saved Target that legitimately has a 0 Lower.
+  const prefilled = !(value.lowerThreshold === 0 && value.upperThreshold === 0)
+  const [lowerTouched, setLowerTouched] = useState(prefilled)
+  const [upperTouched, setUpperTouched] = useState(prefilled)
 
   const changeLower = (rawLower: number) => {
+    setLowerTouched(true)
     const l = clamp(round1(rawLower), 0, max)
-    if (!upperTouched) {
-      // U mirrors L until U is independently touched (BR-004).
-      onChange({ ...value, lowerThreshold: l, upperThreshold: l })
-    } else {
-      // Clamp L ≤ U (AC-2.4).
-      onChange({ ...value, lowerThreshold: Math.min(l, value.upperThreshold) })
-    }
+    // No auto-mirror into U — Upper stays empty until set independently. Only clamp L ≤ U once
+    // Upper has actually been set (AC-2.4).
+    onChange({ ...value, lowerThreshold: upperTouched ? Math.min(l, value.upperThreshold) : l })
   }
 
   const changeUpper = (rawUpper: number) => {
     setUpperTouched(true)
     const u = clamp(round1(rawUpper), 0, max)
-    // Clamp U ≥ L.
-    onChange({ ...value, upperThreshold: Math.max(u, value.lowerThreshold) })
+    // Clamp U ≥ L only once Lower has been set.
+    onChange({ ...value, upperThreshold: lowerTouched ? Math.max(u, value.lowerThreshold) : u })
   }
 
   const selectedKpi = kpiOptions.find((o) => o.id === value.kpiId)
@@ -221,7 +220,9 @@ export function KpiTargetFieldset({
               step={0.5}
               min={0}
               max={max}
-              value={value.lowerThreshold}
+              // Empty until the user sets it.
+              value={lowerTouched ? value.lowerThreshold : ""}
+              placeholder={t("actions.lowerThresholdPlaceholder")}
               onChange={(e) => {
                 const n = e.currentTarget.valueAsNumber
                 changeLower(Number.isNaN(n) ? 0 : n)
@@ -246,7 +247,9 @@ export function KpiTargetFieldset({
               step={0.5}
               min={0}
               max={max}
-              value={value.upperThreshold}
+              // Empty until the user sets it (upperTouched) — no auto-filled mirror of Lower.
+              value={upperTouched ? value.upperThreshold : ""}
+              placeholder={t("actions.upperThresholdPlaceholder")}
               onChange={(e) => {
                 const n = e.currentTarget.valueAsNumber
                 changeUpper(Number.isNaN(n) ? 0 : n)
@@ -278,6 +281,8 @@ export function KpiTargetFieldset({
           <ThresholdSlider
             lower={value.lowerThreshold}
             upper={value.upperThreshold}
+            lowerSet={lowerTouched}
+            upperSet={upperTouched}
             max={max}
             onChange={(next) => {
               if (next.lower !== value.lowerThreshold) changeLower(next.lower)

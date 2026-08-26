@@ -21,12 +21,12 @@ const MS_PER_DAY = 86_400_000
  * (TODO-M15-019). Exported so `ActionForm` and `ActionCard` share this one definition instead of
  * each keeping a copy — the module previously held three, two of them UTC.
  */
-export const todayIso = (): string => {
-  const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, "0")
-  const day = String(now.getDate()).padStart(2, "0")
-  return `${now.getFullYear()}-${month}-${day}`
-}
+// CLICKTHROUGH: the clock is pinned to a fixed "today" so the demo is deterministic and matches the
+// ratified M-15 prototype exactly (which fixes `NOW = 2026-07-20`). Every pace %, timer fill, tab
+// assignment and featured-target selection is computed against this date, so the seeded Score/Time
+// figures reproduce the prototype screenshots on any machine, regardless of the real wall clock.
+export const CLICKTHROUGH_TODAY = "2026-07-20"
+export const todayIso = (): string => CLICKTHROUGH_TODAY
 
 const dayDiff = (fromIso: string, toIso: string) =>
   (Date.parse(toIso) - Date.parse(fromIso)) / MS_PER_DAY

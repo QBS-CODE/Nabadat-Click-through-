@@ -832,7 +832,9 @@
     "colTimer": "المؤقت",
     "colPace": "الوتيرة",
     "paceTime": "الزمن {{n}}%",
-    "deactivatedExplain": "مؤشر الأداء غير نشط: مستثنى من النتائج. أعد تنشيطه عندما يعود المؤشر نشطًا، أو احذف هذا المستهدف."
+    "deactivatedExplain": "مؤشر الأداء غير نشط: مستثنى من النتائج. أعد تنشيطه عندما يعود المؤشر نشطًا، أو احذف هذا المستهدف.",
+    "upperThresholdPlaceholder": "مثال: 20",
+    "lowerThresholdPlaceholder": "مثال: 3"
   },
   "integrationHub": {
     "moduleTitle": "مركز التكامل",
