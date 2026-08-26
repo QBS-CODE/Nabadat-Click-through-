@@ -207,13 +207,13 @@ const KPI_CATALOGUE: Record<string, string> = {
   "kpi-vfm": "VFM",
 }
 
-/** Today as a local calendar date (matches `lib/measurement.todayIso`). */
-const todayIso = (): string => {
-  const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, "0")
-  const day = String(now.getDate()).padStart(2, "0")
-  return `${now.getFullYear()}-${month}-${day}`
-}
+/**
+ * Today, pinned to the ratified M-15 prototype's fixed clock (`NOW = 2026-07-20`) — MUST match
+ * `lib/measurement.CLICKTHROUGH_TODAY`. If these two drift apart, the mock's `decorate()` (row
+ * variants + featured target) evaluates against a different day than the components' pace/timer,
+ * which mislabels rows (e.g. a still-active target rendered as evaluated "—"). Keep them equal.
+ */
+const todayIso = (): string => "2026-07-20"
 
 /**
  * Recomputes an Action's date-driven status (the real server computes this day-granularly). Archived
@@ -275,350 +275,178 @@ function decorate(action: Action, now = todayIso()): Action {
 let settings: ActionSettings = { maxUpperThreshold: 50, sliderPadding: 5 }
 
 let store: Action[] = [
-  // ── ACTIVE #1 — in monitoring phase; GREEN + RED live timers ──────────────
+  // ────────────────────────────────────────────────────────────────────────────────────────────
+  // Seed data ported VERBATIM from the ratified M-15 prototype
+  // (nabadat-m15-action-management-mockup_1.html) so the clickthrough reproduces it exactly.
+  // The clock is pinned to 2026-07-20 (see measurement.ts CLICKTHROUGH_TODAY); tab assignment,
+  // pace, timer fill and featured target are all derived from these dates against that fixed today.
+  // ────────────────────────────────────────────────────────────────────────────────────────────
+
+  // ── Active (start ≤ today, latest target date ≥ today) ──
   {
-    id: "act-ivr-redesign",
-    actionName: "IVR Redesign Rollout",
+    id: "act-training-agents",
+    actionName: "Training of Call Center Agents",
     status: "active",
     archived: false,
-    actionStartDate: "2026-03-01",
-    actionEndDate: "2026-06-30",
-    targetStartDate: "2026-07-01",
-    latestTargetDate: "2026-10-31",
-    description: "Streamline the IVR menu tree to cut caller effort and lift satisfaction.",
-    createdAt: "2026-02-25T09:00:00Z",
-    updatedAt: "2026-07-05T11:30:00Z",
+    actionStartDate: "2026-05-01",
+    actionEndDate: "2026-05-03",
+    targetStartDate: "2026-05-04",
+    latestTargetDate: "2026-09-15",
+    description:
+      "Two-day coaching program for the call-center team focused on first-contact resolution and empathy scripting. Baseline captured 1 May; monitoring runs to the latest target date.",
+    createdAt: "2026-04-25T09:00:00Z",
+    updatedAt: "2026-05-04T09:00:00Z",
     targets: [
-      {
-        id: "tgt-ivr-nps",
-        kpiId: "kpi-nps",
-        kpiName: "NPS",
-        targetDate: "2026-10-31",
-        lowerThreshold: 5,
-        upperThreshold: 20,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 30,
-        baselineCapturedForDate: "2026-03-01",
-        currentScore: 42, // score progress 0.60 > time progress ~0.44 → GREEN
-        finalScore: null,
-        outcome: null,
-      },
-      {
-        id: "tgt-ivr-csat",
-        kpiId: "kpi-csat",
-        kpiName: "CSAT",
-        targetDate: "2026-09-30",
-        lowerThreshold: 3,
-        upperThreshold: 15,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 70,
-        baselineCapturedForDate: "2026-03-01",
-        currentScore: 74, // score progress 0.27 < time progress ~0.59 → RED (lowest performer)
-        finalScore: null,
-        outcome: null,
-      },
+      { id: "tgt-training-nps", kpiId: "kpi-nps", kpiName: "NPS", targetDate: "2026-08-04", lowerThreshold: 3, upperThreshold: 6, active: true, deactivationSource: null, baselineScore: 69, baselineCapturedForDate: "2026-05-01", currentScore: 73, finalScore: null, outcome: null },
+      { id: "tgt-training-csat", kpiId: "kpi-csat", kpiName: "CSAT", targetDate: "2026-09-15", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: 78, baselineCapturedForDate: "2026-05-01", currentScore: 84, finalScore: null, outcome: null },
+      { id: "tgt-training-ces", kpiId: "kpi-ces", kpiName: "CES", targetDate: "2026-08-20", lowerThreshold: 2, upperThreshold: 4, active: false, deactivationSource: "manual", baselineScore: 71, baselineCapturedForDate: "2026-05-01", currentScore: 72, finalScore: null, outcome: null },
     ],
   },
-
-  // ── ACTIVE #2 — YELLOW (on pace), GREY (no current score), and a deactivated row ──
   {
-    id: "act-branch-queue",
-    actionName: "Branch Queue Optimization",
+    id: "act-ivr-menu",
+    actionName: "IVR Menu Redesign",
     status: "active",
     archived: false,
-    actionStartDate: "2026-04-01",
-    actionEndDate: "2026-07-15",
-    targetStartDate: "2026-07-16",
-    latestTargetDate: "2026-12-31",
-    description: "Reduce in-branch wait times with a new appointment and triage flow.",
-    createdAt: "2026-03-20T08:15:00Z",
-    updatedAt: "2026-07-18T14:00:00Z",
+    actionStartDate: "2026-06-10",
+    actionEndDate: "2026-06-15",
+    targetStartDate: "2026-06-16",
+    latestTargetDate: "2026-09-30",
+    description:
+      "Simplify the IVR tree from 6 levels to 3 and add a callback option to cut caller effort.",
+    createdAt: "2026-06-01T09:00:00Z",
+    updatedAt: "2026-06-16T09:00:00Z",
     targets: [
-      {
-        id: "tgt-branch-ces",
-        kpiId: "kpi-ces",
-        kpiName: "CES",
-        targetDate: "2026-10-15",
-        lowerThreshold: 2,
-        upperThreshold: 14,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 50,
-        baselineCapturedForDate: "2026-04-01",
-        currentScore: 56, // score progress 0.4286 ≈ time progress 0.4286 → YELLOW
-        finalScore: null,
-        outcome: null,
-      },
-      {
-        id: "tgt-branch-fcr",
-        kpiId: "kpi-fcr",
-        kpiName: "FCR",
-        targetDate: "2026-11-30",
-        lowerThreshold: 0.05,
-        upperThreshold: 0.3,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 0.6,
-        baselineCapturedForDate: "2026-04-01",
-        currentScore: null, // no current score yet → GREY timer (not comparable)
-        finalScore: null,
-        outcome: null,
-      },
-      {
-        id: "tgt-branch-aht",
-        kpiId: "kpi-aht",
-        kpiName: "AHT",
-        targetDate: "2026-12-31",
-        lowerThreshold: 5,
-        upperThreshold: 15,
-        active: false, // force-deactivated → EMPTY timer, "deactivated" row
-        deactivationSource: "forced",
-        baselineScore: 45,
-        baselineCapturedForDate: "2026-04-01",
-        currentScore: null,
-        finalScore: null,
-        outcome: null,
-      },
+      { id: "tgt-ivrmenu-ces", kpiId: "kpi-ces", kpiName: "CES", targetDate: "2026-09-30", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: 62, baselineCapturedForDate: "2026-06-10", currentScore: 66, finalScore: null, outcome: null },
     ],
   },
 
-  // ── PLANNED #1 — starts in the future; all timers EMPTY, no baselines yet ──
+  // ── Planned (start date is in the future; no baseline captured yet) ──
   {
-    id: "act-mobile-nps",
-    actionName: "Mobile App NPS Boost",
+    id: "act-branch-coaching",
+    actionName: "Branch Staff Coaching — Eastern Region",
     status: "planned",
     archived: false,
-    actionStartDate: "2026-09-15",
-    actionEndDate: "2026-12-15",
-    targetStartDate: "2026-12-16",
-    latestTargetDate: "2027-03-31",
-    description: "Ship in-app feedback prompts and a redesigned onboarding to raise promoter share.",
-    createdAt: "2026-08-10T10:00:00Z",
-    updatedAt: "2026-08-10T10:00:00Z",
+    actionStartDate: "2026-08-01",
+    actionEndDate: "2026-08-05",
+    targetStartDate: "2026-08-06",
+    latestTargetDate: "2026-11-01",
+    description:
+      "On-site coaching for the eight Eastern-Region branches with the lowest teller satisfaction.",
+    createdAt: "2026-07-10T09:00:00Z",
+    updatedAt: "2026-07-10T09:00:00Z",
     targets: [
-      {
-        id: "tgt-mobile-nps",
-        kpiId: "kpi-nps",
-        kpiName: "NPS",
-        targetDate: "2027-03-31",
-        lowerThreshold: 4,
-        upperThreshold: 15,
-        active: true,
-        deactivationSource: null,
-        baselineScore: null,
-        baselineCapturedForDate: null,
-        currentScore: null,
-        finalScore: null,
-        outcome: null,
-      },
-      {
-        id: "tgt-mobile-cxi",
-        kpiId: "kpi-cxi",
-        kpiName: "CXI",
-        targetDate: "2027-02-28",
-        lowerThreshold: 3,
-        upperThreshold: 10,
-        active: true,
-        deactivationSource: null,
-        baselineScore: null,
-        baselineCapturedForDate: null,
-        currentScore: null,
-        finalScore: null,
-        outcome: null,
-      },
+      { id: "tgt-coaching-csat", kpiId: "kpi-csat", kpiName: "CSAT", targetDate: "2026-11-01", lowerThreshold: 3, upperThreshold: 6, active: true, deactivationSource: null, baselineScore: null, baselineCapturedForDate: null, currentScore: 71, finalScore: null, outcome: null },
+      { id: "tgt-coaching-fcr", kpiId: "kpi-fcr", kpiName: "FCR", targetDate: "2026-11-01", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: null, baselineCapturedForDate: null, currentScore: 76, finalScore: null, outcome: null },
     ],
   },
-
-  // ── PLANNED #2 ─────────────────────────────────────────────────────────────
   {
-    id: "act-vfm-campaign",
-    actionName: "Value-for-Money Perception Campaign",
+    id: "act-whatsapp-feedback",
+    actionName: "WhatsApp Feedback Channel Launch",
     status: "planned",
     archived: false,
-    actionStartDate: "2026-10-01",
-    actionEndDate: "2027-01-31",
-    targetStartDate: "2027-02-01",
-    latestTargetDate: "2027-05-31",
-    description: "Reframe pricing communications and bundle clarity to improve perceived value.",
-    createdAt: "2026-08-18T13:45:00Z",
-    updatedAt: "2026-08-18T13:45:00Z",
+    actionStartDate: "2026-09-01",
+    actionEndDate: "2026-09-10",
+    targetStartDate: "2026-09-11",
+    latestTargetDate: "2026-12-15",
+    description:
+      "Open a WhatsApp survey channel for post-interaction feedback with Arabic-first templates.",
+    createdAt: "2026-07-15T09:00:00Z",
+    updatedAt: "2026-07-15T09:00:00Z",
     targets: [
-      {
-        id: "tgt-vfm-vfm",
-        kpiId: "kpi-vfm",
-        kpiName: "VFM",
-        targetDate: "2027-05-31",
-        lowerThreshold: 3,
-        upperThreshold: 12,
-        active: true,
-        deactivationSource: null,
-        baselineScore: null,
-        baselineCapturedForDate: null,
-        currentScore: null,
-        finalScore: null,
-        outcome: null,
-      },
+      { id: "tgt-whatsapp-nps", kpiId: "kpi-nps", kpiName: "NPS", targetDate: "2026-12-15", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: null, baselineCapturedForDate: null, currentScore: 64, finalScore: null, outcome: null },
+      { id: "tgt-whatsapp-chs", kpiId: "kpi-chs", kpiName: "CHS", targetDate: "2026-12-15", lowerThreshold: 3, upperThreshold: 6, active: true, deactivationSource: null, baselineScore: null, baselineCapturedForDate: null, currentScore: 70, finalScore: null, outcome: null },
+    ],
+  },
+  {
+    id: "act-onboarding-kit",
+    actionName: "Onboarding Welcome-Kit Revamp",
+    status: "planned",
+    archived: false,
+    actionStartDate: "2026-08-15",
+    actionEndDate: "2026-08-18",
+    targetStartDate: "2026-08-19",
+    latestTargetDate: "2026-11-20",
+    description:
+      "Redesign the new-customer welcome kit and first-week follow-up call script.",
+    createdAt: "2026-07-12T09:00:00Z",
+    updatedAt: "2026-07-12T09:00:00Z",
+    targets: [
+      { id: "tgt-onboarding-vfm", kpiId: "kpi-vfm", kpiName: "VFM", targetDate: "2026-11-20", lowerThreshold: 2, upperThreshold: 4, active: true, deactivationSource: null, baselineScore: null, baselineCapturedForDate: null, currentScore: 68, finalScore: null, outcome: null },
+      { id: "tgt-onboarding-csat", kpiId: "kpi-csat", kpiName: "CSAT", targetDate: "2026-11-20", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: null, baselineCapturedForDate: null, currentScore: 74, finalScore: null, outcome: null },
     ],
   },
 
-  // ── COMPLETED #1 — successful + partially successful outcomes ──────────────
+  // ── Completed (latest target date has passed; current = final score on the target date) ──
   {
-    id: "act-post-call-survey",
-    actionName: "Post-Call Survey Revamp",
+    id: "act-mystery-shopper",
+    actionName: "Mystery Shopper Program — Q1",
     status: "completed",
     archived: false,
-    actionStartDate: "2025-09-01",
-    actionEndDate: "2025-12-31",
-    targetStartDate: "2026-01-01",
-    latestTargetDate: "2026-06-30",
-    description: "Shorten the post-call survey and switch to a conversational tone.",
-    createdAt: "2025-08-20T09:30:00Z",
-    updatedAt: "2026-07-01T08:00:00Z",
+    actionStartDate: "2026-01-05",
+    actionEndDate: "2026-01-20",
+    targetStartDate: "2026-01-21",
+    latestTargetDate: "2026-04-20",
+    description: "Quarterly mystery-shopper visits across flagship branches.",
+    createdAt: "2025-12-20T09:00:00Z",
+    updatedAt: "2026-04-20T09:00:00Z",
     targets: [
-      {
-        id: "tgt-pcs-csat",
-        kpiId: "kpi-csat",
-        kpiName: "CSAT",
-        targetDate: "2026-06-30",
-        lowerThreshold: 3,
-        upperThreshold: 15,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 68,
-        baselineCapturedForDate: "2025-09-01",
-        currentScore: 85,
-        finalScore: 85,
-        outcome: "successful",
-      },
-      {
-        id: "tgt-pcs-aht",
-        kpiId: "kpi-aht",
-        kpiName: "AHT",
-        targetDate: "2026-05-31",
-        lowerThreshold: 5,
-        upperThreshold: 25,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 55,
-        baselineCapturedForDate: "2025-09-01",
-        currentScore: 68,
-        finalScore: 68,
-        outcome: "partially_successful",
-      },
+      { id: "tgt-mystery-nps", kpiId: "kpi-nps", kpiName: "NPS", targetDate: "2026-04-20", lowerThreshold: 3, upperThreshold: 6, active: true, deactivationSource: null, baselineScore: 60, baselineCapturedForDate: "2026-01-05", currentScore: 67, finalScore: 67, outcome: "successful" },
+      { id: "tgt-mystery-ces", kpiId: "kpi-ces", kpiName: "CES", targetDate: "2026-04-10", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: 65, baselineCapturedForDate: "2026-01-05", currentScore: 68, finalScore: 68, outcome: "partially_successful" },
+      { id: "tgt-mystery-csat", kpiId: "kpi-csat", kpiName: "CSAT", targetDate: "2026-03-30", lowerThreshold: 3, upperThreshold: 6, active: true, deactivationSource: null, baselineScore: 72, baselineCapturedForDate: "2026-01-05", currentScore: 73, finalScore: 73, outcome: "unsuccessful" },
     ],
   },
-
-  // ── COMPLETED #2 — unsuccessful + successful outcomes ──────────────────────
   {
-    id: "act-fcr-drive",
-    actionName: "First-Contact Resolution Drive",
+    id: "act-complaint-hotline",
+    actionName: "Complaint Hotline Fast-Track",
     status: "completed",
     archived: false,
-    actionStartDate: "2025-06-01",
-    actionEndDate: "2025-09-30",
-    targetStartDate: "2025-10-01",
-    latestTargetDate: "2026-04-30",
-    description: "Empower agents with a knowledge base and expanded resolution authority.",
-    createdAt: "2025-05-22T11:00:00Z",
-    updatedAt: "2026-05-01T08:00:00Z",
+    actionStartDate: "2025-10-01",
+    actionEndDate: "2025-10-05",
+    targetStartDate: "2025-10-06",
+    latestTargetDate: "2026-02-01",
+    description:
+      "Dedicated fast-track queue for repeat complaints with a 24-hour resolution promise.",
+    createdAt: "2025-09-20T09:00:00Z",
+    updatedAt: "2026-02-01T09:00:00Z",
     targets: [
-      {
-        id: "tgt-fcr-fcr",
-        kpiId: "kpi-fcr",
-        kpiName: "FCR",
-        targetDate: "2026-03-31",
-        lowerThreshold: 0.05,
-        upperThreshold: 0.25,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 0.55,
-        baselineCapturedForDate: "2025-06-01",
-        currentScore: 0.62,
-        finalScore: 0.62,
-        outcome: "unsuccessful",
-      },
-      {
-        id: "tgt-fcr-ces",
-        kpiId: "kpi-ces",
-        kpiName: "CES",
-        targetDate: "2026-04-30",
-        lowerThreshold: 3,
-        upperThreshold: 15,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 60,
-        baselineCapturedForDate: "2025-06-01",
-        currentScore: 78,
-        finalScore: 78,
-        outcome: "successful",
-      },
+      { id: "tgt-complaint-fcr", kpiId: "kpi-fcr", kpiName: "FCR", targetDate: "2026-01-15", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: 70, baselineCapturedForDate: "2025-10-01", currentScore: 77, finalScore: 77, outcome: "successful" },
+      { id: "tgt-complaint-nps", kpiId: "kpi-nps", kpiName: "NPS", targetDate: "2026-02-01", lowerThreshold: 3, upperThreshold: 7, active: true, deactivationSource: null, baselineScore: 55, baselineCapturedForDate: "2025-10-01", currentScore: 59, finalScore: 59, outcome: "partially_successful" },
+    ],
+  },
+  {
+    id: "act-queue-pilot",
+    actionName: "Branch Queue Management Pilot",
+    status: "completed",
+    archived: false,
+    actionStartDate: "2025-12-01",
+    actionEndDate: "2025-12-10",
+    targetStartDate: "2025-12-11",
+    latestTargetDate: "2026-03-01",
+    description: "Ticket-less virtual queue pilot in three high-traffic branches.",
+    createdAt: "2025-11-20T09:00:00Z",
+    updatedAt: "2026-03-01T09:00:00Z",
+    targets: [
+      { id: "tgt-queue-ces", kpiId: "kpi-ces", kpiName: "CES", targetDate: "2026-03-01", lowerThreshold: 2, upperThreshold: 6, active: true, deactivationSource: null, baselineScore: 58, baselineCapturedForDate: "2025-12-01", currentScore: 57, finalScore: 57, outcome: "unsuccessful" },
+      { id: "tgt-queue-csat", kpiId: "kpi-csat", kpiName: "CSAT", targetDate: "2026-02-20", lowerThreshold: 2, upperThreshold: 4, active: true, deactivationSource: null, baselineScore: 66, baselineCapturedForDate: "2025-12-01", currentScore: 70, finalScore: 70, outcome: "successful" },
     ],
   },
 
-  // ── ARCHIVED — includes a manually-deactivated Target ──────────────────────
+  // ── Archived (flag only — an Active action still running normally, shown in the Archived tab) ──
   {
-    id: "act-legacy-chatbot",
-    actionName: "Legacy Chatbot Pilot",
+    id: "act-loyalty-tier",
+    actionName: "Loyalty Tier Benefits Review",
     status: "archived",
     archived: true,
-    // Archived overlay over an action still inside its live monitoring window (2026 dates), so the
-    // card renders the full featured-target slider — the Archived badge is the only difference from
-    // an active card. `effectiveStatus` derives "active" from these dates; `status` stays "archived".
-    actionStartDate: "2026-04-01",
-    actionEndDate: "2026-07-15",
-    targetStartDate: "2026-07-16",
-    latestTargetDate: "2026-10-15",
-    description: "Rule-based chatbot pilot, archived after the LLM assistant launched — kept for reference.",
-    createdAt: "2026-03-15T10:00:00Z",
-    updatedAt: "2026-08-10T16:20:00Z",
+    actionStartDate: "2026-06-01",
+    actionEndDate: "2026-06-05",
+    targetStartDate: "2026-06-06",
+    latestTargetDate: "2026-10-01",
+    description:
+      "Review and rebalance loyalty tier perks based on redemption feedback. Archived from view; measurement continues normally.",
+    createdAt: "2026-05-25T09:00:00Z",
+    updatedAt: "2026-06-06T09:00:00Z",
     targets: [
-      {
-        id: "tgt-legacy-csat",
-        kpiId: "kpi-csat",
-        kpiName: "CSAT",
-        targetDate: "2026-09-30",
-        lowerThreshold: 3,
-        upperThreshold: 15,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 62,
-        baselineCapturedForDate: "2026-07-16",
-        currentScore: 68,
-        finalScore: null,
-        outcome: null,
-      },
-      {
-        id: "tgt-legacy-nps",
-        kpiId: "kpi-nps",
-        kpiName: "NPS",
-        targetDate: "2026-10-15",
-        lowerThreshold: 4,
-        upperThreshold: 20,
-        active: true,
-        deactivationSource: null,
-        baselineScore: 20,
-        baselineCapturedForDate: "2026-07-16",
-        currentScore: 28,
-        finalScore: null,
-        outcome: null,
-      },
-      {
-        id: "tgt-legacy-fcr",
-        kpiId: "kpi-fcr",
-        kpiName: "FCR",
-        targetDate: "2026-09-30",
-        lowerThreshold: 3,
-        upperThreshold: 12,
-        active: false, // manually deactivated → line-through chip
-        deactivationSource: "manual",
-        baselineScore: 70,
-        baselineCapturedForDate: "2026-07-16",
-        currentScore: null,
-        finalScore: null,
-        outcome: null,
-      },
+      { id: "tgt-loyalty-nps", kpiId: "kpi-nps", kpiName: "NPS", targetDate: "2026-10-01", lowerThreshold: 2, upperThreshold: 5, active: true, deactivationSource: null, baselineScore: 66, baselineCapturedForDate: "2026-06-01", currentScore: 68, finalScore: null, outcome: null },
     ],
   },
 ]
@@ -646,8 +474,8 @@ export async function listActions(params: ListActionsParams = {}): Promise<Actio
     return true
   })
 
-  // Newest first, matching a typical server default ordering.
-  matched = [...matched].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+  // Preserve store order (seeds are laid out to match the ratified prototype's per-tab order);
+  // newly-created actions are prepended to the store, so they still surface first.
 
   const totalCount = matched.length
   const pageSize = params.pageSize != null ? Math.max(1, Math.min(200, params.pageSize)) : 50

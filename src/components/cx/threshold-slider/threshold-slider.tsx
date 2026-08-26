@@ -50,6 +50,13 @@ export interface ThresholdSliderProps {
   lower: number
   /** Upper Threshold delta (U), `L ≤ U ≤ X`. */
   upper: number
+  /**
+   * Whether Lower has been set by the user. `false` → the Lower flag shows as an illustrative
+   * placeholder and its red boundary is not drawn (empty-by-default add form). Default `true`.
+   */
+  lowerSet?: boolean
+  /** Whether Upper has been set by the user. Same semantics as `lowerSet`. Default `true`. */
+  upperSet?: boolean
   /** Scale maximum X (tenant "max upper threshold", default 20). */
   max?: number
   /** Emitted with clamped values on every drag / keyboard change. Omit for a read-only render. */
@@ -64,6 +71,8 @@ export interface ThresholdSliderProps {
 export function ThresholdSlider({
   lower,
   upper,
+  lowerSet = true,
+  upperSet = true,
   max = 20,
   onChange,
   disabled = false,
@@ -77,7 +86,11 @@ export function ThresholdSlider({
   const clipId = useId()
 
   const interactive = !disabled && !!onChange
-  const isDefault = lower === 0 && upper === 0
+  // Each threshold is drawn independently: a red boundary appears once Lower is set, a green one
+  // once Upper is set, and the yellow band only when BOTH are set. Unset flags rest at illustrative
+  // positions (draggable to set them), so nothing renders as a degenerate L = U shape.
+  const lowerF = lowerSet ? lower / max : DEFAULT_LOWER_F
+  const upperF = upperSet ? upper / max : DEFAULT_UPPER_F
 
   // fraction (0..1 of X) → viewBox x, flipping the visual axis in RTL.
   const xOf = (fraction: number) => {
@@ -85,8 +98,6 @@ export function ThresholdSlider({
     return TRACK_X0 + (isRtl ? 1 - f : f) * TRACK_W
   }
 
-  const lowerF = isDefault ? DEFAULT_LOWER_F : lower / max
-  const upperF = isDefault ? DEFAULT_UPPER_F : upper / max
 
   // Map a pointer's clientX to a rounded (0.1) value on the X scale, honouring RTL.
   const valueFromClientX = (clientX: number): number | null => {
@@ -272,14 +283,13 @@ export function ThresholdSlider({
           rx={TRACK_H / 2}
         />
 
-        {/* Set state: hard-edged tri-colour zones, clipped to the rounded track. */}
-        {!isDefault && (
-          <g clipPath={`url(#${clipId})`}>
-            {zoneRect(0, lower / max, "var(--color-d5)", "z-red")}
-            {zoneRect(lower / max, upper / max, "var(--color-d3)", "z-yellow")}
-            {zoneRect(upper / max, 1, "var(--color-d2)", "z-green")}
-          </g>
-        )}
+        {/* Hard-edged zones, clipped to the rounded track — each drawn only once its threshold is
+            set: Red [0→L] with Lower, Green [U→X] with Upper, Yellow [L→U] only when both exist. */}
+        <g clipPath={`url(#${clipId})`}>
+          {lowerSet && zoneRect(0, lower / max, "var(--color-d5)", "z-red")}
+          {lowerSet && upperSet && zoneRect(lower / max, upper / max, "var(--color-d3)", "z-yellow")}
+          {upperSet && zoneRect(upper / max, 1, "var(--color-d2)", "z-green")}
+        </g>
 
         {/* Tick marks + numbers (0…X step 2) — theme-aware neutral chrome. */}
         {ticks.map((tv) => {
@@ -316,7 +326,7 @@ export function ThresholdSlider({
           fontWeight={600}
           fill="var(--color-d5)"
         >
-          {isDefault ? t("actions.fieldLower") : `L +${fmt(lower)}`}
+          {lowerSet ? `L +${fmt(lower)}` : t("actions.fieldLower")}
         </text>
         <text
           x={xOf(upperF)}
@@ -326,7 +336,7 @@ export function ThresholdSlider({
           fontWeight={600}
           fill="var(--color-d2)"
         >
-          {isDefault ? t("actions.fieldUpper") : `U +${fmt(upper)}`}
+          {upperSet ? `U +${fmt(upper)}` : t("actions.fieldUpper")}
         </text>
 
         {/* Draggable stem handles (rendered last so they sit above the zones). */}
