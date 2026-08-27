@@ -364,7 +364,7 @@
     "navAction": "ACTION",
     "navClosedLoop": "Closed-Loop Cases",
     "navActions": "Actions",
-    "navCustomers": "CUSTOMERS",
+    "navCustomers": "Customers",
     "navJourney": "Customer Journey",
     "navPlatform": "PLATFORM",
     "navKpiManagement": "KPI Management",
@@ -459,7 +459,9 @@
     "navDataModel": "Data model",
     "navServiceChannels": "Service channels",
     "navParameters": "Parameters",
-    "navParameterMappings": "Parameter mappings"
+    "navParameterMappings": "Parameter mappings",
+    "navAudience": "Audience",
+    "navProfileSetup": "Profile setup"
   },
   "kpi": {
     "management": "KPI Management",

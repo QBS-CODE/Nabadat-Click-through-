@@ -35,6 +35,8 @@ import {
   Building2,
   Table2,
   ArrowLeftRight,
+  Contact,
+  UserCog,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -98,6 +100,14 @@ const NAV_ITEMS: NavGroup[] = [
     ],
   },
   {
+    // Customer Profile (M-03) — the Audience group. Customers list + tenant Profile Setup.
+    groupKey: "cx.navAudience",
+    items: [
+      { key: "m03_customers", labelKey: "cx.navCustomers", icon: Contact, href: "/customers" },
+      { key: "m03_setup", labelKey: "cx.navProfileSetup", icon: UserCog, href: "/profile-setup" },
+    ],
+  },
+  {
     // Integration Hub (M-13) — inbound integration edge. P-07 (Tenant IT Admin) owns
     // integrations + request logs; P-01 (CX Manager) sees integrations read-only but not logs.
     groupKey: "cx.navIntegrationHub",
@@ -118,9 +128,9 @@ const NAV_ITEMS: NavGroup[] = [
 ]
 
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings"],
-  analyst: ["dashboard", "surveys", "feedback", "analytics", "post_expiry", "ai_insights", "journey", "profiles"],
-  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings"],
+  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers", "m03_setup"],
+  analyst: ["dashboard", "surveys", "feedback", "analytics", "post_expiry", "ai_insights", "journey", "profiles", "m03_customers"],
+  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers"],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }
