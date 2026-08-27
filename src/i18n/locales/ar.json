@@ -459,7 +459,9 @@
     "navDataModel": "نموذج البيانات",
     "navServiceChannels": "قنوات الخدمة",
     "navParameters": "حقول البيانات",
-    "navParameterMappings": "تعيينات حقول البيانات"
+    "navParameterMappings": "تعيينات حقول البيانات",
+    "navAudience": "الجمهور",
+    "navProfileSetup": "إعداد الملف"
   },
   "kpi": {
     "management": "إدارة مؤشرات الأداء",

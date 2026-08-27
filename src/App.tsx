@@ -32,6 +32,11 @@ import SettingsCustomerJourneyPage from "./pages/SettingsCustomerJourneyPage"
 import AllActionsPage from "./features/actions/pages/AllActionsPage"
 import ActionFormPage from "./features/actions/pages/ActionFormPage"
 import ActionDetailsPage from "./features/actions/pages/ActionDetailsPage"
+// Customer Profile (M-03)
+import CustomersListPage from "./features/customer-profile/pages/CustomersListPage"
+import CustomerProfilePage from "./features/customer-profile/pages/CustomerProfilePage"
+import ImportCustomersPage from "./features/customer-profile/pages/ImportCustomersPage"
+import ProfileSetupPage from "./features/customer-profile/pages/ProfileSetupPage"
 // Integration Hub (M-13)
 import AllIntegrationsPage from "./features/integration-hub/pages/AllIntegrationsPage"
 import IntegrationWizardPage from "./features/integration-hub/pages/IntegrationWizardPage"
@@ -106,6 +111,11 @@ function AppRoutes() {
       <Route path="/actions/new" element={<LayoutRoute><ModulePage><ActionFormPage /></ModulePage></LayoutRoute>} />
       <Route path="/actions/:id/edit" element={<LayoutRoute><ModulePage><ActionFormPage /></ModulePage></LayoutRoute>} />
       <Route path="/actions/:id" element={<LayoutRoute><ModulePage><ActionDetailsPage /></ModulePage></LayoutRoute>} />
+      {/* Customer Profile (M-03) — static /import outranks /:id */}
+      <Route path="/customers" element={<LayoutRoute><ModulePage><CustomersListPage /></ModulePage></LayoutRoute>} />
+      <Route path="/customers/import" element={<LayoutRoute><ModulePage><ImportCustomersPage /></ModulePage></LayoutRoute>} />
+      <Route path="/customers/:id" element={<LayoutRoute><ModulePage><CustomerProfilePage /></ModulePage></LayoutRoute>} />
+      <Route path="/profile-setup" element={<LayoutRoute><ModulePage><ProfileSetupPage /></ModulePage></LayoutRoute>} />
       {/* Integration Hub (M-13) */}
       <Route path="/integration-hub/integrations" element={<LayoutRoute><ModulePage><AllIntegrationsPage /></ModulePage></LayoutRoute>} />
       <Route path="/integration-hub/integrations/new" element={<LayoutRoute><ModulePage><IntegrationWizardPage /></ModulePage></LayoutRoute>} />
