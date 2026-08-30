@@ -21,3 +21,11 @@ export interface ScoringConfig {
   flagPercentile: number // integer 1–49
   rollingWindowDays: number // integer ≥ 7
 }
+
+// Action Management tenant parameters (SET-1 / SET-2).
+export interface ActionsConfig {
+  /** SET-1 — max value X on every KPI Target threshold slider (0 → X). One decimal, > 0. */
+  maxUpperThreshold: number
+  /** SET-2 — extra points of track shown beyond the coloured zones. Integer ≥ 1. */
+  sliderPadding: number
+}

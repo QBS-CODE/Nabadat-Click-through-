@@ -101,10 +101,10 @@ export function KpiTargetFieldset({
   className,
 }: KpiTargetFieldsetProps) {
   const { t } = useTranslation()
-  // Both thresholds start EMPTY and are set independently: each field is blank until the user
-  // enters (or drags) it, and its flag only appears on the bar once set. A prefilled Target (edit
-  // mode) seeds both as touched so existing values show. `bothZero` distinguishes a brand-new
-  // (0, 0) draft — genuinely unset — from a saved Target that legitimately has a 0 Lower.
+  // Both thresholds start EMPTY. Entering the Lower bound auto-fills the Upper with the SAME value
+  // at the same time (BR-004 auto-sync) and keeps mirroring it until the user edits Upper on its
+  // own (`upperTouched`). A prefilled Target (edit mode) seeds both as touched so existing values
+  // show. `lowerTouched` only governs whether the (mirrored) fields are shown vs blank.
   const prefilled = !(value.lowerThreshold === 0 && value.upperThreshold === 0)
   const [lowerTouched, setLowerTouched] = useState(prefilled)
   const [upperTouched, setUpperTouched] = useState(prefilled)
@@ -112,9 +112,13 @@ export function KpiTargetFieldset({
   const changeLower = (rawLower: number) => {
     setLowerTouched(true)
     const l = clamp(round1(rawLower), 0, max)
-    // No auto-mirror into U — Upper stays empty until set independently. Only clamp L ≤ U once
-    // Upper has actually been set (AC-2.4).
-    onChange({ ...value, lowerThreshold: upperTouched ? Math.min(l, value.upperThreshold) : l })
+    if (!upperTouched) {
+      // U mirrors L until U is independently set — filled with the same value at the same time.
+      onChange({ ...value, lowerThreshold: l, upperThreshold: l })
+    } else {
+      // Clamp L ≤ U once Upper has been set on its own (AC-2.4).
+      onChange({ ...value, lowerThreshold: Math.min(l, value.upperThreshold) })
+    }
   }
 
   const changeUpper = (rawUpper: number) => {
@@ -248,7 +252,8 @@ export function KpiTargetFieldset({
               min={0}
               max={max}
               // Empty until the user sets it (upperTouched) — no auto-filled mirror of Lower.
-              value={upperTouched ? value.upperThreshold : ""}
+              // Shows the mirrored value once Lower is entered (auto-synced), or the user's own.
+              value={upperTouched || lowerTouched ? value.upperThreshold : ""}
               placeholder={t("actions.upperThresholdPlaceholder")}
               onChange={(e) => {
                 const n = e.currentTarget.valueAsNumber
@@ -282,7 +287,7 @@ export function KpiTargetFieldset({
             lower={value.lowerThreshold}
             upper={value.upperThreshold}
             lowerSet={lowerTouched}
-            upperSet={upperTouched}
+            upperSet={upperTouched || lowerTouched}
             max={max}
             onChange={(next) => {
               if (next.lower !== value.lowerThreshold) changeLower(next.lower)

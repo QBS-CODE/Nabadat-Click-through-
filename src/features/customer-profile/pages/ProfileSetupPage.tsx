@@ -1,6 +1,6 @@
 // SCR-M03-03 — Profile Setup (the single, tenant-scoped customer-profile setup screen).
 //
-// Ported from the ratified prototype `nabadat-m03-customer-profile-v4.3.html` (the `data-view`
+// Ported from the ratified prototype `nabadat-m03-customer-profile-v4.4.html` (the `data-view`
 // "designer"/"setup" section + its JS: buildParams/PARAMS, included/unnamed/removals,
 // snapshot/publishNow/diffSetup/renderPending, setSave/touchSetup, renderSetup/setupRow,
 // renderSetupAlert, availableParams/bindAddParameter, renderVis/applyVisibility, renderPreview).
@@ -14,12 +14,15 @@
 //    notice that says values stay stored on EXISTING_PROFILES profiles and return if switched back on.
 //  • FR-M03-070..078 + BR-M03-041 — the parameter table, grouped by category; ONLY the match key
 //    (customer_id) is locked (cannot toggle / rename / recategorise) — see the note on `locked` below.
-//  • FR-M03-079..086 — the auto-saved "Add information" draft row (choosing a parameter binds it
-//    immediately, marks it New, moves it to the bottom of its category, toasts the destination).
+//  • FR-M03-079..086 — the "New information" draft row is a BUFFER: choosing a parameter, naming
+//    it, and picking a category change nothing outside the row (a "Not added yet" pill + a
+//    "Still needed…" hint track what is missing). Only pressing Save commits the field into the
+//    working state — it is then marked New, moved to the bottom of its category, auto-saved
+//    (touchSetup), toasted, and scrolled into view. Cancel discards the buffer.
 //  • FR-M03-087/088 + BR-M03-… — the visibility card; locked items (Identity header, Profile data)
 //    cannot be hidden; hiding NPS hides the status badge (surfaced in its note).
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
   AlertTriangle,
@@ -32,7 +35,6 @@ import {
   Lock,
   Plus,
   RefreshCw,
-  X,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -174,13 +176,16 @@ export default function ProfileSetupPage() {
   const [lastEditedByYou, setLastEditedByYou] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Add-information draft state (prototype addOpen / addField / addBuf).
+  // Add-information draft state (prototype addOpen / addBuf). The buffer holds the field being
+  // composed; nothing enters `params` until Save (commitAdd) — see the port note above.
   const [addOpen, setAddOpen] = useState(false)
-  const [addField, setAddField] = useState<string | null>(null)
-  const [addBuf, setAddBuf] = useState<{ name: string; cat: Category["key"] | null }>({
-    name: "",
-    cat: null,
-  })
+  const [addBuf, setAddBuf] = useState<{
+    code: string | null
+    name: string
+    cat: Category["key"] | null
+  }>({ code: null, name: "", cat: null })
+  // The just-committed field's code, so the effect below can scroll its new row into view.
+  const [revealCode, setRevealCode] = useState<string | null>(null)
 
   const [previewOpen, setPreviewOpen] = useState(false)
 
@@ -248,10 +253,11 @@ export default function ProfileSetupPage() {
     )
   }
 
-  // ── Add information (prototype bindAddParameter / renderAddRow) ──
+  // ── Add information (prototype addBuf / renderAddRow / commitAdd) ──
+  // Parameters eligible to be added: catalogued (have a code) but not currently switched on.
   const availableParams = useMemo(() => params.filter((p) => !p.on && p.code), [params])
-  const boundParam = addField ? params.find((p) => p.code === addField) : undefined
-  const paramOptions = boundParam ? [...availableParams, boundParam] : availableParams
+  // All three fields are required before the buffer can be committed (prototype addValid()).
+  const addValid = !!(addBuf.code && addBuf.cat && addBuf.name.trim())
 
   function openAdd() {
     if (!availableParams.length) {
@@ -261,75 +267,69 @@ export default function ProfileSetupPage() {
       return
     }
     setAddOpen(true)
-    setAddField(null)
-    setAddBuf({ name: "", cat: null })
+    setAddBuf({ code: null, name: "", cat: null })
   }
-  function closeAdd() {
+  // Cancel — discard the buffer, change nothing in the working state (prototype #addCancel).
+  function cancelAdd() {
     setAddOpen(false)
-    setAddField(null)
-    setAddBuf({ name: "", cat: null })
+    setAddBuf({ code: null, name: "", cat: null })
   }
-  function bindAdd(code: string) {
-    const target = params.find((p) => p.code === code)
-    if (!target) return
-    const resultCat = addBuf.cat ?? target.cat
+  // Save — the ONLY commit: the buffered field enters the working state now (prototype #addSave).
+  function commitAdd() {
+    if (!addValid) return
+    const code = addBuf.code!
+    const cat = addBuf.cat!
+    const name = addBuf.name.trim()
     setParams((prev) => {
       let next = prev.map((p) => ({ ...p }))
-      // Switching parameter mid-add: release the previously bound one.
-      if (addField && addField !== code) {
-        const prevP = next.find((p) => p.code === addField)
-        if (prevP) {
-          prevP.on = false
-          prevP.justAdded = false
-        }
-      }
       const pm = next.find((p) => p.code === code)
       if (!pm) return prev
+      // BR-M03-044 — the catalogue already holds the parameter; it is adopted, not duplicated.
       pm.on = true
+      pm.cat = cat
       pm.justAdded = true
-      if (addBuf.cat) pm.cat = addBuf.cat
-      if (addBuf.name) {
-        // BR-M03-046 — a name entered in one language is written to both variants.
-        if (lang === "ar") {
-          pm.ar = addBuf.name
-          if (!pm.en) pm.en = addBuf.name
-        } else {
-          pm.en = addBuf.name
-          if (!pm.ar) pm.ar = addBuf.name
-        }
+      // BR-M03-046 — a name entered in one language is written to both variants.
+      if (lang === "ar") {
+        pm.ar = name
+        if (!pm.en) pm.en = name
+      } else {
+        pm.en = name
+        if (!pm.ar) pm.ar = name
       }
       // BR-M03-047 — placed at the bottom of its assigned category (here: end of the list).
       next = next.filter((p) => p.code !== code)
       next.push(pm)
       return next
     })
-    setAddField(code)
     setAddOpen(false)
-    setAddBuf({ name: "", cat: null })
-    touchSetup()
-    toast.success(pick(lang, "أُضيفت المعلومة إلى تصنيف ", "Added to ") + catLabel(resultCat, lang))
-  }
-  function renameAdd(value: string) {
-    if (addField) {
-      setParams((prev) =>
-        prev.map((p) => {
-          if (p.code !== addField) return p
-          if (lang === "ar") return { ...p, ar: value, en: p.en || value }
-          return { ...p, en: value, ar: p.ar || value }
-        }),
-      )
-      touchSetup()
-    } else {
-      setAddBuf((b) => ({ ...b, name: value }))
-    }
-  }
-  function setAddCat(cat: Category["key"]) {
-    if (addField) setFieldCat(addField, cat)
-    else setAddBuf((b) => ({ ...b, cat }))
+    setAddBuf({ code: null, name: "", cat: null })
+    touchSetup() // only now is it a working-state change
+    setRevealCode(code)
+    toast.success(
+      pick(lang, "أُضيفت المعلومة إلى أسفل تصنيف ", "Added to the bottom of ") + catLabel(cat, lang),
+    )
   }
 
-  const addName = boundParam ? pname(boundParam, lang) : addBuf.name
-  const addCatVal = boundParam ? boundParam.cat : addBuf.cat ?? ""
+  // Fields still missing, in the prototype's order (parameter, name, category) — drives the hint.
+  const addMissing: string[] = []
+  if (!addBuf.code) addMissing.push(pick(lang, "المعامل", "the parameter"))
+  if (!addBuf.name.trim()) addMissing.push(pick(lang, "اسم المعلومة", "a name"))
+  if (!addBuf.cat) addMissing.push(pick(lang, "التصنيف", "a category"))
+
+  // Scroll the just-added row into view once it has rendered (prototype revealRow()).
+  useEffect(() => {
+    if (!revealCode) return
+    const el = document.querySelector<HTMLElement>(`[data-code="${revealCode}"]`)
+    if (el) {
+      const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+      try {
+        el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" })
+      } catch {
+        el.scrollIntoView()
+      }
+    }
+    setRevealCode(null)
+  }, [revealCode, params])
 
   const visShown = VIS_GROUPS.reduce(
     (n, grp) => n + grp.items.filter((it) => vis[grp.g][it.k]).length,
@@ -578,8 +578,8 @@ export default function ProfileSetupPage() {
               const mine = params.filter((p) => p.cat === c.key)
               if (!mine.length) return null
               const onCount = mine.filter((p) => p.on).length
-              // The field currently in the draft row is rendered in the draft tile, not here.
-              const rows = mine.filter((p) => p.code !== addField)
+              // In v4.4 the draft never lives in the table — a field appears here only once Saved.
+              const rows = mine
               return (
                 <div key={c.key} className="overflow-hidden rounded-lg border border-border">
                   <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-4 py-2.5">
@@ -594,6 +594,7 @@ export default function ProfileSetupPage() {
                     return (
                       <div
                         key={pm.code}
+                        data-code={pm.code}
                         className={cn(
                           "grid grid-cols-1 items-center gap-x-3 gap-y-2 px-4 py-2.5 sm:grid-cols-[auto_1.1fr_1fr_1fr]",
                           idx > 0 && "border-t border-border",
@@ -691,32 +692,39 @@ export default function ProfileSetupPage() {
             })}
           </div>
 
-          {/* Add-information draft row (FR-M03-079..086) — its own container OUTSIDE the table's
-              overflow-hidden wrapper, so the full rounded dashed border renders (never clipped). */}
-          {(addOpen || addField) && (
+          {/* "New information" draft row (FR-M03-079..086) — a BUFFER, not part of the table:
+              its own container OUTSIDE the table's overflow-hidden wrapper so the full rounded
+              dashed border renders (never clipped). Nothing here touches the working state until
+              Save is pressed; a "Not added yet" pill + "Still needed…" hint report progress. */}
+          {addOpen && (
             <div className="mt-4 rounded-md border border-dashed border-primary/50 bg-primary/5 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   {pick(lang, "معلومة جديدة", "New information")}
-                  {boundParam && <Badge className={brandBadge}>{pick(lang, "جديد", "New")}</Badge>}
                 </span>
-                <Button variant="ghost" size="sm" onClick={closeAdd}>
-                  <X className="size-4" />
-                  {pick(lang, "إغلاق", "Close")}
-                </Button>
+                <Badge variant="outline" className="shrink-0 text-muted-foreground">
+                  <Clock className="size-3" />
+                  {pick(lang, "لم تُضَف بعد", "Not added yet")}
+                </Badge>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
                 {/* parameter */}
-                <Select value={addField ?? ""} onValueChange={(v) => v && bindAdd(v)}>
+                <Select
+                  value={addBuf.code ?? ""}
+                  onValueChange={(v) => v && setAddBuf((b) => ({ ...b, code: v }))}
+                >
                   <SelectTrigger className="w-full" aria-label={pick(lang, "المعامل", "Parameter")}>
                     <SelectValue>
-                      {boundParam
-                        ? `${boundParam.code} · ${boundParam.type}`
+                      {addBuf.code
+                        ? (() => {
+                            const a = availableParams.find((p) => p.code === addBuf.code)
+                            return a ? `${a.code} · ${a.type}` : addBuf.code
+                          })()
                         : pick(lang, "— اختر معاملاً —", "— choose a parameter —")}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {paramOptions.map((a) => (
+                    {availableParams.map((a) => (
                       <SelectItem key={a.code} value={a.code}>
                         {a.code} · {a.type}
                       </SelectItem>
@@ -725,21 +733,21 @@ export default function ProfileSetupPage() {
                 </Select>
                 {/* name */}
                 <Input
-                  value={addName}
+                  value={addBuf.name}
                   className="text-xs md:text-xs"
                   placeholder={pick(lang, "سمِّ هذه المعلومة", "name this information")}
                   aria-label={pick(lang, "معلومة العميل", "Customer information")}
-                  onChange={(e) => renameAdd(e.target.value)}
+                  onChange={(e) => setAddBuf((b) => ({ ...b, name: e.target.value }))}
                 />
                 {/* category */}
                 <Select
-                  value={addCatVal}
-                  onValueChange={(v) => v && setAddCat(v as Category["key"])}
+                  value={addBuf.cat ?? ""}
+                  onValueChange={(v) => v && setAddBuf((b) => ({ ...b, cat: v as Category["key"] }))}
                 >
                   <SelectTrigger className="w-full" aria-label={pick(lang, "التصنيف", "Category")}>
                     <SelectValue>
-                      {addCatVal
-                        ? catLabel(addCatVal as Category["key"], lang)
+                      {addBuf.cat
+                        ? catLabel(addBuf.cat, lang)
                         : pick(lang, "— اختر التصنيف —", "— choose a category —")}
                     </SelectValue>
                   </SelectTrigger>
@@ -751,24 +759,29 @@ export default function ProfileSetupPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {/* Cancel / Save — Save is the sole commit, disabled until all three are filled */}
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="compact" onClick={cancelAdd}>
+                    {pick(lang, "إلغاء", "Cancel")}
+                  </Button>
+                  <Button variant="secondary" size="compact" disabled={!addValid} onClick={commitAdd}>
+                    <Check className="size-4" />
+                    {pick(lang, "حفظ", "Save")}
+                  </Button>
+                </div>
               </div>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                {boundParam
-                  ? pick(
-                      lang,
-                      "أُضيف الحقل إلى الجدول. كل تعديل يُحفظ تلقائياً.",
-                      "The field is in the table. Every edit is saved automatically.",
-                    )
-                  : pick(
-                      lang,
-                      "اختر معاملاً ليُضاف الحقل. تُحفظ تعديلاتك تلقائياً بعد ذلك.",
-                      "Choose a parameter to add the field. Your edits are saved automatically from then on.",
-                    )}
+                {addMissing.length
+                  ? pick(lang, "أكمل ", "Still needed: ") +
+                    addMissing.join(pick(lang, "، ", ", ")) +
+                    pick(lang, " ثم اضغط حفظ لإضافة المعلومة.", ", then press Save to add the field.")
+                  : pick(lang, "اضغط حفظ لإضافة المعلومة إلى تصنيف ", "Press Save to add this field to ") +
+                    catLabel(addBuf.cat as Category["key"], lang)}
               </p>
             </div>
           )}
 
-          {!addOpen && !addField && (
+          {!addOpen && (
             <Button variant="secondary" className="mt-4" onClick={openAdd}>
               <Plus className="size-4" />
               {pick(lang, "إضافة معلومة", "Add information")}
