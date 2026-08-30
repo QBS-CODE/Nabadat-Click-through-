@@ -61,8 +61,8 @@ export default function LoginPage() {
 
   // ── State ──────────────────────────────────────────────
   const [step, setStep] = useState<"credentials" | "mfa">("credentials")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("m@qbs.jo")
+  const [password, setPassword] = useState("Nabadat@2026")
   const [showPassword, setShowPassword] = useState(false)
   const [emailError, setEmailError] = useState("")
   const [loading, setLoading] = useState(false)
