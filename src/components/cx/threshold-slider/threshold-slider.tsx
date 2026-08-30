@@ -91,6 +91,8 @@ export function ThresholdSlider({
   // positions (draggable to set them), so nothing renders as a degenerate L = U shape.
   const lowerF = lowerSet ? lower / max : DEFAULT_LOWER_F
   const upperF = upperSet ? upper / max : DEFAULT_UPPER_F
+  // Lower and Upper resolve to the same point → treat as one value (single green flag/handle).
+  const coincide = lowerSet && upperSet && lower === upper
 
   // fraction (0..1 of X) → viewBox x, flipping the visual axis in RTL.
   const xOf = (fraction: number) => {
@@ -317,30 +319,47 @@ export function ThresholdSlider({
           )
         })}
 
-        {/* Flags above the track. Default → text-only; Set → "L +v" / "U +v". */}
-        <text
-          x={xOf(lowerF)}
-          y={FLAG_Y}
-          textAnchor="middle"
-          fontSize={11}
-          fontWeight={600}
-          fill="var(--color-d5)"
-        >
-          {lowerSet ? `L +${fmt(lower)}` : t("actions.fieldLower")}
-        </text>
-        <text
-          x={xOf(upperF)}
-          y={FLAG_Y}
-          textAnchor="middle"
-          fontSize={11}
-          fontWeight={600}
-          fill="var(--color-d2)"
-        >
-          {upperSet ? `U +${fmt(upper)}` : t("actions.fieldUpper")}
-        </text>
+        {/* Flags above the track. When Lower and Upper coincide, they read as ONE value — render a
+            single green flag (no overlapping "L"/"U"). Otherwise: default text-only, or "L +v"/"U +v". */}
+        {coincide ? (
+          <text
+            x={xOf(upperF)}
+            y={FLAG_Y}
+            textAnchor="middle"
+            fontSize={11}
+            fontWeight={600}
+            fill="var(--color-d2)"
+          >
+            {`+${fmt(upper)}`}
+          </text>
+        ) : (
+          <>
+            <text
+              x={xOf(lowerF)}
+              y={FLAG_Y}
+              textAnchor="middle"
+              fontSize={11}
+              fontWeight={600}
+              fill="var(--color-d5)"
+            >
+              {lowerSet ? `L +${fmt(lower)}` : t("actions.fieldLower")}
+            </text>
+            <text
+              x={xOf(upperF)}
+              y={FLAG_Y}
+              textAnchor="middle"
+              fontSize={11}
+              fontWeight={600}
+              fill="var(--color-d2)"
+            >
+              {upperSet ? `U +${fmt(upper)}` : t("actions.fieldUpper")}
+            </text>
+          </>
+        )}
 
-        {/* Draggable stem handles (rendered last so they sit above the zones). */}
-        {renderHandle("lower")}
+        {/* Draggable stem handles (rendered last so they sit above the zones). When the two
+            thresholds coincide, show a single (green/upper) handle so the stems don't overlap. */}
+        {!coincide && renderHandle("lower")}
         {renderHandle("upper")}
       </svg>
     </div>

@@ -20,7 +20,9 @@ import {
   ClipboardList,
   MessageSquareText,
   Send,
-  Zap,
+  FileText,
+  SlidersHorizontal,
+  ShieldCheck,
   BarChart3,
   Clock,
   RefreshCcw,
@@ -37,6 +39,7 @@ import {
   ArrowLeftRight,
   Contact,
   UserCog,
+  Activity,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -47,6 +50,10 @@ interface NavItem {
   icon: LucideIcon
   href: string
   phase2?: boolean
+  /** Count badge shown next to the item. */
+  count?: number
+  /** Custom active-state matcher (for items whose href is a prefix of siblings). */
+  match?: (path: string) => boolean
 }
 
 interface NavGroup {
@@ -66,8 +73,46 @@ const NAV_ITEMS: NavGroup[] = [
     items: [
       { key: "surveys", labelKey: "cx.navSurveys", icon: ClipboardList, href: "/surveys" },
       { key: "feedback", labelKey: "cx.navFeedback", icon: MessageSquareText, href: "/feedback" },
-      { key: "distribution", labelKey: "cx.navDistribution", icon: Send, href: "/distribution" },
-      { key: "sending_rules", labelKey: "cx.navSendingRules", icon: Zap, href: "/sending-rules" },
+    ],
+  },
+  {
+    // Channels & Distribution (M-02) — Delivery.
+    groupKey: "cx.navDelivery",
+    items: [
+      {
+        key: "cd_channels",
+        labelKey: "cx.navSendingChannels",
+        icon: Send,
+        href: "/distribution",
+        count: 6,
+        // /distribution owns the channels list + channel setup, but NOT the sibling
+        // /distribution/{templates,guardrails,requests} screens.
+        match: (p) => p === "/distribution" || p.startsWith("/distribution/channels"),
+      },
+      { key: "cd_templates", labelKey: "cx.navMessageTemplates", icon: FileText, href: "/distribution/templates", count: 14 },
+    ],
+  },
+  {
+    // Channels & Distribution (M-02) — Sending rules.
+    groupKey: "cx.navSendingRules",
+    items: [
+      { key: "cd_rules", labelKey: "cx.navTriggerRules", icon: SlidersHorizontal, href: "/sending-rules", count: 6 },
+      { key: "cd_guardrails", labelKey: "cx.navGuardrails", icon: ShieldCheck, href: "/distribution/guardrails" },
+    ],
+  },
+  {
+    // Channels & Distribution (M-02) — Monitoring.
+    groupKey: "cx.navMonitoring",
+    items: [
+      { key: "cd_requests", labelKey: "cx.navRequestLog", icon: ScrollText, href: "/distribution/requests" },
+    ],
+  },
+  {
+    // Response Collection (M-04) — SCR-01 Ingestion Monitoring. P-01 (CX Manager) &
+    // P-07 (IT Administrator) only, read-only (m04.monitoring.view).
+    groupKey: "cx.navResponseCollection",
+    items: [
+      { key: "m04_ingestion", labelKey: "cx.navIngestionMonitoring", icon: Activity, href: "/ingestion-monitoring" },
     ],
   },
   {
@@ -127,10 +172,11 @@ const NAV_ITEMS: NavGroup[] = [
   },
 ]
 
+const CD_KEYS = ["cd_channels", "cd_templates", "cd_rules", "cd_guardrails", "cd_requests"]
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers", "m03_setup"],
+  cx_manager: ["dashboard", "surveys", "feedback", ...CD_KEYS, "m04_ingestion", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers", "m03_setup"],
   analyst: ["dashboard", "surveys", "feedback", "analytics", "post_expiry", "ai_insights", "journey", "profiles", "m03_customers"],
-  tenant_admin: ["dashboard", "surveys", "feedback", "distribution", "sending_rules", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers"],
+  tenant_admin: ["dashboard", "surveys", "feedback", ...CD_KEYS, "m04_ingestion", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers"],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }
@@ -169,12 +215,13 @@ export function AppSidebar() {
               <SidebarMenu>
                 {visibleItems.map((item) => {
                   const Icon = item.icon
-                  const isActive =
-                    location.pathname === item.href ||
-                    (item.href !== "#" &&
-                      item.href !== "/dashboard" &&
-                      location.pathname.startsWith(item.href + "/")) ||
-                    (item.href === "/dashboard" && location.pathname === "/")
+                  const isActive = item.match
+                    ? item.match(location.pathname)
+                    : location.pathname === item.href ||
+                      (item.href !== "#" &&
+                        item.href !== "/dashboard" &&
+                        location.pathname.startsWith(item.href + "/")) ||
+                      (item.href === "/dashboard" && location.pathname === "/")
                   return (
                     <SidebarMenuItem key={item.key}>
                       <SidebarMenuButton
@@ -190,10 +237,14 @@ export function AppSidebar() {
                         <Icon className="size-4" />
                         <span>{t(item.labelKey)}</span>
                       </SidebarMenuButton>
-                      {item.phase2 && (
+                      {item.phase2 ? (
                         <SidebarMenuBadge className="text-[9px] opacity-50">
                           {t("cx.comingSoon")}
                         </SidebarMenuBadge>
+                      ) : (
+                        item.count != null && (
+                          <SidebarMenuBadge className="tabular-nums">{item.count}</SidebarMenuBadge>
+                        )
                       )}
                     </SidebarMenuItem>
                   )

@@ -45,6 +45,18 @@ import AllServiceChannelsPage from "./features/integration-hub/pages/AllServiceC
 import ServiceChannelFormPage from "./features/integration-hub/pages/ServiceChannelFormPage"
 import AllParametersPage from "./features/integration-hub/pages/AllParametersPage"
 import ParameterMappingsPage from "./features/integration-hub/pages/ParameterMappingsPage"
+// Channels & Distribution (M-02)
+import { CDModuleLayout } from "./features/channels-distribution/components/CDModuleLayout"
+import { ChannelsProvider } from "./features/channels-distribution/store"
+import CDChannelsListPage from "./features/channels-distribution/pages/ChannelsListPage"
+import CDChannelSetupPage from "./features/channels-distribution/pages/ChannelSetupPage"
+import CDRulesListPage from "./features/channels-distribution/pages/RulesListPage"
+import CDRuleBuilderPage from "./features/channels-distribution/pages/RuleBuilderPage"
+import CDTemplatesPage from "./features/channels-distribution/pages/TemplatesPage"
+import CDGuardrailsPage from "./features/channels-distribution/pages/GuardrailsPage"
+import CDRequestLogPage from "./features/channels-distribution/pages/RequestLogPage"
+// Response Collection (M-04)
+import IngestionMonitoringPage from "./features/response-collection/pages/IngestionMonitoringPage"
 import { SettingsProvider } from "./contexts/settings-context"
 import { TenantSwitcher } from "./components/dev/TenantSwitcher"
 import { Toaster } from "./components/ui/sonner"
@@ -100,8 +112,23 @@ function AppRoutes() {
       <Route path="/surveys/:id/translations" element={<LayoutRoute><SurveyTranslationsPage /></LayoutRoute>} />
       <Route path="/surveys/:id/funnel" element={<LayoutRoute><SurveyFunnelPage /></LayoutRoute>} />
       <Route path="/surveys/:id/stats" element={<LayoutRoute><SurveyStatsPage /></LayoutRoute>} />
-      <Route path="/distribution" element={<LayoutRoute><PlaceholderPage titleKey="cx.navDistribution" /></LayoutRoute>} />
-      <Route path="/sending-rules" element={<LayoutRoute><PlaceholderPage titleKey="cx.navSendingRules" /></LayoutRoute>} />
+      {/* Channels & Distribution (M-02) — each screen is a top-level sidebar entry
+          (Delivery / Sending rules / Monitoring); CDModuleLayout just supplies the
+          page gutter. The store is app-wide (see App) so the C&D Settings section on
+          the native /settings page shares state with these screens. */}
+      <Route element={<LayoutRoute><CDModuleLayout /></LayoutRoute>}>
+        <Route path="/distribution" element={<CDChannelsListPage />} />
+        <Route path="/distribution/channels/:key" element={<CDChannelSetupPage />} />
+        <Route path="/distribution/templates" element={<CDTemplatesPage />} />
+        <Route path="/distribution/guardrails" element={<CDGuardrailsPage />} />
+        <Route path="/distribution/requests" element={<CDRequestLogPage />} />
+        <Route path="/sending-rules" element={<CDRulesListPage />} />
+        <Route path="/sending-rules/new" element={<CDRuleBuilderPage />} />
+        <Route path="/sending-rules/:id/edit" element={<CDRuleBuilderPage />} />
+      </Route>
+      {/* Response Collection (M-04) — SCR-01 Ingestion Monitoring. Page supplies its own
+          px-8 gutter (native pattern), so no ModulePage wrapper. */}
+      <Route path="/ingestion-monitoring" element={<LayoutRoute><IngestionMonitoringPage /></LayoutRoute>} />
       <Route path="/analytics" element={<LayoutRoute><PlaceholderPage titleKey="cx.navAnalyticsReports" /></LayoutRoute>} />
       <Route path="/closed-loop" element={<LayoutRoute><PlaceholderPage titleKey="cx.navClosedLoop" /></LayoutRoute>} />
       {/* Action Management (M-15). Ported pages assume the layout supplies the 32px page
@@ -146,7 +173,9 @@ export default function App() {
       <AuthProvider>
         <PersonaProvider>
           <SettingsProvider>
-            <AppRoutes />
+            <ChannelsProvider>
+              <AppRoutes />
+            </ChannelsProvider>
             <Toaster position="bottom-right" richColors closeButton />
             {import.meta.env.DEV && <TenantSwitcher />}
           </SettingsProvider>

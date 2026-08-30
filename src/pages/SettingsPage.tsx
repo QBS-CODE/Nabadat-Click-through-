@@ -3,8 +3,11 @@ import { useState, useRef, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { useSettings } from "@/contexts/settings-context"
 import {
-  Building2, SlidersHorizontal, Search, Upload, Info,
+  Building2, SlidersHorizontal, Search, Upload, Info, Send, Palette, Zap,
 } from "lucide-react"
+import { ChannelsDistributionSettings } from "@/features/channels-distribution/components/ChannelsDistributionSettings"
+import { ActionsSettings } from "@/features/settings/components/ActionsSettings"
+import { DesignGuidelinesSettings } from "@/features/settings/components/DesignGuidelinesSettings"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,6 +28,9 @@ import type { Industry, ScoringConfig } from "@/types/settings"
 const NAV_SECTIONS = [
   { id: "organization",    label: "settings.orgTitle",  Icon: Building2 },
   { id: "customer-journey", label: "settings.cjTitle",  Icon: SlidersHorizontal },
+  { id: "design-guidelines", label: "settings.dgTitle", Icon: Palette },
+  { id: "actions",         label: "settings.actTitle",  Icon: Zap },
+  { id: "channels-distribution", label: "settings.cdTitle", Icon: Send },
 ] as const
 
 // ── Org constants ───────────────────────────────────────────
@@ -43,6 +49,20 @@ const INDUSTRY_LABEL_KEY: Record<Industry, string> = {
   Services:           "settings.orgIndustryServices",
 }
 
+// Nearest scrollable ancestor (vertical). The settings content can scroll at the
+// inner right panel OR at the app's outer content area depending on viewport
+// height, so both the click-to-scroll and the scroll-spy resolve it at runtime
+// instead of hard-coding one container (which silently no-ops when it's the other).
+function getScrollParent(node: HTMLElement | null): HTMLElement | null {
+  let el = node?.parentElement ?? null
+  while (el) {
+    const oy = getComputedStyle(el).overflowY
+    if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) return el
+    el = el.parentElement
+  }
+  return null
+}
+
 // ── Page ────────────────────────────────────────────────────
 
 export default function SettingsPage() {
@@ -56,11 +76,17 @@ export default function SettingsPage() {
   // Scroll refs
   const rightPanelRef = useRef<HTMLDivElement>(null)
   const orgRef        = useRef<HTMLDivElement>(null)
+  const dgRef         = useRef<HTMLDivElement>(null)
   const cjRef         = useRef<HTMLDivElement>(null)
+  const cdRef         = useRef<HTMLDivElement>(null)
+  const actRef        = useRef<HTMLDivElement>(null)
 
   const sectionRefMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
     "organization":     orgRef,
+    "design-guidelines": dgRef,
     "customer-journey": cjRef,
+    "channels-distribution": cdRef,
+    "actions":          actRef,
   }
 
   // ── Org state ──
@@ -103,35 +129,37 @@ export default function SettingsPage() {
 
   function scrollToSection(id: string) {
     setActiveSection(id)
-    const ref       = sectionRefMap[id]
-    const container = rightPanelRef.current
-    if (ref?.current && container) {
-      const containerRect = container.getBoundingClientRect()
-      const sectionRect   = ref.current.getBoundingClientRect()
-      const offset        = sectionRect.top - containerRect.top + container.scrollTop - 56
-      container.scrollTo({ top: offset, behavior: "smooth" })
-    }
+    // scrollIntoView scrolls whichever ancestor actually scrolls; each section's
+    // `scroll-mt-20` clears the sticky search bar so its heading isn't hidden under it.
+    sectionRefMap[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
   useEffect(() => {
-    const container = rightPanelRef.current
-    if (!container) return
+    const scroller = getScrollParent(orgRef.current)
+    if (!scroller) return
+
+    const sections: { id: string; ref: React.RefObject<HTMLDivElement | null> }[] = [
+      { id: "organization",     ref: orgRef },
+      { id: "customer-journey", ref: cjRef },
+      { id: "design-guidelines", ref: dgRef },
+      { id: "actions",          ref: actRef },
+      { id: "channels-distribution", ref: cdRef },
+    ]
 
     function onScroll() {
-      const scrollTop = container!.scrollTop + 80
-      const sections: { id: string; ref: React.RefObject<HTMLDivElement | null> }[] = [
-        { id: "organization",     ref: orgRef },
-        { id: "customer-journey", ref: cjRef },
-      ]
+      // Compare each section's top against a line ~88px below the scroller's top
+      // edge (clearing the sticky search bar) — the last one above it is active.
+      const line = scroller!.getBoundingClientRect().top + 88
       let current = sections[0].id
       for (const s of sections) {
-        if (s.ref.current && s.ref.current.offsetTop <= scrollTop) current = s.id
+        const el = s.ref.current
+        if (el && el.getBoundingClientRect().top <= line) current = s.id
       }
       setActiveSection(current)
     }
 
-    container.addEventListener("scroll", onScroll, { passive: true })
-    return () => container.removeEventListener("scroll", onScroll)
+    scroller.addEventListener("scroll", onScroll, { passive: true })
+    return () => scroller.removeEventListener("scroll", onScroll)
   }, [])
 
   // ── Org handlers ────────────────────────────────────────
@@ -251,7 +279,7 @@ export default function SettingsPage() {
               {/* ════════════════════════════════════════════
                   Organization
               ════════════════════════════════════════════ */}
-              <section ref={orgRef} id="organization">
+              <section ref={orgRef} id="organization" className="scroll-mt-20">
                 <div className="mb-5">
                   <h2 className="text-base font-bold">{t("settings.orgTitle")}</h2>
                   <p className="text-sm text-muted-foreground">{t("settings.orgDesc")}</p>
@@ -357,7 +385,7 @@ export default function SettingsPage() {
               {/* ════════════════════════════════════════════
                   Customer Journey
               ════════════════════════════════════════════ */}
-              <section ref={cjRef} id="customer-journey">
+              <section ref={cjRef} id="customer-journey" className="scroll-mt-20">
                 <div className="mb-5">
                   <h2 className="text-base font-bold">{t("settings.cjTitle")}</h2>
                   <p className="text-sm text-muted-foreground">{t("settings.cjDesc")}</p>
@@ -524,6 +552,45 @@ export default function SettingsPage() {
                     </div>
                   </CardContent>
                 </Card>
+              </section>
+
+              <Separator />
+
+              {/* ════════════════════════════════════════════
+                  Design Guidelines
+              ════════════════════════════════════════════ */}
+              <section ref={dgRef} id="design-guidelines" className="scroll-mt-20">
+                <div className="mb-5">
+                  <h2 className="text-base font-bold">{t("settings.dgTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("settings.dgDesc")}</p>
+                </div>
+                <DesignGuidelinesSettings />
+              </section>
+
+              <Separator />
+
+              {/* ════════════════════════════════════════════
+                  Actions (M-15)
+              ════════════════════════════════════════════ */}
+              <section ref={actRef} id="actions" className="scroll-mt-20">
+                <div className="mb-5">
+                  <h2 className="text-base font-bold">{t("settings.actTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("settings.actDesc")}</p>
+                </div>
+                <ActionsSettings />
+              </section>
+
+              <Separator />
+
+              {/* ════════════════════════════════════════════
+                  Channels & Distribution (M-02)
+              ════════════════════════════════════════════ */}
+              <section ref={cdRef} id="channels-distribution" className="scroll-mt-20">
+                <div className="mb-5">
+                  <h2 className="text-base font-bold">{t("settings.cdTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("settings.cdDesc")}</p>
+                </div>
+                <ChannelsDistributionSettings />
               </section>
 
               {/* Bottom breathing room */}
