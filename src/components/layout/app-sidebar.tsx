@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate, useLocation } from "react-router"
 import { usePersona } from "@/contexts/persona-context"
 import { useDirection } from "@/hooks/use-direction"
+import { NabadatLogo, NabadatMark } from "@/components/nabadat-logo"
 import {
   Sidebar,
   SidebarContent,
@@ -192,13 +193,9 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" side={isRtl ? "right" : "left"}>
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-heading font-bold text-sm">
-            ن
-          </div>
-          <span className="font-heading font-bold text-sm group-data-[collapsible=icon]:hidden">
-            {t("common.appName")}
-          </span>
+        <div className="flex items-center justify-start px-1 py-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <NabadatMark className="hidden size-8 shrink-0 group-data-[collapsible=icon]:block" />
+          <NabadatLogo className="h-9 w-auto shrink-0 text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
         </div>
       </SidebarHeader>
 
