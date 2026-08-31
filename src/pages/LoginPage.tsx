@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Eye, EyeOff, Loader2, Globe, Lock } from "lucide-react"
+import { NabadatLogo, NabadatMark } from "@/components/nabadat-logo"
 
 // ─── Animations ────────────────────────────────────────────
 
@@ -190,17 +191,12 @@ export default function LoginPage() {
               className="flex size-24 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm"
               style={{ animation: "login-pulse-ring 3s ease-in-out infinite" }}
             >
-              <span className="text-5xl font-heading font-bold leading-none">
-                ن
-              </span>
+              <NabadatMark className="size-14" />
             </div>
 
-            {/* App name */}
+            {/* Tagline */}
             <div className="login-animate-in">
-              <h1 className="text-4xl font-heading font-bold tracking-tight">
-                {t("common.appName")}
-              </h1>
-              <p className="mt-3 text-lg text-white/80 leading-relaxed max-w-xs">
+              <p className="text-lg text-white/80 leading-relaxed max-w-xs">
                 {t("cx.loginTagline")}
               </p>
             </div>
@@ -226,14 +222,7 @@ export default function LoginPage() {
             <div className="w-full max-w-sm login-animate-in">
               {/* Mobile logo (hidden on desktop since left panel shows it) */}
               <div className="mb-8 flex flex-col items-center lg:hidden">
-                <div className="flex size-16 items-center justify-center rounded-xl bg-primary text-primary-foreground mb-3">
-                  <span className="text-3xl font-heading font-bold leading-none">
-                    ن
-                  </span>
-                </div>
-                <span className="text-xl font-heading font-bold text-foreground">
-                  {t("common.appName")}
-                </span>
+                <NabadatLogo className="h-10 w-auto text-foreground" />
               </div>
 
               {/* Heading */}
