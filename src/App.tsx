@@ -37,6 +37,15 @@ import CustomersListPage from "./features/customer-profile/pages/CustomersListPa
 import CustomerProfilePage from "./features/customer-profile/pages/CustomerProfilePage"
 import ImportCustomersPage from "./features/customer-profile/pages/ImportCustomersPage"
 import ProfileSetupPage from "./features/customer-profile/pages/ProfileSetupPage"
+
+// User & Role Management (M-10) — ported from the product build; served by the in-memory mock
+// in features/*/api.ts (see @/data/mock-user-management). The auth flow is deliberately NOT
+// ported: the clickthrough keeps its own stub login so demos stay one click.
+import UserManagementPage from "./features/users/pages/UserManagementPage"
+import UserDetailPage from "./features/users/pages/UserDetailPage"
+import UserScopePage from "./features/data-scope/pages/UserScopePage"
+import PersonaBaselinePage from "./features/persona-baselines/pages/PersonaBaselinePage"
+import AuditLogPage from "./features/audit-log/pages/AuditLogPage"
 // Integration Hub (M-13)
 import AllIntegrationsPage from "./features/integration-hub/pages/AllIntegrationsPage"
 import IntegrationWizardPage from "./features/integration-hub/pages/IntegrationWizardPage"
@@ -143,6 +152,14 @@ function AppRoutes() {
       <Route path="/customers/import" element={<LayoutRoute><ModulePage><ImportCustomersPage /></ModulePage></LayoutRoute>} />
       <Route path="/customers/:id" element={<LayoutRoute><ModulePage><CustomerProfilePage /></ModulePage></LayoutRoute>} />
       <Route path="/profile-setup" element={<LayoutRoute><ModulePage><ProfileSetupPage /></ModulePage></LayoutRoute>} />
+
+      {/* User & Role Management (M-10). The static /settings/persona-baselines segment is
+          declared before the other /settings routes so it is not shadowed by them. */}
+      <Route path="/users" element={<LayoutRoute><ModulePage><UserManagementPage /></ModulePage></LayoutRoute>} />
+      <Route path="/users/:userId" element={<LayoutRoute><ModulePage><UserDetailPage /></ModulePage></LayoutRoute>} />
+      <Route path="/users/:userId/scope" element={<LayoutRoute><ModulePage><UserScopePage /></ModulePage></LayoutRoute>} />
+      <Route path="/settings/persona-baselines" element={<LayoutRoute><ModulePage><PersonaBaselinePage /></ModulePage></LayoutRoute>} />
+      <Route path="/audit-log" element={<LayoutRoute><ModulePage><AuditLogPage /></ModulePage></LayoutRoute>} />
       {/* Integration Hub (M-13) */}
       <Route path="/integration-hub/integrations" element={<LayoutRoute><ModulePage><AllIntegrationsPage /></ModulePage></LayoutRoute>} />
       <Route path="/integration-hub/integrations/new" element={<LayoutRoute><ModulePage><IntegrationWizardPage /></ModulePage></LayoutRoute>} />

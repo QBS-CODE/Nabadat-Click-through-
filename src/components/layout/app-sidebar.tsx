@@ -146,6 +146,16 @@ const NAV_ITEMS: NavGroup[] = [
     ],
   },
   {
+    // User & Role Management (M-10). Users owns /users and its detail + scope children;
+    // Persona Baselines sits under /settings/... but belongs to this module, not Platform.
+    groupKey: "cx.navAdministration",
+    items: [
+      { key: "m10_users", labelKey: "cx.navUsers", icon: Users, href: "/users" },
+      { key: "m10_baselines", labelKey: "cx.navPersonaBaselines", icon: ShieldCheck, href: "/settings/persona-baselines" },
+      { key: "m10_audit", labelKey: "cx.navAuditLog", icon: ScrollText, href: "/audit-log" },
+    ],
+  },
+  {
     // Customer Profile (M-03) — the Audience group. Customers list + tenant Profile Setup.
     groupKey: "cx.navAudience",
     items: [
@@ -174,10 +184,15 @@ const NAV_ITEMS: NavGroup[] = [
 ]
 
 const CD_KEYS = ["cd_channels", "cd_templates", "cd_rules", "cd_guardrails", "cd_requests"]
+// User & Role Management (M-10) is admin-only: P-01 (cx_manager) and P-07 (tenant_admin).
+// The analyst / executive / frontline personas deliberately do not get it, so switching
+// persona in the prototype demonstrates the same gating the product enforces.
+const M10_KEYS = ["m10_users", "m10_baselines", "m10_audit"]
+
 const ROLE_NAV_KEYS: Record<string, string[]> = {
-  cx_manager: ["dashboard", "surveys", "feedback", ...CD_KEYS, "m04_ingestion", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers", "m03_setup"],
+  cx_manager: ["dashboard", "surveys", "feedback", ...CD_KEYS, "m04_ingestion", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers", "m03_setup", ...M10_KEYS],
   analyst: ["dashboard", "surveys", "feedback", "analytics", "post_expiry", "ai_insights", "journey", "profiles", "m03_customers"],
-  tenant_admin: ["dashboard", "surveys", "feedback", ...CD_KEYS, "m04_ingestion", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers"],
+  tenant_admin: ["dashboard", "surveys", "feedback", ...CD_KEYS, "m04_ingestion", "analytics", "post_expiry", "ai_insights", "closed_loop", "actions", "journey", "profiles", "kpi_management", "settings", "ih_integrations", "ih_logs", "ih_channels", "ih_parameters", "ih_mappings", "m03_customers", ...M10_KEYS],
   executive: ["dashboard", "analytics", "journey", "actions"],
   frontline: ["dashboard", "closed_loop"],
 }
