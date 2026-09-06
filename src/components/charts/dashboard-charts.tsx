@@ -4,15 +4,10 @@
 // status (gauge zones, sentiment split, radar performance gradient) — Two-Palette Rule.
 
 import { useMemo } from "react"
-import { EChart, echarts, resolveCssColor, useChartTokens, withAlpha, type ChartTokens, type EChartsOption } from "./echart"
+import { EChart, echarts, resolveCssColor, useChartTokens, withAlpha, type EChartsOption } from "./echart"
 import type { BarSeriesOption, GaugeSeriesOption, LineSeriesOption } from "echarts/charts"
 
 const EASE = "cubicOut" as const
-
-/** Default 0–100 performance band → D-scale colour (matches perfColor's default scale). */
-function bandColor(t: ChartTokens, v: number) {
-  return v >= 85 ? t.d1 : v >= 75 ? t.d2 : v >= 60 ? t.d3 : v >= 45 ? t.d4 : t.d5
-}
 
 // ─── KPI trend (multi-series line, one emphasised series, action markers) ───
 
@@ -112,7 +107,7 @@ export function KpiTrendChart({
   return <EChart option={option} className={className} ariaLabel="KPI trend" />
 }
 
-// ─── Customer journey (current vs previous period) ─────────
+// ─── Customer journey — ink current vs dashed previous; a stage that dropped ≥5 pts is red ───
 
 export function JourneyChart({
   data, labels, className,
@@ -122,49 +117,44 @@ export function JourneyChart({
   className?: string
 }) {
   const t = useChartTokens()
-  const option = useMemo<EChartsOption>(() => {
-    const mint = t.chart[1]
-    return {
-      animationDuration: 900,
-      animationEasing: EASE,
-      grid: { left: 8, right: 24, top: 16, bottom: 34, containLabel: true },
-      legend: { bottom: 0, left: "center", data: [labels.current, labels.previous] },
-      tooltip: { trigger: "axis", axisPointer: { type: "line", lineStyle: { color: t.border } } },
-      xAxis: { type: "category", boundaryGap: false, data: data.map((d) => d.stage), axisLabel: { margin: 12, interval: 0 } },
-      yAxis: { type: "value", min: 40, max: 100, interval: 15 },
-      series: [
-        {
-          name: labels.previous,
-          type: "line",
-          smooth: 0.35,
-          data: data.map((d) => d.previous),
-          symbol: "circle",
-          symbolSize: 6,
-          lineStyle: { width: 1.5, type: "dashed", color: t.stoneLt },
-          itemStyle: { color: t.stoneLt, borderColor: t.card, borderWidth: 1.5 },
-          z: 2,
-        },
-        {
-          name: labels.current,
-          type: "line",
-          smooth: 0.35,
-          data: data.map((d) => d.current),
-          symbol: "circle",
-          symbolSize: 9,
-          lineStyle: { width: 2.5, color: mint },
-          itemStyle: { color: mint, borderColor: t.card, borderWidth: 2 },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: withAlpha(mint, 0.3) },
-              { offset: 1, color: withAlpha(mint, 0.03) },
-            ]),
-          },
-          label: { show: true, position: "top", distance: 8, fontSize: 10, fontWeight: 700, color: t.fg, formatter: "{c}%" },
-          z: 3,
-        },
-      ],
-    }
-  }, [data, labels, t])
+  const option = useMemo<EChartsOption>(() => ({
+    animationDuration: 900,
+    animationEasing: EASE,
+    grid: { left: 8, right: 28, top: 22, bottom: 34, containLabel: true },
+    legend: { bottom: 0, left: "center", data: [labels.current, labels.previous], icon: "rect", itemWidth: 14, itemHeight: 2 },
+    tooltip: { trigger: "axis", axisPointer: { type: "line", lineStyle: { color: t.border } }, valueFormatter: (v) => `${v}%` },
+    xAxis: { type: "category", boundaryGap: false, data: data.map((d) => d.stage), axisLabel: { margin: 12, interval: 0 } },
+    yAxis: { type: "value", min: 40, max: 100, interval: 15 },
+    series: [
+      {
+        name: labels.previous,
+        type: "line",
+        data: data.map((d) => d.previous),
+        symbol: "circle",
+        symbolSize: 5,
+        lineStyle: { width: 1.5, type: "dashed", color: t.muted },
+        itemStyle: { color: t.muted },
+        z: 2,
+      },
+      {
+        name: labels.current,
+        type: "line",
+        data: data.map((d) => {
+          const drop = d.previous - d.current >= 5
+          return drop
+            ? { value: d.current, itemStyle: { color: t.red, borderColor: t.card }, label: { color: t.red } }
+            : d.current
+        }),
+        symbol: "circle",
+        symbolSize: 8,
+        lineStyle: { width: 2.5, color: t.fg },
+        itemStyle: { color: t.fg, borderColor: t.card, borderWidth: 2 },
+        label: { show: true, position: "top", distance: 8, fontSize: 11, fontWeight: 700, color: t.fg, formatter: "{c}%" },
+        emphasis: { focus: "series" },
+        z: 3,
+      },
+    ],
+  }), [data, labels, t])
   return <EChart option={option} className={className} ariaLabel="Customer journey" />
 }
 
@@ -229,7 +219,7 @@ export function FunnelChart({
   return <EChart option={option} className={className} ariaLabel="Response funnel" />
 }
 
-// ─── Topics × sentiment (ranked stacked bars) ──────────────
+// ─── Topics × sentiment — 100% stacked: ink positive · grey neutral · red negative ───
 
 export function TopicSentimentChart({
   data, labels, className,
@@ -240,28 +230,32 @@ export function TopicSentimentChart({
 }) {
   const t = useChartTokens()
   const option = useMemo<EChartsOption>(() => {
-    const seg = (name: string, key: "positive" | "neutral" | "negative", color: string, radius: number[], labelColor: string): BarSeriesOption => ({
+    const onInk = t.card
+    const onRed = t.dark ? resolveCssColor("var(--color-nb-navy)") : "#fff"
+    const neutral = withAlpha(t.muted, t.dark ? 0.35 : 0.28)
+    const seg = (name: string, key: "positive" | "neutral" | "negative", color: string, labelColor: string): BarSeriesOption => ({
       name,
-      type: "bar" as const,
+      type: "bar",
       stack: "sentiment",
-      barWidth: 14,
+      barWidth: 16,
       data: data.map((d) => d[key]),
-      itemStyle: { color, borderRadius: radius },
+      itemStyle: { color, borderColor: t.card, borderWidth: 1 },
       label: {
         show: true,
-        position: "inside" as const,
-        fontSize: 10,
+        position: "insideLeft",
+        distance: 6,
+        fontSize: 10.5,
         fontWeight: 700,
         color: labelColor,
-        formatter: (p: unknown) => ((p as { value: number }).value >= 12 ? `${(p as { value: number }).value}%` : ""),
+        formatter: (p) => ((p.value as number) >= 12 ? `${p.value}%` : ""),
       },
-      emphasis: { focus: "series" as const },
+      emphasis: { focus: "series" },
     })
     return {
       animationDuration: 800,
       animationEasing: EASE,
       grid: { left: 8, right: 8, top: 4, bottom: 30, containLabel: true },
-      legend: { bottom: 0, left: "center", data: [labels.positive, labels.neutral, labels.negative] },
+      legend: { bottom: 0, left: 0, data: [labels.positive, labels.neutral, labels.negative], icon: "rect", itemWidth: 10, itemHeight: 10 },
       tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, valueFormatter: (v) => `${v}%` },
       xAxis: { type: "value", max: 100, show: false },
       yAxis: [
@@ -273,11 +267,8 @@ export function TopicSentimentChart({
             color: t.fg,
             fontSize: 12,
             fontWeight: 600,
-            formatter: (name: string) => {
-              const d = data.find((x) => x.name === name)
-              return d?.emerging ? `${name} {em|${labels.emerging}}` : name
-            },
-            rich: { em: { color: t.chart[0], fontSize: 9, fontWeight: 700, padding: [0, 0, 0, 4] } },
+            formatter: (name: string) => (data.find((x) => x.name === name)?.emerging ? `${name} {em|${labels.emerging}}` : name),
+            rich: { em: { color: t.red, backgroundColor: withAlpha(t.red, 0.12), fontSize: 9, fontWeight: 700, padding: [2, 6], borderRadius: 4 } },
           },
         },
         {
@@ -285,20 +276,20 @@ export function TopicSentimentChart({
           inverse: true,
           position: "right",
           data: data.map((d) => `${d.mentions} ${labels.mentions}`),
-          axisLabel: { color: t.muted, fontSize: 10 },
+          axisLabel: { color: t.muted, fontSize: 10.5 },
         },
       ],
       series: [
-        seg(labels.positive, "positive", t.d2, [7, 0, 0, 7], "#fff"),
-        seg(labels.neutral, "neutral", t.stoneLt, [0, 0, 0, 0], t.fg),
-        seg(labels.negative, "negative", t.d5, [0, 7, 7, 0], "#fff"),
+        seg(labels.positive, "positive", t.fg, onInk),
+        seg(labels.neutral, "neutral", neutral, t.fg),
+        seg(labels.negative, "negative", t.red, onRed),
       ],
     }
   }, [data, labels, t])
   return <EChart option={option} className={className} ariaLabel="Topics and sentiment" />
 }
 
-// ─── KPI overview radar — current (filled, performance gradient) vs target (dashed) ───
+// ─── Index profile radar — ink current vs dashed target, axis labelled with value, misses in red ───
 
 export function KpiRadarChart({
   kpis, target, labels, className,
@@ -310,70 +301,61 @@ export function KpiRadarChart({
 }) {
   const t = useChartTokens()
   const option = useMemo<EChartsOption>(() => {
-    const rich: Record<string, { color: string; fontSize: number; fontWeight: number; lineHeight: number }> = {}
-    kpis.forEach((k, i) => {
-      rich[`n${i}`] = { color: t.fg, fontSize: 11, fontWeight: 700, lineHeight: 15 }
-      rich[`v${i}`] = { color: bandColor(t, k.value), fontSize: 13, fontWeight: 800, lineHeight: 17 }
-    })
+    // Same tolerance as the KPI band: a miss is a shortfall beyond 5% of the (normalised) range.
+    const miss = (i: number) => (target ? kpis[i].value < target[i] - 5 : false)
+    const rich: Record<string, { color: string; fontSize: number; fontWeight: number }> = {}
+    kpis.forEach((_, i) => { rich[`l${i}`] = { color: miss(i) ? t.red : t.fg, fontSize: 12, fontWeight: 700 } })
     const cur = labels?.current ?? "Current", tgt = labels?.target ?? "Target"
     return {
-      animationDuration: 1000,
+      animationDuration: 900,
       animationEasing: EASE,
       tooltip: { trigger: "item" },
-      legend: target ? { orient: "vertical", left: 0, bottom: 0, data: [cur, tgt] } : undefined,
+      legend: target ? { orient: "vertical", left: 0, bottom: 0, data: [cur, tgt], icon: "rect", itemWidth: 14, itemHeight: 2 } : undefined,
       radar: {
         indicator: kpis.map((k) => ({ name: k.label, max: 100 })),
-        radius: "66%",
+        radius: "64%",
         center: ["50%", "50%"],
         splitNumber: 4,
         axisName: {
           formatter: (name?: string) => {
             const i = kpis.findIndex((k) => k.label === name)
-            return `{n${i}|${name}}\n{v${i}|${kpis[i]?.value ?? ""}}`
+            return `{l${i}|${name} ${kpis[i]?.value ?? ""}}`
           },
           rich,
         },
         splitLine: { lineStyle: { color: withAlpha(t.border, 0.9) } },
-        splitArea: { show: true, areaStyle: { color: [withAlpha(t.muted, 0.06), "transparent"] } },
-        axisLine: { lineStyle: { color: withAlpha(t.border, 0.6) } },
+        splitArea: { show: false },
+        axisLine: { lineStyle: { color: withAlpha(t.border, 0.8) } },
       },
       series: [
-        {
-          type: "radar",
-          name: cur,
-          symbol: "circle",
-          symbolSize: 10,
-          data: [{ value: kpis.map((k) => k.value), name: cur }],
-          lineStyle: { color: t.chart[0], width: 2.5 },
-          itemStyle: { color: t.chart[0], borderColor: t.card, borderWidth: 2 },
-          areaStyle: {
-            color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.66, [
-              { offset: 0, color: withAlpha(t.d5, 0.5) },
-              { offset: 0.4, color: withAlpha(t.d4, 0.38) },
-              { offset: 0.65, color: withAlpha(t.d3, 0.3) },
-              { offset: 0.85, color: withAlpha(t.d2, 0.24) },
-              { offset: 1, color: withAlpha(t.d1, 0.2) },
-            ]),
-          },
-          emphasis: { lineStyle: { width: 3.5 } },
-          z: 3,
-        },
         ...(target
           ? [{
               type: "radar" as const,
               name: tgt,
               symbol: "none",
               data: [{ value: target, name: tgt }],
-              lineStyle: { color: withAlpha(t.muted, 0.9), width: 1.5, type: "dashed" as const },
+              lineStyle: { color: t.muted, width: 1.5, type: "dashed" as const },
               itemStyle: { color: t.muted },
               areaStyle: { color: "transparent" },
               z: 2,
             }]
           : []),
+        {
+          type: "radar",
+          name: cur,
+          symbol: "circle",
+          symbolSize: 8,
+          data: [{ value: kpis.map((k) => k.value), name: cur }],
+          lineStyle: { color: t.fg, width: 2.5 },
+          itemStyle: { color: t.fg, borderColor: t.card, borderWidth: 1.5 },
+          areaStyle: { color: "transparent" },
+          emphasis: { lineStyle: { width: 3 } },
+          z: 3,
+        },
       ],
     }
   }, [kpis, target, labels, t])
-  return <EChart option={option} className={className} ariaLabel="KPI overview radar" />
+  return <EChart option={option} className={className} ariaLabel="KPI index profile" />
 }
 
 // ─── KPI gauge — instrument style: 270° sweep, soft zone band, ticks + min/max, gradient arc, needle ───

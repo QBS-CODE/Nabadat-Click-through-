@@ -77,6 +77,8 @@ export interface ChartTokens {
   popover: string
   chart: [string, string, string, string, string]
   d1: string; d2: string; d3: string; d4: string; d5: string
+  /** "Miss" red — D5 in light, D5-light in dark so it reads on the navy canvas. */
+  red: string
   stoneLt: string
   fontFamily: string
 }
@@ -92,6 +94,7 @@ function readTokens(dark: boolean): ChartTokens {
     popover: v("--popover"),
     chart: [v("--chart-1"), v("--chart-2"), v("--chart-3"), v("--chart-4"), v("--chart-5")],
     d1: v("--color-d1"), d2: v("--color-d2"), d3: v("--color-d3"), d4: v("--color-d4"), d5: v("--color-d5"),
+    red: dark ? v("--color-d5-light") : v("--color-d5"),
     stoneLt: v("--color-nb-stone-lt"),
     fontFamily: getComputedStyle(document.body).fontFamily,
   }

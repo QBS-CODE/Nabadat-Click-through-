@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
 import { useDirection } from "@/hooks/use-direction"
 import { usePersona } from "@/contexts/persona-context"
-import { KpiFlipCard, perfColor, type KpiMetric } from "@/components/cx/kpi-flip-card"
+import { type KpiMetric } from "@/components/cx/kpi-flip-card"
 import { AiChatPanel } from "@/components/cx/ai-chat-panel"
-import { KpiTrendChart, JourneyChart, FunnelChart, TopicSentimentChart, KpiRadarChart } from "@/components/charts/dashboard-charts"
+import { KpiTrendChart, JourneyChart, TopicSentimentChart, KpiRadarChart } from "@/components/charts/dashboard-charts"
 import {
   Card,
   CardContent,
@@ -45,7 +45,8 @@ import {
   MessageSquare,
   Sparkles,
   Target,
-  Medal,
+  ArrowUp,
+  ArrowDown,
   Activity,
   Zap,
   ArrowUpRight,
@@ -128,6 +129,50 @@ const TOPICS_DATA = [
   { key: "topicBranch", mentions: 90, positive: 45, neutral: 35, negative: 20, pct: 7 },
 ]
 
+// ─── KPI Band tile — number · delta · bullet bar against target (ink = data, red = miss) ───
+
+type KpiBandItem = KpiMetric & { target: number; lowerIsBetter?: boolean }
+
+function KpiBandTile({ kpi, onClick, t }: { kpi: KpiBandItem; onClick: () => void; t: (k: string) => string }) {
+  const range = kpi.id === "nps" ? 200 : 100
+  const shortfall = kpi.lowerIsBetter ? kpi.value - kpi.target : kpi.target - kpi.value
+  const miss = shortfall > range * 0.05
+  const scaleMax = kpi.target * 1.15
+  const fill = Math.min(100, (kpi.value / scaleMax) * 100)
+  const tick = Math.min(100, (kpi.target / scaleMax) * 100)
+  const valueWentUp = kpi.lowerIsBetter ? !kpi.trendUp : kpi.trendUp
+  const ink = miss ? "text-d5 dark:text-d5-light" : "text-foreground"
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`${kpi.title} ${kpi.displayValue}`}
+      className="group flex min-w-0 flex-col border-b border-e border-border p-5 text-start motion-safe:transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset focus-visible:outline-none"
+    >
+      <div className={cn("text-[10px] font-semibold tracking-[0.14em] uppercase", miss ? "text-d5 dark:text-d5-light" : "text-muted-foreground")}>{kpi.title}</div>
+      <div className="mt-0.5 text-xs text-muted-foreground">
+        {kpi.subtitle}
+        {kpi.lowerIsBetter && <> · {t("cx.lowerIsBetter")}</>}
+      </div>
+      <div className={cn("mt-3 flex items-baseline gap-2", ink)}>
+        <span className="font-heading text-4xl leading-none font-bold tabular-nums" dir="ltr">{kpi.displayValue}</span>
+        <span className="inline-flex items-center gap-0.5 text-sm font-bold tabular-nums">
+          {valueWentUp ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />}
+          {kpi.trend}
+        </span>
+      </div>
+      <div className="relative mt-4 h-2.5 w-full rounded-sm bg-muted" role="img" aria-label={`${kpi.displayValue} / ${kpi.targetLabel}`}>
+        <div className={cn("h-full rounded-sm motion-safe:transition-all motion-safe:duration-700", miss ? "bg-d5 dark:bg-d5-light" : "bg-foreground")} style={{ width: `${fill}%` }} />
+        <div className="absolute -top-[3px] h-4 w-0.5 bg-foreground" style={{ insetInlineStart: `${tick}%` }} aria-hidden />
+      </div>
+      <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+        <span>{kpi.lowerIsBetter ? t("cx.ceiling") : t("cx.target")} {kpi.targetLabel.replace("≤", "")}</span>
+        <span>{kpi.responses.toLocaleString("en-US")} {t("cx.resp")}</span>
+      </div>
+    </button>
+  )
+}
+
 function FunnelAndTopics({ t }: { t: (k: string) => string }) {
 
   return (
@@ -138,16 +183,30 @@ function FunnelAndTopics({ t }: { t: (k: string) => string }) {
           <CardTitle>{t("cx.funnelTitle")}</CardTitle>
           <CardDescription>{t("cx.funnelSubtitle")}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <FunnelChart
-            data={FUNNEL_DATA.map((s) => ({ name: t(`cx.${s.step}`), value: s.value, pct: s.pct }))}
-            convWord={t("cx.funnelConversion")}
-            className="h-56"
-          />
-          <div className="flex items-center justify-center pt-2">
-            <Badge variant="outline" className="bg-d2-light text-d2-dark border-d2/20 dark:bg-d2-dark/20 dark:text-d2-light">
-              {t("cx.funnelCompletionRate")}: <span className="font-bold ms-1 tabular-nums">26.7%</span>
-            </Badge>
+        <CardContent className="space-y-4">
+          {FUNNEL_DATA.map((step, i) => {
+            const prev = FUNNEL_DATA[i - 1]
+            return (
+              <div key={step.step}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm font-semibold">{t(`cx.${step.step}`)}</span>
+                  <span className="font-heading text-base font-bold tabular-nums">{step.value.toLocaleString("en-US")}</span>
+                </div>
+                <div className="mt-1.5 h-2.5 w-full rounded-sm bg-muted">
+                  <div
+                    className="h-full rounded-sm bg-foreground motion-safe:transition-all motion-safe:duration-700"
+                    style={{ width: `${(step.value / FUNNEL_DATA[0].value) * 100}%` }}
+                  />
+                </div>
+                <div className="mt-1 text-[11px] text-muted-foreground tabular-nums">
+                  {prev ? `${step.pct}% ${t("cx.funnelOfWord")} ${t(`cx.${prev.step}`).toLowerCase()}` : "—"}
+                </div>
+              </div>
+            )
+          })}
+          <div className="flex items-baseline justify-between border-t border-border pt-3 text-sm">
+            <span className="font-semibold">{t("cx.funnelEndToEnd")}</span>
+            <span className="font-heading font-bold tabular-nums">26.7%</span>
           </div>
         </CardContent>
       </Card>
@@ -156,9 +215,7 @@ function FunnelAndTopics({ t }: { t: (k: string) => string }) {
       <Card className="cx-fade-in-up overflow-hidden min-w-0" style={{ animationDelay: "0.9s" }}>
         <CardHeader>
           <CardTitle>{t("cx.topicsTitle")}</CardTitle>
-          <CardDescription>
-            {t("cx.topicsSubtitle")}
-          </CardDescription>
+          <CardDescription>{t("cx.topicsShare")}</CardDescription>
         </CardHeader>
         <CardContent>
           <TopicSentimentChart
@@ -166,10 +223,6 @@ function FunnelAndTopics({ t }: { t: (k: string) => string }) {
             labels={{ positive: t("cx.sentimentPositive"), neutral: t("cx.sentimentNeutral"), negative: t("cx.sentimentNegative"), mentions: t("cx.topicMentions"), emerging: t("cx.topicEmerging") }}
             className="h-64"
           />
-          <div className="flex items-center justify-center gap-1.5 pt-2 text-[11px] text-muted-foreground">
-            <Zap className="size-3 text-nb-cyan" />
-            {t("cx.topicEmerging")}
-          </div>
         </CardContent>
       </Card>
     </div>
@@ -219,13 +272,13 @@ export default function CxDashboard() {
 
   // ── Translated data (recomputes on language change) ──
 
-  const kpiMetrics: KpiMetric[] = useMemo(() => [
-    { id: "nps", title: t("cx.kpiNps"), subtitle: t("cx.kpiNpsSubtitle"), value: 42, displayValue: "+42", gaugePercent: 71, targetLabel: "+50", trend: 4, trendUp: true, trendLabel: `+4 ${t("cx.points")}`, color: KPI_COLORS.nps, responses: 3420 },
-    { id: "csat", title: t("cx.kpiCsat"), subtitle: t("cx.kpiCsatSubtitle"), value: 78, displayValue: "78%", gaugePercent: 78, targetLabel: "80%", trend: 2, trendUp: true, trendLabel: "+2%", color: KPI_COLORS.csat, responses: 4180 },
-    { id: "ces", title: t("cx.kpiCes"), subtitle: t("cx.kpiCesSubtitle"), value: 45, displayValue: "45%", gaugePercent: 55, targetLabel: "≤50%", trend: 0.3, trendUp: true, trendLabel: "−0.3", color: KPI_COLORS.ces, responses: 2890 },
-    { id: "agent", title: t("cx.kpiAgent"), subtitle: t("cx.kpiAgentSubtitle"), value: 84, displayValue: "84%", gaugePercent: 84, targetLabel: "85%", trend: 1, trendUp: false, trendLabel: `−1 ${t("cx.point")}`, color: KPI_COLORS.agent, responses: 5120 },
-    { id: "vfm", title: t("cx.kpiVfm"), subtitle: t("cx.kpiVfmSubtitle"), value: 72, displayValue: "72%", gaugePercent: 72, targetLabel: "80%", trend: 8, trendUp: false, trendLabel: `−8 ${t("cx.points")}`, color: KPI_COLORS.vfm, responses: 2340 },
-    { id: "fcr", title: t("cx.kpiFcr"), subtitle: t("cx.kpiFcrSubtitle"), value: 68, displayValue: "68%", gaugePercent: 68, targetLabel: "75%", trend: 7, trendUp: false, trendLabel: `−7 ${t("cx.points")}`, color: KPI_COLORS.fcr, responses: 3780 },
+  const kpiMetrics: KpiBandItem[] = useMemo(() => [
+    { id: "nps", title: t("cx.kpiNps"), subtitle: t("cx.kpiNpsSubtitle"), value: 42, displayValue: "+42", gaugePercent: 71, targetLabel: "+50", target: 50, trend: 4, trendUp: true, trendLabel: `+4 ${t("cx.points")}`, color: KPI_COLORS.nps, responses: 3420 },
+    { id: "csat", title: t("cx.kpiCsat"), subtitle: t("cx.kpiCsatSubtitle"), value: 78, displayValue: "78%", gaugePercent: 78, targetLabel: "80%", target: 80, trend: 2, trendUp: true, trendLabel: "+2%", color: KPI_COLORS.csat, responses: 4180 },
+    { id: "ces", title: t("cx.kpiCes"), subtitle: t("cx.kpiCesSubtitle"), value: 45, displayValue: "45%", gaugePercent: 55, targetLabel: "≤50%", target: 50, lowerIsBetter: true, trend: 0.3, trendUp: true, trendLabel: "−0.3", color: KPI_COLORS.ces, responses: 2890 },
+    { id: "agent", title: t("cx.kpiAgent"), subtitle: t("cx.kpiAgentSubtitle"), value: 84, displayValue: "84%", gaugePercent: 84, targetLabel: "85%", target: 85, trend: 1, trendUp: false, trendLabel: `−1 ${t("cx.point")}`, color: KPI_COLORS.agent, responses: 5120 },
+    { id: "vfm", title: t("cx.kpiVfm"), subtitle: t("cx.kpiVfmSubtitle"), value: 72, displayValue: "72%", gaugePercent: 72, targetLabel: "80%", target: 80, trend: 8, trendUp: false, trendLabel: `−8 ${t("cx.points")}`, color: KPI_COLORS.vfm, responses: 2340 },
+    { id: "fcr", title: t("cx.kpiFcr"), subtitle: t("cx.kpiFcrSubtitle"), value: 68, displayValue: "68%", gaugePercent: 68, targetLabel: "75%", target: 75, trend: 7, trendUp: false, trendLabel: `−7 ${t("cx.points")}`, color: KPI_COLORS.fcr, responses: 3780 },
   ], [t])
 
   const radarData = useMemo(() => [
@@ -474,9 +527,9 @@ export default function CxDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="size-5 text-secondary" />
-                {t("cx.overview")}
+                {t("cx.indexProfile")}
               </CardTitle>
-              <CardDescription>{t("cx.overviewSubtitle")}</CardDescription>
+              <CardDescription>{t("cx.indexProfileSubtitle")}</CardDescription>
             </CardHeader>
 
             <div className="absolute top-4 end-5 flex flex-col items-center justify-center size-20 rounded-2xl bg-gradient-to-br from-nb-cyan to-nb-cyan-700 text-white shadow-lg">
@@ -546,21 +599,22 @@ export default function CxDashboard() {
           </Card>
         </div>
 
-        {/* ── KPI Flip Cards ──────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {kpiMetrics.map((kpi, i) => (
-            <KpiFlipCard
-              key={kpi.id}
-              kpi={kpi}
-              delay={i * 0.08 + 0.3}
-              onDetail={handleKpiDetail}
-              targetWord={t("cx.target")}
-              targetTooltip={t("cx.targetRequired")}
-              responsesWord={t("cx.responses")}
-              reasonsLabel={t("cx.reasonsAnalysis")}
-            />
-          ))}
-        </div>
+        {/* ── KPI Band — six KPIs, comparable at a glance: value · delta · bullet bar vs target ── */}
+        <Card className="cx-fade-in-up overflow-hidden min-w-0" style={{ animationDelay: "0.3s" }}>
+          <CardHeader>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+              <CardTitle>{t("cx.kpiBand")}</CardTitle>
+              <CardDescription className="text-xs">{t("cx.kpiBandHint")} · {t("cx.cxi")} 69/100</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="px-0">
+            <div className="-mb-px -me-px grid grid-cols-1 border-t border-border sm:grid-cols-2 lg:grid-cols-3">
+              {kpiMetrics.map((kpi) => (
+                <KpiBandTile key={kpi.id} kpi={kpi} onClick={() => handleKpiDetail(kpi.id)} t={t} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* ── Trend Chart ───────────────────────── */}
         <Card className="cx-fade-in-up overflow-hidden min-w-0" style={{ animationDelay: "0.8s" }}>
@@ -633,22 +687,18 @@ export default function CxDashboard() {
                   {branchData.map((b, i) => (
                     <TableRow key={i} className="cursor-pointer hover:bg-muted/50 motion-safe:transition-colors">
                       <TableCell className="ps-6 text-muted-foreground">
-                        {i < 3 ? (
-                          <Medal className={cn("size-4", i === 0 ? "text-nb-cyan" : i === 1 ? "text-nb-stone-lt" : "text-nb-cyan-700")} />
-                        ) : (
-                          <span className="text-xs tabular-nums">{i + 1}</span>
-                        )}
+                        <span className="text-xs tabular-nums">{i + 1}</span>
                       </TableCell>
                       <TableCell className="font-medium">{branchNames[i]}</TableCell>
                       <TableCell className="tabular-nums font-medium">
                         <div className="flex items-center justify-center gap-2">
-                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted/40" aria-hidden>
+                          <div className="h-2 w-20 rounded-sm bg-muted" aria-hidden>
                             <div
-                              className="h-full rounded-full motion-safe:transition-all motion-safe:duration-700"
-                              style={{ width: `${(b.nps / branchData[0].nps) * 100}%`, background: perfColor(b.nps, "nps") }}
+                              className="h-full rounded-sm bg-foreground motion-safe:transition-all motion-safe:duration-700"
+                              style={{ width: `${(b.nps / branchData[0].nps) * 100}%` }}
                             />
                           </div>
-                          <span className="w-8 text-end font-bold" style={{ color: perfColor(b.nps, "nps") }} dir="ltr">+{b.nps}</span>
+                          <span className="w-8 text-end font-bold" dir="ltr">+{b.nps}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-center tabular-nums">{b.csat}%</TableCell>
@@ -656,7 +706,7 @@ export default function CxDashboard() {
                       <TableCell className="text-end pe-6">
                         <span className={cn(
                           "inline-flex items-center gap-0.5 text-xs font-medium tabular-nums",
-                          b.change > 0 ? "text-d2 dark:text-d2-light" : b.change < 0 ? "text-d5 dark:text-d5-light" : "text-muted-foreground",
+                          b.change < 0 ? "text-d5 dark:text-d5-light" : b.change > 0 ? "text-foreground" : "text-muted-foreground",
                         )}>
                           {b.change > 0 ? <ArrowUpRight className="size-3" /> : b.change < 0 ? <ArrowDownRight className="size-3" /> : null}
                           {b.change > 0 ? "+" : ""}{b.change}
