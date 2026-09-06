@@ -320,7 +320,13 @@ export function KpiRadarChart({
       animationDuration: 900,
       animationEasing: EASE,
       tooltip: { trigger: "item" },
-      legend: target ? { orient: "vertical", left: 0, bottom: 0, data: [cur, tgt], icon: "rect", itemWidth: 14, itemHeight: 2 } : undefined,
+      // Explicit swatch colours: with a translucent areaStyle ECharts would paint the icon with the fill, not the line.
+      legend: target
+        ? {
+            orient: "vertical", left: 0, bottom: 0, icon: "rect", itemWidth: 14, itemHeight: 2,
+            data: [{ name: cur, itemStyle: { color: t.chart[0] } }, { name: tgt, itemStyle: { color: t.muted } }],
+          }
+        : undefined,
       radar: {
         indicator: kpis.map((k) => ({ name: k.label, max: 100 })),
         radius: "64%",

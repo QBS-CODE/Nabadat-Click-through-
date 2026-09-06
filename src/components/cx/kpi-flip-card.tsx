@@ -407,5 +407,13 @@ function KpiFlipCard({
   )
 }
 
-export { KpiFlipCard, perfColor }
+/** Three-way breakdown for a KPI (Promoters / Passives / Detractors …), labelled for the current language. */
+function getKpiSegments(kpiId: string, isArabic: boolean): { key: string; label: string; value: number; color: string }[] {
+  return (KPI_SEGMENTS[kpiId] ?? KPI_SEGMENTS.nps).map((seg) => {
+    const l = SEGMENT_LABELS[seg.key]
+    return { ...seg, label: l ? (isArabic ? l.ar : l.en) : seg.key }
+  })
+}
+
+export { KpiFlipCard, perfColor, getKpiSegments }
 export type { KpiMetric }

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
 import { useDirection } from "@/hooks/use-direction"
 import { usePersona } from "@/contexts/persona-context"
-import { perfColor, type KpiMetric } from "@/components/cx/kpi-flip-card"
+import { perfColor, getKpiSegments, type KpiMetric } from "@/components/cx/kpi-flip-card"
 import { AiChatPanel } from "@/components/cx/ai-chat-panel"
 import { KpiTrendChart, JourneyChart, TopicSentimentChart, KpiRadarChart } from "@/components/charts/dashboard-charts"
 import {
@@ -133,10 +133,18 @@ const TOPICS_DATA = [
 
 type KpiBandItem = KpiMetric & { target: number; lowerIsBetter?: boolean }
 
-function KpiBandTile({ kpi, onClick, t }: { kpi: KpiBandItem; onClick: () => void; t: (k: string) => string }) {
+/** Distance from target as a fraction of the metric's range (positive = below target). */
+function bandGap(kpi: KpiBandItem) {
   const range = kpi.id === "nps" ? 200 : 100
   const shortfall = kpi.lowerIsBetter ? kpi.value - kpi.target : kpi.target - kpi.value
-  const miss = shortfall > range * 0.05
+  return shortfall / range
+}
+/** A miss is a shortfall beyond 5% of the range — small gaps stay quiet. */
+const isMiss = (kpi: KpiBandItem) => bandGap(kpi) > 0.05
+
+function KpiBandTile({ kpi, onClick, t, isArabic }: { kpi: KpiBandItem; onClick: () => void; t: (k: string) => string; isArabic: boolean }) {
+  const miss = isMiss(kpi)
+  const segments = getKpiSegments(kpi.id, isArabic)
   const scaleMax = kpi.target * 1.15
   const fill = Math.min(100, (kpi.value / scaleMax) * 100)
   const tick = Math.min(100, (kpi.target / scaleMax) * 100)
@@ -169,6 +177,20 @@ function KpiBandTile({ kpi, onClick, t }: { kpi: KpiBandItem; onClick: () => voi
       <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
         <span>{kpi.lowerIsBetter ? t("cx.ceiling") : t("cx.target")} {kpi.targetLabel.replace("≤", "")}</span>
         <span>{kpi.responses.toLocaleString("en-US")} {t("cx.resp")}</span>
+      </div>
+      {/* Three-way breakdown (good · middle · bad) on the D-scale */}
+      <div className="mt-4 flex h-1.5 w-full gap-px overflow-hidden rounded-sm" role="img" aria-label={segments.map((sg) => `${sg.label} ${sg.value}%`).join(", ")}>
+        {segments.map((sg) => (
+          <div key={sg.key} className="h-full" style={{ width: `${sg.value}%`, background: sg.color }} />
+        ))}
+      </div>
+      <div className="mt-2 grid grid-cols-3 gap-2">
+        {segments.map((sg) => (
+          <div key={sg.key} className="min-w-0">
+            <div className="text-xs font-bold tabular-nums" style={{ color: sg.color }}>{sg.value}%</div>
+            <div className="truncate text-[10px] leading-tight text-muted-foreground">{sg.label}</div>
+          </div>
+        ))}
       </div>
     </button>
   )
@@ -265,7 +287,8 @@ function JourneySection({ t }: { t: (k: string) => string }) {
 // ─── Main Dashboard ────────────────────────────────────────
 
 export default function CxDashboard() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isArabic = i18n.language === "ar"
   useDirection()
 
   const navigate = useNavigate()
@@ -281,6 +304,9 @@ export default function CxDashboard() {
     { id: "vfm", title: t("cx.kpiVfm"), subtitle: t("cx.kpiVfmSubtitle"), value: 72, displayValue: "72%", gaugePercent: 72, targetLabel: "80%", target: 80, trend: 8, trendUp: false, trendLabel: `−8 ${t("cx.points")}`, color: KPI_COLORS.vfm, responses: 2340 },
     { id: "fcr", title: t("cx.kpiFcr"), subtitle: t("cx.kpiFcrSubtitle"), value: 68, displayValue: "68%", gaugePercent: 68, targetLabel: "75%", target: 75, trend: 7, trendUp: false, trendLabel: `−7 ${t("cx.points")}`, color: KPI_COLORS.fcr, responses: 3780 },
   ], [t])
+
+  // Band order: farthest below target first (VFM, FCR, NPS, CSAT, Agent, CES).
+  const bandedKpis = useMemo(() => [...kpiMetrics].sort((a, b) => bandGap(b) - bandGap(a)), [kpiMetrics])
 
   const radarData = useMemo(() => [
     { label: t("cx.kpiNps"), value: 71 },
@@ -533,11 +559,6 @@ export default function CxDashboard() {
               <CardDescription>{t("cx.indexProfileSubtitle")}</CardDescription>
             </CardHeader>
 
-            <div className="absolute top-4 end-5 flex flex-col items-center justify-center size-20 rounded-2xl bg-gradient-to-br from-nb-cyan to-nb-cyan-700 text-white shadow-lg">
-              <span className="text-[10px] font-medium tracking-wide opacity-80">{t("cx.cxi")}</span>
-              <span className="text-2xl font-heading font-bold leading-none tabular-nums">69</span>
-              <span className="text-[9px] opacity-60">/100</span>
-            </div>
 
             <CardContent>
               <KpiRadarChart
@@ -605,13 +626,34 @@ export default function CxDashboard() {
           <CardHeader>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
               <CardTitle>{t("cx.kpiBand")}</CardTitle>
-              <CardDescription className="text-xs">{t("cx.kpiBandHint")} · {t("cx.cxi")} 69/100</CardDescription>
+              <CardDescription className="text-xs">{t("cx.kpiBandHint")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="px-0">
-            <div className="-mb-px -me-px grid grid-cols-1 border-t border-border sm:grid-cols-2 lg:grid-cols-3">
-              {kpiMetrics.map((kpi) => (
-                <KpiBandTile key={kpi.id} kpi={kpi} onClick={() => handleKpiDetail(kpi.id)} t={t} />
+            <div className="-mb-px -me-px grid grid-cols-1 border-t border-border sm:grid-cols-2 lg:grid-cols-4">
+              {/* CXI — the composite, leads the band */}
+              <div className="flex flex-col border-b border-e border-border bg-primary p-5 text-primary-foreground sm:col-span-2 lg:col-span-1 lg:row-span-2">
+                <div className="text-[10px] font-semibold tracking-[0.14em] uppercase opacity-80">{t("cx.cxi")}</div>
+                <div className="mt-0.5 text-xs opacity-80">{t("cx.cxiName")}</div>
+                <div className="mt-3 flex items-baseline gap-1.5">
+                  <span className="font-heading text-5xl leading-none font-bold tabular-nums" dir="ltr">69</span>
+                  <span className="text-sm opacity-80 tabular-nums">/100</span>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-0.5 text-sm font-bold tabular-nums">
+                    <ArrowDown className="size-3.5" />6 {t("cx.thisWeek")}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-sm bg-d3-light px-1.5 py-px text-[10px] font-bold uppercase tracking-wider text-d3-dark">
+                    <AlertTriangle className="size-3" />
+                    {t("cx.atRisk")}
+                  </span>
+                </div>
+                <p className="mt-4 text-xs leading-relaxed opacity-90">
+                  {t("cx.cxiBelowTarget", { n: bandedKpis.filter(isMiss).length, total: bandedKpis.length })} {t("cx.cxiDriver")}
+                </p>
+              </div>
+              {bandedKpis.map((kpi) => (
+                <KpiBandTile key={kpi.id} kpi={kpi} onClick={() => handleKpiDetail(kpi.id)} t={t} isArabic={isArabic} />
               ))}
             </div>
           </CardContent>
