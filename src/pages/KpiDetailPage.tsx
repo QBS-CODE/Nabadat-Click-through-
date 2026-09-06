@@ -1,17 +1,9 @@
 import { useParams, useNavigate } from "react-router"
 import { useTranslation } from "react-i18next"
 import { KPI_DETAIL_DATA } from "@/components/cx/kpi-detail-modal"
-import { perfColor } from "@/components/cx/kpi-flip-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-
-  type ChartConfig,
-} from "@/components/ui/chart"
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts"
+import { SingleTrendChart, DistributionBarChart, SegmentBarChart } from "@/components/charts/kpi-detail-charts"
 import { ArrowRight, Sparkles, ThumbsUp, ThumbsDown } from "lucide-react"
 
 export default function KpiDetailPage() {
@@ -31,9 +23,8 @@ export default function KpiDetailPage() {
 
   const displayTitle = isArabic ? data.titleAr : data.title
   const weekLabel = t("cx.week")
-  const trendData = data.trend.map((val, i) => ({ week: `${weekLabel}${i + 1}`, value: val }))
-  const trendChartConfig: ChartConfig = { value: { label: displayTitle, color: data.color } }
-  const maxSegmentValue = Math.max(...data.segments.map((s) => s.value))
+  const weekLabels = data.trend.map((_, i) => `${weekLabel}${i + 1}`)
+  const unit = id === "nps" ? "" : "%"
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-5">
@@ -93,29 +84,7 @@ export default function KpiDetailPage() {
         <Card>
           <CardContent className="">
             <h3 className="text-sm font-bold mb-2">{t("cx.detailTrend")}</h3>
-            <ChartContainer config={trendChartConfig} className="h-40 w-full">
-              <AreaChart data={trendData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="pageTrendFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-value)" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="var(--color-value)" stopOpacity={0.05} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="week" tickLine={false} axisLine={false} className="text-xs" />
-                <YAxis tickLine={false} axisLine={false} className="text-xs" domain={["dataMin - 5", "dataMax + 5"]} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="var(--color-value)"
-                  fill="url(#pageTrendFill)"
-                  strokeWidth={2.5}
-                  dot={{ r: 3.5, fill: "var(--color-value)", strokeWidth: 2, stroke: "#fff" }}
-                  activeDot={{ r: 5, strokeWidth: 0 }}
-                />
-              </AreaChart>
-            </ChartContainer>
+            <SingleTrendChart values={data.trend} labels={weekLabels} color={data.color} unit={unit} className="h-40" />
           </CardContent>
         </Card>
       </div>
@@ -125,57 +94,23 @@ export default function KpiDetailPage() {
         {/* Response Distribution */}
         <Card>
           <CardContent className="">
-            <h3 className="text-sm font-bold mb-4">{t("cx.detailDistribution")}</h3>
-            <div className="divide-y divide-border">
-              {data.distribution.map((item) => {
-                const label = isArabic ? item.labelAr : item.label
-                return (
-                  <div key={item.label} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                    <span className="text-sm w-28 shrink-0 truncate">{label}</span>
-                    <span
-                      className="text-xs font-bold text-white px-2.5 py-0.5 rounded-md tabular-nums shrink-0 min-w-11 text-center"
-                      style={{ backgroundColor: item.color }}
-                    >
-                      {item.value}%
-                    </span>
-                    <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full motion-safe:transition-all motion-safe:duration-700"
-                        style={{ width: `${item.value}%`, backgroundColor: item.color }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            <h3 className="text-sm font-bold mb-2">{t("cx.detailDistribution")}</h3>
+            <DistributionBarChart
+              items={data.distribution.map((d) => ({ name: isArabic ? d.labelAr : d.label, value: d.value, color: d.color }))}
+              className="h-64"
+            />
           </CardContent>
         </Card>
 
         {/* Segment Breakdown */}
         <Card>
           <CardContent className="">
-            <h3 className="text-sm font-bold mb-4">{t("cx.detailSegments")}</h3>
-            <div className="divide-y divide-border">
-              {data.segments.map((seg) => {
-                const segName = isArabic ? seg.nameAr : seg.name
-                const barWidth = maxSegmentValue > 0 ? (seg.value / maxSegmentValue) * 100 : 0
-                const color = perfColor(seg.value, id)
-                return (
-                  <div key={seg.name} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                    <span className="text-sm w-28 shrink-0 truncate">{segName}</span>
-                    <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full motion-safe:transition-all motion-safe:duration-500"
-                        style={{ width: `${barWidth}%`, backgroundColor: color }}
-                      />
-                    </div>
-                    <span className="text-sm font-bold tabular-nums w-10 text-end" style={{ color }}>
-                      {seg.value}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+            <h3 className="text-sm font-bold mb-2">{t("cx.detailSegments")}</h3>
+            <SegmentBarChart
+              items={data.segments.map((sg) => ({ name: isArabic ? sg.nameAr : sg.name, value: sg.value }))}
+              kpiId={id}
+              className="h-64"
+            />
           </CardContent>
         </Card>
       </div>

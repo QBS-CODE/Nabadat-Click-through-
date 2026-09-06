@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
 import { useDirection } from "@/hooks/use-direction"
 import { usePersona } from "@/contexts/persona-context"
-import { KpiFlipCard, type KpiMetric } from "@/components/cx/kpi-flip-card"
+import { KpiFlipCard, perfColor, type KpiMetric } from "@/components/cx/kpi-flip-card"
 import { AiChatPanel } from "@/components/cx/ai-chat-panel"
-import { SpiderChart } from "@/components/cx/spider-chart"
+import { KpiTrendChart, JourneyChart, FunnelChart, TopicSentimentChart, KpiRadarChart } from "@/components/charts/dashboard-charts"
 import {
   Card,
   CardContent,
@@ -33,21 +33,7 @@ import {
 import {
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart"
-import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts"
+import { type ChartConfig } from "@/components/ui/chart"
 import {
   TrendingUp,
   TrendingDown,
@@ -142,141 +128,7 @@ const TOPICS_DATA = [
   { key: "topicBranch", mentions: 90, positive: 45, neutral: 35, negative: 20, pct: 7 },
 ]
 
-// ─── Topic Sentiment Bubble Chart ─────────────────────────
-
-interface BubbleConfig {
-  x: number
-  y: number
-  r: number
-}
-
-const BUBBLE_LAYOUT: BubbleConfig[] = [
-  { x: 145, y: 175, r: 74 },   // Staff (38%) — largest, center-left
-  { x: 320, y: 105, r: 60 },   // Wait Time (24%) — upper right
-  { x: 345, y: 280, r: 54 },   // App (20%) — lower right
-  { x: 135, y: 330, r: 42 },   // Fees (11%) — bottom left
-  { x: 455, y: 185, r: 34 },   // Branch (7%) — far right
-]
-
-function SentimentRing({
-  cx, cy, innerR, positive, neutral, negative,
-}: {
-  cx: number; cy: number; innerR: number
-  positive: number; neutral: number; negative: number
-}) {
-  const ringWidth = 9
-  const ringR = innerR + ringWidth / 2 + 5
-  const C = 2 * Math.PI * ringR
-  const gapPx = 6
-
-  const segments = [
-    { pct: positive, color: "var(--color-d2)" },
-    { pct: neutral, color: "var(--color-nb-stone-lt)" },
-    { pct: negative, color: "var(--color-d5)" },
-  ]
-
-  let cumulativePct = 0
-  return (
-    <>
-      {segments.map((seg, i) => {
-        const visibleLen = (seg.pct / 100) * C - gapPx
-        if (visibleLen <= 0) { cumulativePct += seg.pct; return null }
-        const offset = -(cumulativePct / 100) * C
-        cumulativePct += seg.pct
-        return (
-          <circle
-            key={i}
-            cx={cx}
-            cy={cy}
-            r={ringR}
-            fill="none"
-            stroke={seg.color}
-            strokeWidth={ringWidth}
-            strokeDasharray={`${visibleLen} ${C - visibleLen}`}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            transform={`rotate(-90, ${cx}, ${cy})`}
-            className="motion-safe:transition-all motion-safe:duration-700"
-          />
-        )
-      })}
-    </>
-  )
-}
-
-function TopicBubbleChart({ t }: { t: (k: string) => string }) {
-  return (
-    <svg viewBox="0 0 520 400" className="w-full h-full" role="img" aria-label="Topic Sentiment Analysis">
-      <defs>
-        <filter id="bubble-shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.08" />
-        </filter>
-      </defs>
-      {TOPICS_DATA.map((topic, i) => {
-        const b = BUBBLE_LAYOUT[i]
-        const nameSize = b.r > 60 ? 14 : b.r > 45 ? 12 : b.r > 35 ? 10 : 9
-        const pctSize = b.r > 60 ? 20 : b.r > 45 ? 16 : b.r > 35 ? 14 : 12
-
-        return (
-          <g key={topic.key} className="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75" filter="url(#bubble-shadow)">
-            {/* Sentiment ring */}
-            <SentimentRing
-              cx={b.x}
-              cy={b.y}
-              innerR={b.r}
-              positive={topic.positive}
-              neutral={topic.neutral}
-              negative={topic.negative}
-            />
-            {/* Inner circle */}
-            <circle
-              cx={b.x}
-              cy={b.y}
-              r={b.r}
-              className="fill-nb-cyan-100 dark:fill-nb-cyan-900/10"
-              stroke="none"
-            />
-            {/* Topic name */}
-            <text
-              x={b.x}
-              y={b.y - pctSize * 0.3}
-              textAnchor="middle"
-              className="fill-foreground font-bold"
-              fontSize={nameSize}
-            >
-              {t(`cx.${topic.key}`)}
-            </text>
-            {/* Percentage */}
-            <text
-              x={b.x}
-              y={b.y + pctSize * 0.9}
-              textAnchor="middle"
-              className="fill-foreground font-heading font-bold"
-              fontSize={pctSize}
-            >
-              {topic.pct}%
-            </text>
-            {/* Emerging icon (lightning bolt) */}
-            {topic.emerging && (
-              <text
-                x={b.x + nameSize * 2.2}
-                y={b.y - pctSize * 0.3 + 2}
-                textAnchor="middle"
-                className="fill-nb-cyan"
-                fontSize={nameSize - 1}
-              >
-                ⚡
-              </text>
-            )}
-          </g>
-        )
-      })}
-    </svg>
-  )
-}
-
 function FunnelAndTopics({ t }: { t: (k: string) => string }) {
-  const funnelColors = ["bg-nb-cyan-300", "bg-nb-cyan", "bg-nb-mint", "bg-nb-mint-700"]
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -287,27 +139,11 @@ function FunnelAndTopics({ t }: { t: (k: string) => string }) {
           <CardDescription>{t("cx.funnelSubtitle")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {FUNNEL_DATA.map((step, i) => (
-            <div key={step.step}>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-sm font-medium">{t(`cx.${step.step}`)}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold tabular-nums">{step.value.toLocaleString("en-US")}</span>
-                  {i > 0 && (
-                    <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {step.pct}% {t("cx.funnelConversion")}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <div
-                  className={cn("h-full rounded-full motion-safe:transition-all motion-safe:duration-700", funnelColors[i])}
-                  style={{ width: `${(step.value / FUNNEL_DATA[0].value) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
+          <FunnelChart
+            data={FUNNEL_DATA.map((s) => ({ name: t(`cx.${s.step}`), value: s.value, pct: s.pct }))}
+            convWord={t("cx.funnelConversion")}
+            className="h-56"
+          />
           <div className="flex items-center justify-center pt-2">
             <Badge variant="outline" className="bg-d2-light text-d2-dark border-d2/20 dark:bg-d2-dark/20 dark:text-d2-light">
               {t("cx.funnelCompletionRate")}: <span className="font-bold ms-1 tabular-nums">26.7%</span>
@@ -321,31 +157,18 @@ function FunnelAndTopics({ t }: { t: (k: string) => string }) {
         <CardHeader>
           <CardTitle>{t("cx.topicsTitle")}</CardTitle>
           <CardDescription>
-            {t("cx.topicsSubtitle")} · Ring = {t("cx.sentimentPositive").toLowerCase()}
+            {t("cx.topicsSubtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="w-full aspect-[520/400]">
-            <TopicBubbleChart t={t} />
-          </div>
-          {/* Legend */}
-          <div className="flex items-center justify-center gap-4 pt-3 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full bg-d2" />
-              {t("cx.sentimentPositive")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full bg-nb-stone-lt" />
-              {t("cx.sentimentNeutral")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full bg-d5" />
-              {t("cx.sentimentNegative")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Zap className="size-3 text-nb-cyan" />
-              {t("cx.topicEmerging")}
-            </span>
+          <TopicSentimentChart
+            data={TOPICS_DATA.map((tp) => ({ name: t(`cx.${tp.key}`), mentions: tp.mentions, positive: tp.positive, neutral: tp.neutral, negative: tp.negative, emerging: tp.emerging }))}
+            labels={{ positive: t("cx.sentimentPositive"), neutral: t("cx.sentimentNeutral"), negative: t("cx.sentimentNegative"), mentions: t("cx.topicMentions"), emerging: t("cx.topicEmerging") }}
+            className="h-64"
+          />
+          <div className="flex items-center justify-center gap-1.5 pt-2 text-[11px] text-muted-foreground">
+            <Zap className="size-3 text-nb-cyan" />
+            {t("cx.topicEmerging")}
           </div>
         </CardContent>
       </Card>
@@ -364,11 +187,6 @@ function JourneySection({ t }: { t: (k: string) => string }) {
     { stage: t("cx.journeyResolution"), current: 56, previous: 61 },
   ]
 
-  const journeyChartConfig = {
-    current: { label: t("cx.journeyCurrent"), color: "var(--chart-2)" },
-    previous: { label: t("cx.journeyPrevious"), color: "var(--color-nb-stone-lt)" },
-  } satisfies ChartConfig
-
   return (
     <Card className="cx-fade-in-up overflow-hidden min-w-0" style={{ animationDelay: "0.95s" }}>
       <CardHeader>
@@ -384,22 +202,7 @@ function JourneySection({ t }: { t: (k: string) => string }) {
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={journeyChartConfig} className="h-64 w-full">
-          <AreaChart data={journeyData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="fillJourneyCurrent" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--color-current)" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="var(--color-current)" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="stage" tickLine={false} axisLine={false} className="text-xs" />
-            <YAxis tickLine={false} axisLine={false} className="text-xs" domain={[40, 100]} />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Area type="monotone" dataKey="previous" stroke="var(--color-previous)" fill="none" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3, strokeWidth: 0, fill: "var(--color-previous)" }} />
-            <Area type="monotone" dataKey="current" stroke="var(--color-current)" fill="url(#fillJourneyCurrent)" strokeWidth={2.5} dot={{ r: 4, strokeWidth: 0, fill: "var(--color-current)" }} />
-          </AreaChart>
-        </ChartContainer>
+        <JourneyChart data={journeyData} labels={{ current: t("cx.journeyCurrent"), previous: t("cx.journeyPrevious") }} className="h-64" />
       </CardContent>
     </Card>
   )
@@ -506,6 +309,8 @@ export default function CxDashboard() {
   const toggleKpi = (id: string) => setVisibleKpis((p) => ({ ...p, [id]: !p[id] }))
   const handleKpiDetail = (id: string) => navigate(`/kpi/${id}`)
   const [chatOpen, setChatOpen] = useState(false)
+  const [period, setPeriod] = useState("7")
+  const periodLabel: Record<string, string> = { "7": t("cx.last7"), "30": t("cx.last30"), "90": t("cx.last90") }
 
   // ── Role-based views ──
 
@@ -594,16 +399,7 @@ export default function CxDashboard() {
                 <CardDescription>{t("cx.trendSubtitle")}</CardDescription>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={trendChartConfig} className="h-64 w-full">
-                  <LineChart data={trendData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="week" tickLine={false} axisLine={false} className="text-xs" />
-                    <YAxis tickLine={false} axisLine={false} className="text-xs" domain={[20, 100]} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line type="monotone" dataKey="nps" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="csat" stroke="var(--chart-2)" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ChartContainer>
+                <KpiTrendChart data={trendData} config={trendChartConfig} visible={{ nps: true, csat: true }} className="h-64" />
               </CardContent>
             </Card>
             <Card className="cx-fade-in-up">
@@ -654,10 +450,10 @@ export default function CxDashboard() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap shrink-0">
-            <Select defaultValue="7">
+            <Select value={period} onValueChange={(v) => v && setPeriod(v)}>
               <SelectTrigger className="w-40">
                 <Calendar className="size-4 text-muted-foreground" />
-                <SelectValue />
+                <SelectValue>{periodLabel[period]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="7">{t("cx.last7")}</SelectItem>
@@ -690,7 +486,12 @@ export default function CxDashboard() {
             </div>
 
             <CardContent>
-              <SpiderChart kpis={radarData} className="max-w-xs mx-auto" />
+              <KpiRadarChart
+                kpis={radarData}
+                target={[75, 80, 50, 85, 80, 75]}
+                labels={{ current: t("cx.journeyCurrent"), target: t("cx.target") }}
+                className="h-72"
+              />
             </CardContent>
           </Card>
 
@@ -790,19 +591,16 @@ export default function CxDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={trendChartConfig} className="h-72 w-full">
-              <LineChart data={trendData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="week" tickLine={false} axisLine={false} className="text-xs" />
-                <YAxis tickLine={false} axisLine={false} className="text-xs" domain={[20, 100]} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                {Object.entries(trendChartConfig).map(([key, cfg]) =>
-                  visibleKpis[key] ? (
-                    <Line key={key} type="monotone" dataKey={key} stroke={cfg.color} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
-                  ) : null,
-                )}
-              </LineChart>
-            </ChartContainer>
+            <KpiTrendChart
+              data={trendData}
+              config={trendChartConfig}
+              visible={visibleKpis}
+              markers={[
+                { x: `${w}4`, title: t("cx.action1Title") },
+                { x: `${w}9`, title: t("cx.action2Title") },
+              ]}
+              className="h-72"
+            />
           </CardContent>
         </Card>
 
@@ -842,7 +640,17 @@ export default function CxDashboard() {
                         )}
                       </TableCell>
                       <TableCell className="font-medium">{branchNames[i]}</TableCell>
-                      <TableCell className="text-center tabular-nums font-medium">+{b.nps}</TableCell>
+                      <TableCell className="tabular-nums font-medium">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted/40" aria-hidden>
+                            <div
+                              className="h-full rounded-full motion-safe:transition-all motion-safe:duration-700"
+                              style={{ width: `${(b.nps / branchData[0].nps) * 100}%`, background: perfColor(b.nps, "nps") }}
+                            />
+                          </div>
+                          <span className="w-8 text-end font-bold" style={{ color: perfColor(b.nps, "nps") }} dir="ltr">+{b.nps}</span>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-center tabular-nums">{b.csat}%</TableCell>
                       <TableCell className="text-center tabular-nums">{b.agent}%</TableCell>
                       <TableCell className="text-end pe-6">

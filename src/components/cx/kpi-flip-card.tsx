@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { PieChart as PieChartIcon, X, TrendingUp, TrendingDown } from "lucide-react"
-import { PieChart, Pie, Cell } from "recharts"
+import { KpiGaugeChart, ReasonsDonutChart } from "@/components/charts/dashboard-charts"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -207,124 +207,6 @@ const REASON_LABELS: Record<string, { en: string; ar: string }> = {
   informationAccess: { en: "Information Access", ar: "الوصول للمعلومات" },
 }
 
-// ─── Custom SVG Dual-Ring Gauge ───────────────────────────
-
-function DualRingGauge({
-  value,
-  min = 0,
-  max = 100,
-  color,
-  targetPct,
-  label,
-  size = 185,
-}: {
-  value: number
-  min?: number
-  max?: number
-  color: string
-  targetPct?: number
-  label: string
-  size?: number
-}) {
-  const cx = size / 2
-  const cy = size / 2 + 14
-  const startAngle = -210
-  const totalAngle = 240
-  const toRad = (a: number) => (a * Math.PI) / 180
-
-  const rOuter = size * 0.42
-  const outerSW = size * 0.06
-  const innerSW = Math.max(2.5, size * 0.016)
-  const rInner = rOuter - outerSW / 2 - innerSW / 2
-
-  const arcPath = (a1: number, a2: number, r: number) => {
-    const x1 = cx + r * Math.cos(toRad(a1))
-    const y1 = cy + r * Math.sin(toRad(a1))
-    const x2 = cx + r * Math.cos(toRad(a2))
-    const y2 = cy + r * Math.sin(toRad(a2))
-    const large = a2 - a1 > 180 ? 1 : 0
-    return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`
-  }
-
-  const pct = Math.max(0, Math.min(1, (value - min) / (max - min)))
-  const valueAngle = startAngle + pct * totalAngle
-
-  // Zone breaks: bad (0-33%), average (33-55%), great (55-100%)
-  const zones = [
-    { from: startAngle, to: startAngle + 0.33 * totalAngle, color: D5 },
-    { from: startAngle + 0.33 * totalAngle, to: startAngle + 0.55 * totalAngle, color: D3 },
-    { from: startAngle + 0.55 * totalAngle, to: startAngle + totalAngle, color: D2 },
-  ]
-
-  // Needle position
-  const needleX = cx + (rOuter - 4) * Math.cos(toRad(valueAngle))
-  const needleY = cy + (rOuter - 4) * Math.sin(toRad(valueAngle))
-
-  // Target marker
-  let targetAngle = 0
-  let thTx1 = 0, thTy1 = 0, thTx2 = 0, thTy2 = 0, thLx = 0, thLy = 0
-  if (targetPct !== undefined) {
-    targetAngle = startAngle + targetPct * totalAngle
-    const thRad = toRad(targetAngle)
-    const tickLen = 14
-    thTx1 = cx + (rOuter - tickLen) * Math.cos(thRad)
-    thTy1 = cy + (rOuter - tickLen) * Math.sin(thRad)
-    thTx2 = cx + (rOuter + 6) * Math.cos(thRad)
-    thTy2 = cy + (rOuter + 6) * Math.sin(thRad)
-    thLx = cx + (rOuter + 17) * Math.cos(thRad)
-    thLy = cy + (rOuter + 17) * Math.sin(thRad)
-  }
-
-  // Display value
-  const displayVal = min < 0 && value > 0 ? `+${value}` : label === "NPS" && value > 0 ? `+${value}` : label === "CES" ? `${value}%` : `${value}%`
-
-  return (
-    <svg
-      width="100%"
-      viewBox={`0 0 ${size} ${size * 0.72}`}
-      role="img"
-      aria-label={`${label}: ${value}`}
-    >
-      {/* Inner ring — zone colors (thin) */}
-      <path d={arcPath(startAngle, startAngle + totalAngle, rInner)} fill="none" className="stroke-muted/40" strokeWidth={innerSW} strokeLinecap="round" />
-      {zones.map((z, i) => (
-        <path
-          key={i}
-          d={arcPath(z.from, z.to, rInner)}
-          fill="none"
-          stroke={z.color}
-          strokeWidth={innerSW}
-          strokeLinecap={i === 0 ? "round" : i === zones.length - 1 ? "round" : "butt"}
-        />
-      ))}
-
-      {/* Outer ring — value arc (thick) */}
-      <path d={arcPath(startAngle, startAngle + totalAngle, rOuter)} fill="none" className="stroke-muted/40" strokeWidth={outerSW} strokeLinecap="round" />
-      <path d={arcPath(startAngle, valueAngle, rOuter)} fill="none" stroke={color} strokeWidth={outerSW} strokeLinecap="round" />
-
-      {/* Target marker */}
-      {targetPct !== undefined && (
-        <>
-          <line x1={thTx1} y1={thTy1} x2={thTx2} y2={thTy2} className="stroke-foreground" strokeWidth={2.5} strokeLinecap="round" />
-          <text x={thLx} y={thLy} textAnchor="middle" fontSize={8} fontWeight={700} className="fill-muted-foreground" dominantBaseline="middle">T</text>
-        </>
-      )}
-
-      {/* Needle dot */}
-      <circle cx={needleX} cy={needleY} r={5} fill={color} className="stroke-card" strokeWidth={2} />
-      <circle cx={cx} cy={cy} r={3.5} className="fill-muted-foreground" />
-
-      {/* Center value */}
-      <text x={cx} y={cy - 6} textAnchor="middle" fontSize={28} fontWeight={800} fill={color}>
-        {displayVal}
-      </text>
-      <text x={cx} y={cy + 12} textAnchor="middle" fontSize={9} fontWeight={600} className="fill-muted-foreground">
-        {label}
-      </text>
-    </svg>
-  )
-}
-
 // ─── Animations ───────────────────────────────────────────
 
 const flipStyles = `
@@ -419,7 +301,7 @@ function KpiFlipCard({
 
               {/* Rich dual-ring gauge */}
               <div className="w-full max-w-[185px]">
-                <DualRingGauge
+                <KpiGaugeChart
                   value={gaugeValue}
                   min={gaugeMin}
                   max={gaugeMax}
@@ -497,23 +379,7 @@ function KpiFlipCard({
               </div>
 
               <div className="flex justify-center mb-3">
-                <PieChart width={130} height={130}>
-                  <Pie
-                    data={reasons}
-                    dataKey="value"
-                    nameKey="key"
-                    cx={65}
-                    cy={65}
-                    innerRadius={40}
-                    outerRadius={60}
-                    strokeWidth={2}
-                    stroke="var(--color-card)"
-                  >
-                    {reasons.map((entry) => (
-                      <Cell key={entry.key} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
+                <ReasonsDonutChart data={reasons} size={130} />
               </div>
 
               <div className="space-y-2 flex-1">
