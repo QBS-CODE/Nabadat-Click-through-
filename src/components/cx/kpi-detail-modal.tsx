@@ -19,12 +19,24 @@ import { perfColor } from "./kpi-flip-card"
 
 // ─── KPI Detail Data ──────────────────────────────────────
 
+interface KpiDetailMeta {
+  numeric: number
+  target: number
+  targetLabel: string
+  lowerIsBetter?: boolean
+  responses: number
+  change: number
+  changeUp: boolean
+}
+
 interface KpiDetailEntry {
   title: string
   titleAr: string
   value: string
   color: string
   insightKey: string
+  /** Numeric facts the detail page needs for the gauge, bullet bar and delta. */
+  meta: KpiDetailMeta
   distribution: { label: string; labelAr: string; value: number; color: string }[]
   trend: number[]
   segments: { name: string; nameAr: string; value: number }[]
@@ -35,6 +47,7 @@ interface KpiDetailEntry {
 const KPI_DETAIL_DATA: Record<string, KpiDetailEntry> = {
   nps: {
     title: "Net Promoter Score", titleAr: "مؤشر صافي الترويج", value: "+42", color: "var(--chart-1)", insightKey: "cx.npsInsight",
+    meta: { numeric: 42, target: 50, targetLabel: "+50", responses: 3420, change: 4, changeUp: true },
     distribution: [
       { label: "Promoters (9-10)", labelAr: "المروجون (9-10)", value: 51, color: "#1A7A3C" },
       { label: "Passives (7-8)", labelAr: "المحايدون (7-8)", value: 40, color: "#E8A020" },
@@ -54,6 +67,7 @@ const KPI_DETAIL_DATA: Record<string, KpiDetailEntry> = {
   },
   csat: {
     title: "Customer Satisfaction", titleAr: "رضا العملاء", value: "78%", color: "var(--chart-2)", insightKey: "cx.csatInsight",
+    meta: { numeric: 78, target: 80, targetLabel: "80%", responses: 4180, change: 2, changeUp: true },
     distribution: [
       { label: "Very Satisfied (5)", labelAr: "راضٍ جدًا (5)", value: 42, color: "#1A7A3C" },
       { label: "Satisfied (4)", labelAr: "راضٍ (4)", value: 36, color: "#2EB85C" },
@@ -74,6 +88,7 @@ const KPI_DETAIL_DATA: Record<string, KpiDetailEntry> = {
   },
   ces: {
     title: "Customer Effort Score", titleAr: "مؤشر جهد العميل", value: "45%", color: "var(--chart-4)", insightKey: "cx.npsInsight",
+    meta: { numeric: 45, target: 50, targetLabel: "≤50%", lowerIsBetter: true, responses: 2890, change: 0.3, changeUp: true },
     distribution: [
       { label: "Low Effort (1-2)", labelAr: "جهد منخفض (1-2)", value: 45, color: "#1A7A3C" },
       { label: "Medium Effort (3)", labelAr: "جهد متوسط (3)", value: 33, color: "#E8A020" },
@@ -93,6 +108,7 @@ const KPI_DETAIL_DATA: Record<string, KpiDetailEntry> = {
   },
   agent: {
     title: "Agent Performance", titleAr: "أداء الموظفين", value: "84%", color: "var(--chart-3)", insightKey: "cx.csatInsight",
+    meta: { numeric: 84, target: 85, targetLabel: "85%", responses: 5120, change: 1, changeUp: false },
     distribution: [
       { label: "Excellent (90-100)", labelAr: "ممتاز (90-100)", value: 34, color: "#1A7A3C" },
       { label: "Good (70-89)", labelAr: "جيد (70-89)", value: 42, color: "#2EB85C" },
@@ -113,6 +129,7 @@ const KPI_DETAIL_DATA: Record<string, KpiDetailEntry> = {
   },
   vfm: {
     title: "Value for Money", titleAr: "القيمة مقابل المال", value: "72%", color: "var(--chart-5)", insightKey: "cx.npsInsight",
+    meta: { numeric: 72, target: 80, targetLabel: "80%", responses: 2340, change: 8, changeUp: false },
     distribution: [
       { label: "High Value (5)", labelAr: "قيمة عالية (5)", value: 28, color: "#1A7A3C" },
       { label: "Fair Value (4)", labelAr: "قيمة مناسبة (4)", value: 44, color: "#2EB85C" },
@@ -132,6 +149,7 @@ const KPI_DETAIL_DATA: Record<string, KpiDetailEntry> = {
   },
   fcr: {
     title: "First Contact Resolution", titleAr: "الحل من أول تواصل", value: "68%", color: "var(--chart-5)", insightKey: "cx.csatInsight",
+    meta: { numeric: 68, target: 75, targetLabel: "75%", responses: 3780, change: 7, changeUp: false },
     distribution: [
       { label: "Resolved 1st Contact", labelAr: "تم الحل من أول تواصل", value: 68, color: "#1A7A3C" },
       { label: "2nd Contact", labelAr: "تواصل ثانٍ", value: 20, color: "#E8A020" },

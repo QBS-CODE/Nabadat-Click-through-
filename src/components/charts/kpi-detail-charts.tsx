@@ -24,7 +24,7 @@ export function SingleTrendChart({
       grid: { left: 8, right: 34, top: 14, bottom: 4, containLabel: true },
       tooltip: { trigger: "axis", axisPointer: { type: "line", lineStyle: { color: t.border } }, valueFormatter: (v) => `${v}${unit}` },
       xAxis: { type: "category", boundaryGap: false, data: labels, axisLabel: { margin: 10 } },
-      yAxis: { type: "value", min: Math.floor((min - 4) / 5) * 5, max: Math.ceil((max + 4) / 5) * 5, splitNumber: 4 },
+      yAxis: { type: "value", min: Math.floor((min - 4) / 5) * 5, max: Math.ceil((max + 4) / 5) * 5, interval: 5 },
       series: [
         {
           type: "line",
