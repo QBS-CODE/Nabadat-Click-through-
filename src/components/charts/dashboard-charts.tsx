@@ -132,8 +132,8 @@ export function JourneyChart({
         data: data.map((d) => d.previous),
         symbol: "circle",
         symbolSize: 5,
-        lineStyle: { width: 1.5, type: "dashed", color: t.muted },
-        itemStyle: { color: t.muted },
+        lineStyle: { width: 1.5, type: "dashed", color: t.stoneLt },
+        itemStyle: { color: t.stoneLt },
         z: 2,
       },
       {
@@ -147,8 +147,14 @@ export function JourneyChart({
         }),
         symbol: "circle",
         symbolSize: 8,
-        lineStyle: { width: 2.5, color: t.fg },
-        itemStyle: { color: t.fg, borderColor: t.card, borderWidth: 2 },
+        lineStyle: { width: 2.5, color: t.chart[1] },
+        itemStyle: { color: t.chart[1], borderColor: t.card, borderWidth: 2 },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: withAlpha(t.chart[1], 0.22) },
+            { offset: 1, color: withAlpha(t.chart[1], 0.02) },
+          ]),
+        },
         label: { show: true, position: "top", distance: 8, fontSize: 11, fontWeight: 700, color: t.fg, formatter: "{c}%" },
         emphasis: { focus: "series" },
         z: 3,
@@ -230,9 +236,9 @@ export function TopicSentimentChart({
 }) {
   const t = useChartTokens()
   const option = useMemo<EChartsOption>(() => {
-    const onInk = t.card
-    const onRed = t.dark ? resolveCssColor("var(--color-nb-navy)") : "#fff"
-    const neutral = withAlpha(t.muted, t.dark ? 0.35 : 0.28)
+    const navy = resolveCssColor("var(--color-nb-navy)")
+    const onRed = t.dark ? navy : "#fff"
+    const cyan = t.chart[0]
     const seg = (name: string, key: "positive" | "neutral" | "negative", color: string, labelColor: string): BarSeriesOption => ({
       name,
       type: "bar",
@@ -268,7 +274,7 @@ export function TopicSentimentChart({
             fontSize: 12,
             fontWeight: 600,
             formatter: (name: string) => (data.find((x) => x.name === name)?.emerging ? `${name} {em|${labels.emerging}}` : name),
-            rich: { em: { color: t.red, backgroundColor: withAlpha(t.red, 0.12), fontSize: 9, fontWeight: 700, padding: [2, 6], borderRadius: 4 } },
+            rich: { em: { color: cyan, backgroundColor: withAlpha(cyan, 0.14), fontSize: 9, fontWeight: 700, padding: [2, 6], borderRadius: 4 } },
           },
         },
         {
@@ -280,8 +286,8 @@ export function TopicSentimentChart({
         },
       ],
       series: [
-        seg(labels.positive, "positive", t.fg, onInk),
-        seg(labels.neutral, "neutral", neutral, t.fg),
+        seg(labels.positive, "positive", t.d2, "#fff"),
+        seg(labels.neutral, "neutral", t.stoneLt, navy),
         seg(labels.negative, "negative", t.red, onRed),
       ],
     }
@@ -302,9 +308,13 @@ export function KpiRadarChart({
   const t = useChartTokens()
   const option = useMemo<EChartsOption>(() => {
     // Same tolerance as the KPI band: a miss is a shortfall beyond 5% of the (normalised) range.
-    const miss = (i: number) => (target ? kpis[i].value < target[i] - 5 : false)
+    const shortfall = (i: number) => (target ? target[i] - kpis[i].value : 0)
+    const missColor = (i: number) => {
+      const d = shortfall(i)
+      return d > 20 ? t.d5 : d > 10 ? t.d4 : d > 5 ? t.d3 : t.fg
+    }
     const rich: Record<string, { color: string; fontSize: number; fontWeight: number }> = {}
-    kpis.forEach((_, i) => { rich[`l${i}`] = { color: miss(i) ? t.red : t.fg, fontSize: 12, fontWeight: 700 } })
+    kpis.forEach((_, i) => { rich[`l${i}`] = { color: missColor(i), fontSize: 12, fontWeight: 700 } })
     const cur = labels?.current ?? "Current", tgt = labels?.target ?? "Target"
     return {
       animationDuration: 900,
@@ -346,9 +356,9 @@ export function KpiRadarChart({
           symbol: "circle",
           symbolSize: 8,
           data: [{ value: kpis.map((k) => k.value), name: cur }],
-          lineStyle: { color: t.fg, width: 2.5 },
-          itemStyle: { color: t.fg, borderColor: t.card, borderWidth: 1.5 },
-          areaStyle: { color: "transparent" },
+          lineStyle: { color: t.chart[0], width: 2.5 },
+          itemStyle: { color: t.chart[0], borderColor: t.card, borderWidth: 1.5 },
+          areaStyle: { color: withAlpha(t.chart[0], 0.12) },
           emphasis: { lineStyle: { width: 3 } },
           z: 3,
         },

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
 import { useDirection } from "@/hooks/use-direction"
 import { usePersona } from "@/contexts/persona-context"
-import { type KpiMetric } from "@/components/cx/kpi-flip-card"
+import { perfColor, type KpiMetric } from "@/components/cx/kpi-flip-card"
 import { AiChatPanel } from "@/components/cx/ai-chat-panel"
 import { KpiTrendChart, JourneyChart, TopicSentimentChart, KpiRadarChart } from "@/components/charts/dashboard-charts"
 import {
@@ -141,7 +141,8 @@ function KpiBandTile({ kpi, onClick, t }: { kpi: KpiBandItem; onClick: () => voi
   const fill = Math.min(100, (kpi.value / scaleMax) * 100)
   const tick = Math.min(100, (kpi.target / scaleMax) * 100)
   const valueWentUp = kpi.lowerIsBetter ? !kpi.trendUp : kpi.trendUp
-  const ink = miss ? "text-d5 dark:text-d5-light" : "text-foreground"
+  // Two-Palette Rule: brand cyan carries the value; only a miss takes the metric's D-scale status colour.
+  const status = miss ? perfColor(kpi.value, kpi.id) : undefined
   return (
     <button
       type="button"
@@ -149,12 +150,12 @@ function KpiBandTile({ kpi, onClick, t }: { kpi: KpiBandItem; onClick: () => voi
       aria-label={`${kpi.title} ${kpi.displayValue}`}
       className="group flex min-w-0 flex-col border-b border-e border-border p-5 text-start motion-safe:transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset focus-visible:outline-none"
     >
-      <div className={cn("text-[10px] font-semibold tracking-[0.14em] uppercase", miss ? "text-d5 dark:text-d5-light" : "text-muted-foreground")}>{kpi.title}</div>
+      <div className="text-[10px] font-semibold tracking-[0.14em] uppercase text-muted-foreground" style={{ color: status }}>{kpi.title}</div>
       <div className="mt-0.5 text-xs text-muted-foreground">
         {kpi.subtitle}
         {kpi.lowerIsBetter && <> · {t("cx.lowerIsBetter")}</>}
       </div>
-      <div className={cn("mt-3 flex items-baseline gap-2", ink)}>
+      <div className="mt-3 flex items-baseline gap-2 text-foreground" style={{ color: status }}>
         <span className="font-heading text-4xl leading-none font-bold tabular-nums" dir="ltr">{kpi.displayValue}</span>
         <span className="inline-flex items-center gap-0.5 text-sm font-bold tabular-nums">
           {valueWentUp ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />}
@@ -162,7 +163,7 @@ function KpiBandTile({ kpi, onClick, t }: { kpi: KpiBandItem; onClick: () => voi
         </span>
       </div>
       <div className="relative mt-4 h-2.5 w-full rounded-sm bg-muted" role="img" aria-label={`${kpi.displayValue} / ${kpi.targetLabel}`}>
-        <div className={cn("h-full rounded-sm motion-safe:transition-all motion-safe:duration-700", miss ? "bg-d5 dark:bg-d5-light" : "bg-foreground")} style={{ width: `${fill}%` }} />
+        <div className="h-full rounded-sm bg-primary motion-safe:transition-all motion-safe:duration-700" style={{ width: `${fill}%`, background: status }} />
         <div className="absolute -top-[3px] h-4 w-0.5 bg-foreground" style={{ insetInlineStart: `${tick}%` }} aria-hidden />
       </div>
       <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
@@ -194,7 +195,7 @@ function FunnelAndTopics({ t }: { t: (k: string) => string }) {
                 </div>
                 <div className="mt-1.5 h-2.5 w-full rounded-sm bg-muted">
                   <div
-                    className="h-full rounded-sm bg-foreground motion-safe:transition-all motion-safe:duration-700"
+                    className={cn("h-full rounded-sm motion-safe:transition-all motion-safe:duration-700", ["bg-nb-cyan-300", "bg-nb-cyan", "bg-nb-cyan-700", "bg-nb-cyan-800"][i])}
                     style={{ width: `${(step.value / FUNNEL_DATA[0].value) * 100}%` }}
                   />
                 </div>
@@ -694,11 +695,11 @@ export default function CxDashboard() {
                         <div className="flex items-center justify-center gap-2">
                           <div className="h-2 w-20 rounded-sm bg-muted" aria-hidden>
                             <div
-                              className="h-full rounded-sm bg-foreground motion-safe:transition-all motion-safe:duration-700"
-                              style={{ width: `${(b.nps / branchData[0].nps) * 100}%` }}
+                              className="h-full rounded-sm motion-safe:transition-all motion-safe:duration-700"
+                              style={{ width: `${(b.nps / branchData[0].nps) * 100}%`, background: perfColor(b.nps, "nps") }}
                             />
                           </div>
-                          <span className="w-8 text-end font-bold" dir="ltr">+{b.nps}</span>
+                          <span className="w-8 text-end font-bold" style={{ color: perfColor(b.nps, "nps") }} dir="ltr">+{b.nps}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-center tabular-nums">{b.csat}%</TableCell>
@@ -706,7 +707,7 @@ export default function CxDashboard() {
                       <TableCell className="text-end pe-6">
                         <span className={cn(
                           "inline-flex items-center gap-0.5 text-xs font-medium tabular-nums",
-                          b.change < 0 ? "text-d5 dark:text-d5-light" : b.change > 0 ? "text-foreground" : "text-muted-foreground",
+                          b.change > 0 ? "text-d2 dark:text-d2-light" : b.change < 0 ? "text-d5 dark:text-d5-light" : "text-muted-foreground",
                         )}>
                           {b.change > 0 ? <ArrowUpRight className="size-3" /> : b.change < 0 ? <ArrowDownRight className="size-3" /> : null}
                           {b.change > 0 ? "+" : ""}{b.change}
